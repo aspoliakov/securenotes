@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SecureNotes</string>
+
+    <string name="common_error_network">Network error</string>
+    <string name="common_unexpected_error">Unexpected error</string>
+
+    <string name="feature_about_app_version">App version: %1$s</string>
+
+    <string name="feature_auth_sign_in">Sign in</string>
+    <string name="feature_auth_sign_up">Sign up</string>
+    <string name="feature_auth_sign_up_suggest">Don't have an account? Sign up.</string>
+    <string name="feature_auth_sign_up_back_to_sign_in">Back to Sign in</string>
+    <string name="feature_auth_email_hint">email</string>
+    <string name="feature_auth_password_hint">password</string>
+    <string name="feature_auth_error_wrong_email">Wrong email</string>
+    <string name="feature_auth_error_empty_password">Password cannot be empty</string>
+    <string name="feature_auth_error_weak_password">Password must contain at least 6 characters</string>
+    <string name="feature_auth_error_wrong_credentials">Wrong email or password</string>
+    <string name="feature_auth_error_user_already_registered">User already registered</string>
+</resources>
