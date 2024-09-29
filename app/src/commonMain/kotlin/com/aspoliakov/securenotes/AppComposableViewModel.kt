@@ -1,4 +1,4 @@
-package com.aspoliakov.securenotes.ui
+package com.aspoliakov.securenotes
 
 import androidx.lifecycle.viewModelScope
 import com.aspoliakov.securenotes.core_presentation.mvi.MviViewModel
@@ -14,9 +14,9 @@ import kotlinx.coroutines.flow.onEach
  * Project SecureNotes
  */
 
-class MainViewModel(
+class AppComposableViewModel(
         userStateInteractor: UserStateInteractor,
-) : MviViewModel<MainViewState, MainViewEffect, MainViewIntent>(MainViewState.Loading) {
+) : MviViewModel<AppComposableState, AppComposableEffect, AppComposableIntent>(AppComposableState.Loading) {
 
     init {
         userStateInteractor.getUserState()
@@ -24,8 +24,8 @@ class MainViewModel(
                     reduceState {
                         Napier.e("UserState: $it")
                         when (it) {
-                            UserState.UNAUTHORIZED -> MainViewState.Unauthorized
-                            UserState.AUTHORIZED -> MainViewState.Authorized
+                            UserState.UNAUTHORIZED -> AppComposableState.Unauthorized
+                            UserState.AUTHORIZED -> AppComposableState.Authorized
                         }
                     }
                 }
@@ -33,6 +33,6 @@ class MainViewModel(
                 .launchIn(viewModelScope)
     }
 
-    override fun handleIntent(intent: MainViewIntent) {
+    override fun handleIntent(intent: AppComposableIntent) {
     }
 }

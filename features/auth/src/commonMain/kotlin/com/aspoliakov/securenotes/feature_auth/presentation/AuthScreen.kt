@@ -47,6 +47,7 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 
 /**
  * Project SecureNotes
@@ -55,8 +56,8 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun AuthScreenRoute(
         modifier: Modifier = Modifier,
-        viewModel: AuthViewModel,
 ) {
+    val viewModel: AuthViewModel = koinInject()
     val state = viewModel.currentState
     AuthScreen(
             modifier = modifier,
@@ -95,7 +96,7 @@ internal fun AuthScreen(
                         .padding(paddings)
                         .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
         ) {
             Row(
                     verticalAlignment = Alignment.CenterVertically,
