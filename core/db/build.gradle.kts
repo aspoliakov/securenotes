@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
-    // TODO временная проблема с ksp + room + kotlin 2.0 - https://issuetracker.google.com/issues/343408758#comment4
+    // TODO temporary issue with ksp + room + kotlin 2.0 - https://issuetracker.google.com/issues/343408758#comment4
 //    alias(libs.plugins.room)
 }
 
@@ -48,7 +48,7 @@ dependencies {
 ksp {
     arg("room.schemaLocation", "${projectDir}/schemas")
 }
-// TODO временная проблема с ksp + room + kotlin 2.0 - https://issuetracker.google.com/issues/343408758#comment4
+// TODO temporary issue with ksp + room + kotlin 2.0 - https://issuetracker.google.com/issues/343408758#comment4
 //room {
 //    schemaDirectory("$projectDir/schemas")
 //}

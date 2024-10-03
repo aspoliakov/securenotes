@@ -12,8 +12,6 @@ val homeViewModelModule = module {
     factory {
         HomeViewModel(
                 initialState = HomeState.Idle,
-                notesListInteractor = get(),
-                notesCreateInteractor = get(),
         )
     }
 }
