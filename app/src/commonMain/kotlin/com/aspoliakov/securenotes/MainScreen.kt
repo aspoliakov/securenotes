@@ -4,8 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.aspoliakov.securenotes.core_presentation.navigation.MainNavigation
+import com.aspoliakov.secureAbouts.feature_about.presentation.AboutScreenRoute
+import com.aspoliakov.securenotes.core_presentation.navigation.Screen
 import com.aspoliakov.securenotes.feature_home.presentation.HomeScreenRoute
+import com.aspoliakov.securenotes.feature_note.presentation.NoteScreenRoute
+import com.aspoliakov.securenotes.feature_notes_browser.presentation.NotesBrowserScreenRoute
+import com.aspoliakov.securenotes.feature_profile.presentation.ProfileScreenRoute
 
 /**
  * Project Express. Created by Unlimited Production team.
@@ -16,9 +20,23 @@ internal fun MainScreen() {
     val navController = rememberNavController()
     NavHost(
             navController = navController,
-            startDestination = MainNavigation.Home.route,
+            startDestination = Screen.HOME.name,
     ) {
-        composable(MainNavigation.Home.route) { HomeScreenRoute() }
-        composable(MainNavigation.Note.route) { SplashScreen() }
+        composable(Screen.HOME.name) {
+            HomeScreenRoute(
+                    notesContent = {
+                        NotesBrowserScreenRoute()
+                    },
+                    profileContent = {
+                        ProfileScreenRoute()
+                    },
+            )
+        }
+        composable(Screen.NOTE.name) {
+            NoteScreenRoute(noteId = "stub!")
+        }
+        composable(Screen.ABOUT.name) {
+            AboutScreenRoute()
+        }
     }
 }

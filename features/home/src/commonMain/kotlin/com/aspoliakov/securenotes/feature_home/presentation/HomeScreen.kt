@@ -1,8 +1,6 @@
 package com.aspoliakov.securenotes.feature_home.presentation
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
@@ -13,10 +11,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -43,11 +38,15 @@ import org.koin.compose.koinInject
 @Composable
 fun HomeScreenRoute(
         modifier: Modifier = Modifier,
+        notesContent: @Composable () -> Unit,
+        profileContent: @Composable () -> Unit,
 ) {
     val viewModel: HomeViewModel = koinInject()
     val state = viewModel.currentState
     HomeScreen(
             modifier = modifier,
+            notesContent = notesContent,
+            profileContent = profileContent,
             state = state,
             intentHandler = viewModel::handleIntent,
     )
@@ -56,6 +55,8 @@ fun HomeScreenRoute(
 @Composable
 internal fun HomeScreen(
         modifier: Modifier = Modifier,
+        notesContent: @Composable () -> Unit,
+        profileContent: @Composable () -> Unit,
         state: HomeState = HomeState.Idle,
         intentHandler: (HomeIntent) -> Unit = {},
 ) {
@@ -69,44 +70,17 @@ internal fun HomeScreen(
                 modifier = modifier.padding(innerPadding),
         ) {
             NavHost(
-                    startDestination = HomeNavigation.Notes.route,
+                    startDestination = HomeNavigation.Notes.name,
                     navController = navController,
                     modifier = modifier.fillMaxSize(),
             ) {
-                composable(route = HomeNavigation.Notes.route) {
-                    StubScreen(
-                            stubText = HomeNavigation.Notes.titleRes,
-                    )
+                composable(route = HomeNavigation.Notes.name) {
+                    notesContent()
                 }
-                composable(route = HomeNavigation.Profile.route) {
-                    StubScreen(
-                            stubText = HomeNavigation.Profile.titleRes,
-                    )
+                composable(route = HomeNavigation.Profile.name) {
+                    profileContent()
                 }
             }
-        }
-    }
-}
-
-@Composable
-internal fun StubScreen(
-        modifier: Modifier = Modifier,
-        stubText: StringResource,
-) {
-    Scaffold(modifier = modifier) { paddings ->
-        Column(
-                modifier = modifier
-                        .padding(paddings)
-                        .fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-        ) {
-            Text(
-                    text = stringResource(stubText),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-            )
         }
     }
 }
@@ -130,11 +104,11 @@ fun BottomNavigationMenu(
                     label = {
                         Text(text = stringResource(it.titleRes))
                     },
-                    selected = it.route == currentRoute,
+                    selected = it.name == currentRoute,
                     icon = {
                         Icon(
                                 painter = painterResource(
-                                        if (it.route == currentRoute) {
+                                        if (it.name == currentRoute) {
                                             it.iconSelected
                                         } else {
                                             it.iconUnselected
@@ -144,8 +118,8 @@ fun BottomNavigationMenu(
                         )
                     },
                     onClick = {
-                        if (currentRoute != it.route) {
-                            navController.navigate(it.route) {
+                        if (currentRoute != it.name) {
+                            navController.navigate(it.name) {
                                 navController.graph.startDestinationRoute?.let { route ->
                                     popUpTo(route) {
                                         saveState = true
@@ -162,19 +136,16 @@ fun BottomNavigationMenu(
 }
 
 enum class HomeNavigation(
-        val route: String,
         val titleRes: StringResource,
         val iconSelected: DrawableResource,
         val iconUnselected: DrawableResource,
 ) {
     Notes(
-            route = "notes",
             titleRes = Res.string.feature_home_menu_item_notes,
             iconSelected = Res.drawable.notes_filled,
             iconUnselected = Res.drawable.notes,
     ),
     Profile(
-            route = "profile",
             titleRes = Res.string.feature_home_menu_item_profile,
             iconSelected = Res.drawable.profile_filled,
             iconUnselected = Res.drawable.profile,

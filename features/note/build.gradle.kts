@@ -12,11 +12,10 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(projects.domain.userState)
+            implementation(projects.domain.notes)
             implementation(projects.core.base)
             implementation(projects.core.presentation)
             implementation(projects.core.ui)
-            implementation(compose.components.resources)
         }
         androidMain.dependencies {
         }

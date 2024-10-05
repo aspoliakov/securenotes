@@ -8,7 +8,9 @@ import com.aspoliakov.securenotes.core_presentation.mvi.MviState
  * Project SecureNotes
  */
 
-object NoteState : MviState()
+sealed class NoteState : MviState() {
+    data object Idle : NoteState()
+}
 
 sealed class NoteEffect : MviEffect() {
     data class ShowSnackbar(val message: String) : NoteEffect()
