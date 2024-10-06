@@ -18,15 +18,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.aspoliakov.securenotes.core_ui.resources.Res
-import com.aspoliakov.securenotes.core_ui.resources.feature_home_menu_item_notes
-import com.aspoliakov.securenotes.core_ui.resources.feature_home_menu_item_profile
-import com.aspoliakov.securenotes.core_ui.resources.notes
-import com.aspoliakov.securenotes.core_ui.resources.notes_filled
-import com.aspoliakov.securenotes.core_ui.resources.profile
-import com.aspoliakov.securenotes.core_ui.resources.profile_filled
-import org.jetbrains.compose.resources.DrawableResource
-import org.jetbrains.compose.resources.StringResource
+import com.aspoliakov.securenotes.feature_home.HomeNavItem
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
@@ -38,15 +30,13 @@ import org.koin.compose.koinInject
 @Composable
 fun HomeScreenRoute(
         modifier: Modifier = Modifier,
-        notesContent: @Composable () -> Unit,
-        profileContent: @Composable () -> Unit,
+        navItems: List<HomeNavItem>,
 ) {
     val viewModel: HomeViewModel = koinInject()
     val state = viewModel.currentState
     HomeScreen(
             modifier = modifier,
-            notesContent = notesContent,
-            profileContent = profileContent,
+            navItems = navItems,
             state = state,
             intentHandler = viewModel::handleIntent,
     )
@@ -55,30 +45,31 @@ fun HomeScreenRoute(
 @Composable
 internal fun HomeScreen(
         modifier: Modifier = Modifier,
-        notesContent: @Composable () -> Unit,
-        profileContent: @Composable () -> Unit,
+        navItems: List<HomeNavItem>,
         state: HomeState = HomeState.Idle,
         intentHandler: (HomeIntent) -> Unit = {},
 ) {
     val navController = rememberNavController()
     Scaffold(
             bottomBar = {
-                BottomNavigationMenu(navController = navController)
+                BottomNavigationMenu(
+                        navController = navController,
+                        navItems = navItems,
+                )
             },
     ) { innerPadding ->
         Box(
                 modifier = modifier.padding(innerPadding),
         ) {
             NavHost(
-                    startDestination = HomeNavigation.Notes.name,
+                    startDestination = navItems.first().destinationName,
                     navController = navController,
                     modifier = modifier.fillMaxSize(),
             ) {
-                composable(route = HomeNavigation.Notes.name) {
-                    notesContent()
-                }
-                composable(route = HomeNavigation.Profile.name) {
-                    profileContent()
+                navItems.forEach { navItem ->
+                    composable(route = navItem.destinationName) {
+                        navItem.content()
+                    }
                 }
             }
         }
@@ -88,6 +79,7 @@ internal fun HomeScreen(
 @Composable
 fun BottomNavigationMenu(
         navController: NavController,
+        navItems: List<HomeNavItem>,
 ) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
@@ -96,30 +88,27 @@ fun BottomNavigationMenu(
             contentColor = MaterialTheme.colorScheme.background,
             tonalElevation = 8.dp,
     ) {
-        listOf(
-                HomeNavigation.Notes,
-                HomeNavigation.Profile,
-        ).forEach {
+        navItems.forEach { navItem ->
             NavigationBarItem(
                     label = {
-                        Text(text = stringResource(it.titleRes))
+                        Text(text = stringResource(navItem.titleRes))
                     },
-                    selected = it.name == currentRoute,
+                    selected = navItem.destinationName == currentRoute,
                     icon = {
                         Icon(
                                 painter = painterResource(
-                                        if (it.name == currentRoute) {
-                                            it.iconSelected
+                                        if (navItem.destinationName == currentRoute) {
+                                            navItem.iconSelected
                                         } else {
-                                            it.iconUnselected
+                                            navItem.iconUnselected
                                         }
                                 ),
-                                contentDescription = stringResource(it.titleRes),
+                                contentDescription = stringResource(navItem.titleRes),
                         )
                     },
                     onClick = {
-                        if (currentRoute != it.name) {
-                            navController.navigate(it.name) {
+                        if (currentRoute != navItem.destinationName) {
+                            navController.navigate(navItem.destinationName) {
                                 navController.graph.startDestinationRoute?.let { route ->
                                     popUpTo(route) {
                                         saveState = true
@@ -134,21 +123,3 @@ fun BottomNavigationMenu(
         }
     }
 }
-
-enum class HomeNavigation(
-        val titleRes: StringResource,
-        val iconSelected: DrawableResource,
-        val iconUnselected: DrawableResource,
-) {
-    Notes(
-            titleRes = Res.string.feature_home_menu_item_notes,
-            iconSelected = Res.drawable.notes_filled,
-            iconUnselected = Res.drawable.notes,
-    ),
-    Profile(
-            titleRes = Res.string.feature_home_menu_item_profile,
-            iconSelected = Res.drawable.profile_filled,
-            iconUnselected = Res.drawable.profile,
-    ),
-}
-
