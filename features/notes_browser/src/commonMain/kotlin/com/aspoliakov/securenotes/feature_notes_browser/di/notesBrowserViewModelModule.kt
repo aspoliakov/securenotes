@@ -11,7 +11,9 @@ import org.koin.dsl.module
 val noteBrowserViewModelModule = module {
     factory {
         NotesBrowserViewModel(
-                initialState = NotesBrowserState.Idle,
+                initialState = NotesBrowserState.Init,
+                notesListInteractor = get(),
+                notesCreateInteractor = get(),
         )
     }
 }

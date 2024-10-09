@@ -6,9 +6,7 @@ import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.aspoliakov.securenotes.core_db.dao.NotesDao
-import com.aspoliakov.securenotes.core_db.dao.NotesFoldersDao
 import com.aspoliakov.securenotes.core_db.model.NoteDB
-import com.aspoliakov.securenotes.core_db.model.NoteFolderDB
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 
@@ -18,7 +16,6 @@ import kotlinx.coroutines.IO
 
 @Database(
         entities = [
-            NoteFolderDB::class,
             NoteDB::class
         ],
         version = 1,
@@ -26,7 +23,6 @@ import kotlinx.coroutines.IO
 )
 @ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun foldersDao(): NotesFoldersDao
     abstract fun notesDao(): NotesDao
 }
 

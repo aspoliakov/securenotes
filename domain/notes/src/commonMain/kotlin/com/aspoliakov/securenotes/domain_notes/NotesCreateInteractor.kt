@@ -13,19 +13,13 @@ class NotesCreateInteractor(
         private val notesDao: NotesDao,
 ) {
 
-    suspend fun addNewNotes(folderId: String) {
-        val notes = mutableListOf<NoteDB>()
-        for (i in 1..5) {
-            val id = randomUUIDString()
-            notes.add(
-                    NoteDB(
-                            id = id,
-                            folderId = folderId,
-                            createdAt = Clock.System.now().toEpochMilliseconds(),
-                            body = "note${id.take(3)}",
-                    )
-            )
-        }
-        notesDao.insertOrReplace(notes)
+    suspend fun addMockNote() {
+        val id = randomUUIDString()
+        val noteDB = NoteDB(
+                id = id,
+                createdAt = Clock.System.now().toEpochMilliseconds(),
+                body = "note${id.take(3)}",
+        )
+        notesDao.insertOrReplace(noteDB)
     }
 }

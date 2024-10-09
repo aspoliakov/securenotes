@@ -21,4 +21,6 @@
 
     <string name="feature_home_menu_item_notes">Notes</string>
     <string name="feature_home_menu_item_profile">Profile</string>
+
+    <string name="feature_notes_add_note">Add note</string>
 </resources>

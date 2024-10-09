@@ -23,9 +23,6 @@ data class NoteDB(
         @ColumnInfo(name = "note_id")
         var id: String,
 
-        @ColumnInfo(name = "folder_id")
-        var folderId: String = NoteFolderDB.ROOT_FOLDER,
-
         @ColumnInfo(name = "created_at")
         var createdAt: Long,
 
