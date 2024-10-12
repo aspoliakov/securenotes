@@ -26,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.aspoliakov.securenotes.core_ui.Colors
 import com.aspoliakov.securenotes.core_ui.resources.Res
 import com.aspoliakov.securenotes.core_ui.resources.app_name
 import com.aspoliakov.securenotes.core_ui.resources.common_error_network
@@ -194,6 +193,6 @@ internal fun AuthErrorText(
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Normal,
-            color = Colors.RedOrange,
+            color = MaterialTheme.colorScheme.errorContainer,
     )
 }

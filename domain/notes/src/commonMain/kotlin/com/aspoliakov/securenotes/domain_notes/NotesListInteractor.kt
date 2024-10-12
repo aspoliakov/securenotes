@@ -20,6 +20,11 @@ class NotesListInteractor(
     }
 
     private fun mapNoteDBToNotesListItem(noteDB: NoteDB): NotesListItem {
-        return NotesListItem(noteDB.id, noteDB.createdAt, noteDB.body)
+        return NotesListItem(
+                id = noteDB.id,
+                createdAt = noteDB.createdAt,
+                title = noteDB.title,
+                body = noteDB.body,
+        )
     }
 }

@@ -18,7 +18,12 @@ class NotesCreateInteractor(
         val noteDB = NoteDB(
                 id = id,
                 createdAt = Clock.System.now().toEpochMilliseconds(),
-                body = "note${id.take(3)}",
+                title = if (id.hashCode() % 2 == 0) {
+                    "Title ${id.take(3)}"
+                } else {
+                    null
+                },
+                body = "note body ${id.take(3)}",
         )
         notesDao.insertOrReplace(noteDB)
     }

@@ -26,6 +26,9 @@ data class NoteDB(
         @ColumnInfo(name = "created_at")
         var createdAt: Long,
 
+        @ColumnInfo(name = "title")
+        var title: String?,
+
         @ColumnInfo(name = "body")
         var body: String,
 )
