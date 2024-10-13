@@ -19,6 +19,11 @@ class NotesListInteractor(
                 .map { notesList -> notesList.map(this::mapNoteDBToNotesListItem) }
     }
 
+    suspend fun searchNotesList(query: String): List<NotesListItem> {
+        return notesDao.searchAllByCreatedAtDesc()
+                .map(this::mapNoteDBToNotesListItem)
+    }
+
     private fun mapNoteDBToNotesListItem(noteDB: NoteDB): NotesListItem {
         return NotesListItem(
                 id = noteDB.id,

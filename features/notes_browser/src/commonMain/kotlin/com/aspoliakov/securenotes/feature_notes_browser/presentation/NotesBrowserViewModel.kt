@@ -7,6 +7,7 @@ import com.aspoliakov.securenotes.domain_notes.NotesCreateInteractor
 import com.aspoliakov.securenotes.domain_notes.NotesListInteractor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -17,22 +18,21 @@ import kotlinx.coroutines.flow.onEach
 
 class NotesBrowserViewModel(
         initialState: NotesBrowserState,
-        notesListInteractor: NotesListInteractor,
+        private val notesListInteractor: NotesListInteractor,
         private val notesCreateInteractor: NotesCreateInteractor,
 ) : MviViewModel<NotesBrowserState, NotesBrowserEffect, NotesBrowserIntent>(initialState) {
 
     init {
         notesListInteractor.getNotesList()
                 .onEach { notesList ->
-                    val newState = when (val state = currentState) {
-                        is NotesBrowserState.Init -> NotesBrowserState.Loaded(
-                                notesList = notesList,
-                        )
-                        is NotesBrowserState.Loaded -> state.copy(
-                                notesList = notesList,
+                    delay(1000)
+                    reduceState {
+                        copy(
+                                notesListState = NotesListState.Loaded(
+                                        notesList = notesList,
+                                )
                         )
                     }
-                    reduceState { newState }
                 }
                 .flowOn(Dispatchers.IO)
                 .launchIn(viewModelScope)
@@ -41,10 +41,25 @@ class NotesBrowserViewModel(
     override fun handleIntent(intent: NotesBrowserIntent) {
         when (intent) {
             is NotesBrowserIntent.CreateNote -> createNote()
+            is NotesBrowserIntent.OnSearch -> searchNotes(intent.query)
         }
     }
 
     private fun createNote() = launchOnIO {
         notesCreateInteractor.addMockNote()
+    }
+
+    private fun searchNotes(query: String) = launchOnIO {
+        reduceState { copy(searchState = SearchState.Searching(query)) }
+        delay(500)
+        val foundSearchList = notesListInteractor.searchNotesList(query)
+        reduceState {
+            copy(
+                    searchState = SearchState.Completed(query),
+                    notesListFilteredState = NotesListState.Loaded(
+                            notesList = foundSearchList,
+                    ),
+            )
+        }
     }
 }

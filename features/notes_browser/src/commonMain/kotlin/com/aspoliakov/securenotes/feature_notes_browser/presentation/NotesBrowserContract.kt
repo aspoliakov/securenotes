@@ -9,11 +9,22 @@ import com.aspoliakov.securenotes.domain_notes.data.NotesListItem
  * Project SecureNotes
  */
 
-sealed class NotesBrowserState : MviState() {
-    data object Init : NotesBrowserState()
-    data class Loaded(
-            val notesList: List<NotesListItem>,
-    ) : NotesBrowserState()
+data class NotesBrowserState(
+        val notesListState: NotesListState = NotesListState.Idle,
+        val notesListFilteredState: NotesListState = NotesListState.Idle,
+        val searchState: SearchState = SearchState.Idle,
+) : MviState()
+
+sealed class NotesListState {
+    data object Idle : NotesListState()
+    data object Loading : NotesListState()
+    data class Loaded(val notesList: List<NotesListItem>) : NotesListState()
+}
+
+sealed class SearchState {
+    data object Idle : SearchState()
+    data class Searching(val query: String) : SearchState()
+    data class Completed(val query: String) : SearchState()
 }
 
 sealed class NotesBrowserEffect : MviEffect() {
@@ -22,4 +33,5 @@ sealed class NotesBrowserEffect : MviEffect() {
 
 sealed class NotesBrowserIntent : MviIntent() {
     data object CreateNote : NotesBrowserIntent()
+    data class OnSearch(val query: String) : NotesBrowserIntent()
 }

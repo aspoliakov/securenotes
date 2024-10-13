@@ -18,4 +18,7 @@ interface NotesDao : BaseDao<NoteDB> {
 
     @Query("SELECT * FROM $TABLE ORDER BY created_at DESC")
     fun selectAllByCreatedAtDesc(): Flow<List<NoteDB>>
+
+    @Query("SELECT * FROM $TABLE ORDER BY created_at DESC")
+    suspend fun searchAllByCreatedAtDesc(): List<NoteDB>
 }
