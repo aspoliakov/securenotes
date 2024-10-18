@@ -26,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.aspoliakov.securenotes.core_ui.Colors
 import com.aspoliakov.securenotes.core_ui.resources.Res
 import com.aspoliakov.securenotes.core_ui.resources.app_name
 import com.aspoliakov.securenotes.core_ui.resources.common_error_network
@@ -47,6 +46,7 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Project SecureNotes
@@ -55,8 +55,8 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun AuthScreenRoute(
         modifier: Modifier = Modifier,
-        viewModel: AuthViewModel,
 ) {
+    val viewModel = koinViewModel<AuthViewModel>()
     val state = viewModel.currentState
     AuthScreen(
             modifier = modifier,
@@ -95,7 +95,7 @@ internal fun AuthScreen(
                         .padding(paddings)
                         .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
         ) {
             Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -193,6 +193,6 @@ internal fun AuthErrorText(
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Normal,
-            color = Colors.RedOrange,
+            color = MaterialTheme.colorScheme.errorContainer,
     )
 }

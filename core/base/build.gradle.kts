@@ -19,8 +19,9 @@ kotlin {
             api(libs.kotlin.coroutines)
             api(libs.kotlin.datetime)
             api(libs.napier)
-            api(libs.koin.compose)
             api(libs.koin.core)
+            api(libs.koin.compose)
+            api(libs.koin.compose.viewmodel)
         }
         androidMain.dependencies {
             api(libs.koin.android)

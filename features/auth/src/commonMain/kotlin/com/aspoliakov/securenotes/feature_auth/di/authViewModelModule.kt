@@ -2,6 +2,7 @@ package com.aspoliakov.securenotes.feature_auth.di
 
 import com.aspoliakov.securenotes.feature_auth.presentation.AuthState
 import com.aspoliakov.securenotes.feature_auth.presentation.AuthViewModel
+import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 /**
@@ -9,7 +10,7 @@ import org.koin.dsl.module
  */
 
 val authViewModelModule = module {
-    factory {
+    viewModel {
         AuthViewModel(
                 initialState = AuthState(),
                 userStateInteractor = get(),

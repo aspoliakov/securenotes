@@ -1,10 +1,11 @@
 package com.aspoliakov.securenotes.di
 
 import androidx.compose.runtime.Composable
-import com.aspoliakov.securenotes.ui.MainViewModel
+import com.aspoliakov.securenotes.AppComposableViewModel
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import org.koin.compose.KoinApplication
+import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
 
@@ -22,7 +23,7 @@ fun AppDI(
             modules(
                     dataModule +
                             domainModule +
-                            mainViewModelModule +
+                            appComposableViewModelModule +
                             featureModules
             )
             appDeclaration()
@@ -30,6 +31,6 @@ fun AppDI(
         content = content
 )
 
-val mainViewModelModule = module {
-    factory { MainViewModel(get()) }
+val appComposableViewModelModule = module {
+    viewModel { AppComposableViewModel(get()) }
 }

@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
-    // TODO временная проблема с ksp + room + kotlin 2.0 - https://issuetracker.google.com/issues/343408758#comment4
+    // TODO temporary issue with ksp + room + kotlin 2.0 - https://issuetracker.google.com/issues/343408758#comment4
 //    alias(libs.plugins.room)
 }
 
@@ -18,18 +18,14 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.core.base)
-            api(project.dependencies.platform(libs.koin.bom))
             api(libs.kotlin.coroutines)
             api(libs.kotlin.atomicfu)
             api(libs.napier)
-            api(libs.koin.compose)
-            api(libs.koin.core)
             api(libs.room.runtime)
             api(libs.sqlite.bundled)
             api(libs.sqlite)
         }
         androidMain.dependencies {
-            api(libs.koin.android)
         }
     }
 }
@@ -48,7 +44,7 @@ dependencies {
 ksp {
     arg("room.schemaLocation", "${projectDir}/schemas")
 }
-// TODO временная проблема с ksp + room + kotlin 2.0 - https://issuetracker.google.com/issues/343408758#comment4
+// TODO temporary issue with ksp + room + kotlin 2.0 - https://issuetracker.google.com/issues/343408758#comment4
 //room {
 //    schemaDirectory("$projectDir/schemas")
 //}

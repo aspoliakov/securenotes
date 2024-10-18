@@ -5,6 +5,9 @@
     <string name="common_error_network">Network error</string>
     <string name="common_unexpected_error">Unexpected error</string>
 
+    <string name="common_search">Back</string>
+    <string name="common_back">Back</string>
+
     <string name="feature_about_app_version">App version: %1$s</string>
 
     <string name="feature_auth_sign_in">Sign in</string>
@@ -18,4 +21,13 @@
     <string name="feature_auth_error_weak_password">Password must contain at least 6 characters</string>
     <string name="feature_auth_error_wrong_credentials">Wrong email or password</string>
     <string name="feature_auth_error_user_already_registered">User already registered</string>
+
+    <string name="feature_home_menu_item_notes">Notes</string>
+    <string name="feature_home_menu_item_profile">Profile</string>
+
+    <string name="feature_notes_search_notes">Search notes</string>
+    <string name="feature_notes_add_note">Add note</string>
+
+    <string name="feature_note_text_field_title_hint">Title</string>
+    <string name="feature_note_text_field_body_hint">Note</string>
 </resources>

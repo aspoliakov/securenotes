@@ -16,7 +16,6 @@ kotlin {
             implementation(projects.core.base)
             implementation(projects.core.presentation)
             implementation(projects.core.ui)
-            implementation(compose.components.resources)
         }
         androidMain.dependencies {
         }
