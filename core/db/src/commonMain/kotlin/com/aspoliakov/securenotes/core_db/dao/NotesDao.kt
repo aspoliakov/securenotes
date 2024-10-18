@@ -16,13 +16,9 @@ interface NotesDao : BaseDao<NoteDB> {
         private const val TABLE = "notes"
     }
 
-    //region read
+    @Query("SELECT * FROM $TABLE ORDER BY created_at DESC")
+    fun selectAllByCreatedAtDesc(): Flow<List<NoteDB>>
 
-    @Query("SELECT * FROM $TABLE")
-    fun selectAll(): Flow<List<NoteDB>>
-
-    @Query("SELECT * FROM $TABLE WHERE folder_id = :folderId ORDER BY created_at ASC limit :limit")
-    fun selectAllByCreatedAtDesc(folderId: String, limit: Int): Flow<List<NoteDB>>
-
-    //endregion
+    @Query("SELECT * FROM $TABLE ORDER BY created_at DESC")
+    suspend fun searchAllByCreatedAtDesc(): List<NoteDB>
 }

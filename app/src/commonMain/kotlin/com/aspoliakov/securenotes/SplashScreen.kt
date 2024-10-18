@@ -16,7 +16,7 @@ import com.aspoliakov.securenotes.core_ui.resources.app_name
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * Project Express. Created by Unlimited Production team.
+ * Project SecureNotes
  */
 
 @Composable

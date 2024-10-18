@@ -5,6 +5,7 @@ import com.aspoliakov.securenotes.AppComposableViewModel
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import org.koin.compose.KoinApplication
+import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
 
@@ -31,5 +32,5 @@ fun AppDI(
 )
 
 val appComposableViewModelModule = module {
-    factory { AppComposableViewModel(get()) }
+    viewModel { AppComposableViewModel(get()) }
 }

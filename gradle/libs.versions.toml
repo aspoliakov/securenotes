@@ -5,20 +5,20 @@ ksp = "2.0.20-1.0.25"
 agp = "8.5.2"
 gradlePlugins-google-services = "4.4.2"
 coroutines = "1.9.0"
-atomicfu = "0.24.0"
+atomicfu = "0.23.2"
 kotlinDatetime = "0.6.1"
-compose-ui = "1.7.2"
-composePlugin = "1.6.11"
+compose-ui = "1.7.4"
+composePlugin = "1.7.0-rc01"
 navigationCompose = "2.7.0-alpha07"
 composeCompiler = "1.5.11"
-androidxActivityCompose = "1.9.2"
+androidxActivityCompose = "1.9.3"
 androidxLifecycleViewmodel = "2.8.6"
 appcompat = "1.7.0"
 ktx = "1.13.1"
 splashScreen = "1.0.1"
 dataStore = "1.1.1"
-sqlite = "2.5.0-alpha08"
-room = "2.7.0-alpha08"
+sqlite = "2.5.0-alpha09"
+room = "2.7.0-alpha09"
 firebase = "2.0.0"
 koinBom = "4.0.0"
 napier = "2.7.1"
@@ -48,8 +48,9 @@ compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview"
 jetbrains-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koinBom" }
-koin-compose = { module = "io.insert-koin:koin-compose" }
 koin-core = { module = "io.insert-koin:koin-core" }
+koin-compose = { module = "io.insert-koin:koin-compose" }
+koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel" }
 koin-android = { module = "io.insert-koin:koin-android" }
 
 androidx-datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "dataStore" }

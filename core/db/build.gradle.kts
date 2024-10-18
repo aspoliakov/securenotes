@@ -18,18 +18,14 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.core.base)
-            api(project.dependencies.platform(libs.koin.bom))
             api(libs.kotlin.coroutines)
             api(libs.kotlin.atomicfu)
             api(libs.napier)
-            api(libs.koin.compose)
-            api(libs.koin.core)
             api(libs.room.runtime)
             api(libs.sqlite.bundled)
             api(libs.sqlite)
         }
         androidMain.dependencies {
-            api(libs.koin.android)
         }
     }
 }

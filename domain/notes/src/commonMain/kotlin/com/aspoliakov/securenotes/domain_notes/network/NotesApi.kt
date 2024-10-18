@@ -1,4 +1,4 @@
-package com.aspoliakov.securenotes.domain_notes.data.network
+package com.aspoliakov.securenotes.domain_notes.network
 
 /**
  * Project SecureNotes

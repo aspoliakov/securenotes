@@ -9,7 +9,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import com.aspoliakov.securenotes.core_ui.Colors.DarkSkyBlue
 import com.aspoliakov.securenotes.core_ui.Icons
 
 /**
@@ -28,7 +27,7 @@ fun TopAppBar(
                     Icon(
                             imageVector = Icons.ArrowBack,
                             contentDescription = null,
-                            tint = DarkSkyBlue,
+                            tint = MaterialTheme.colorScheme.primary,
                     )
                 }
             },

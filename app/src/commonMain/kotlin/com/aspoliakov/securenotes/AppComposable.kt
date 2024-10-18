@@ -5,10 +5,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.aspoliakov.securenotes.core_presentation.navigation.AppGlobalNavigation
+import com.aspoliakov.securenotes.core_presentation.navigation.AppGlobalScreen
 import com.aspoliakov.securenotes.core_ui.AppTheme
 import com.aspoliakov.securenotes.feature_auth.presentation.AuthScreenRoute
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Project SecureNotes
@@ -28,22 +28,22 @@ fun MainAppComposable() {
 internal fun MainAppNavHost(
         navController: NavHostController,
 ) {
-    val mainViewModel = koinInject<AppComposableViewModel>()
+    val mainViewModel = koinViewModel<AppComposableViewModel>()
     NavHost(
             navController = navController,
-            startDestination = AppGlobalNavigation.Splash.route,
+            startDestination = AppGlobalScreen.Splash.toString(),
     ) {
-        composable(AppGlobalNavigation.Splash.route) { SplashScreen() }
-        composable(AppGlobalNavigation.Auth.route) { AuthScreenRoute() }
-        composable(AppGlobalNavigation.Main.route) { MainScreen() }
+        composable(AppGlobalScreen.Splash.toString()) { SplashScreen() }
+        composable(AppGlobalScreen.Auth.toString()) { AuthScreenRoute() }
+        composable(AppGlobalScreen.Main.toString()) { MainScreen() }
     }
     val state = mainViewModel.currentState
     navController.popBackStack()
     navController.navigate(
             when (state) {
-                is AppComposableState.Loading -> AppGlobalNavigation.Splash.route
-                is AppComposableState.Unauthorized -> AppGlobalNavigation.Auth.route
-                is AppComposableState.Authorized -> AppGlobalNavigation.Main.route
+                is AppComposableState.Loading -> AppGlobalScreen.Splash.toString()
+                is AppComposableState.Unauthorized -> AppGlobalScreen.Auth.toString()
+                is AppComposableState.Authorized -> AppGlobalScreen.Main.toString()
             }
     )
 }
