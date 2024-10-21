@@ -61,7 +61,7 @@ fun AuthScreenRoute(
     AuthScreen(
             modifier = modifier,
             state = state,
-            effects = viewModel.effect.filterIsInstance(),
+            effects = viewModel.effects.filterIsInstance(),
             intentHandler = viewModel::handleIntent,
     )
 }

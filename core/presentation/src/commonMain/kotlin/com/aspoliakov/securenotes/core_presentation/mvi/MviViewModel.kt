@@ -26,8 +26,8 @@ abstract class MviViewModel<S : MviState, E : MviEffect, I : MviIntent>(initialS
     private val _intent = MutableSharedFlow<I>()
     val intent = _intent.asSharedFlow()
 
-    private val _effect = Channel<MviEffect>()
-    val effect = _effect.receiveAsFlow()
+    private val _effects = Channel<MviEffect>()
+    val effects = _effects.receiveAsFlow()
 
     private val changeStateLock = SynchronizedObject()
 
@@ -57,7 +57,7 @@ abstract class MviViewModel<S : MviState, E : MviEffect, I : MviIntent>(initialS
     }
 
     protected fun <E : MviEffect> sendEffect(builder: () -> E) {
-        viewModelScope.launch { _effect.send(builder()) }
+        viewModelScope.launch { _effects.send(builder()) }
     }
 }
 

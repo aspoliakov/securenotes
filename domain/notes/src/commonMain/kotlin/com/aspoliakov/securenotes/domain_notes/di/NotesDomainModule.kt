@@ -1,6 +1,6 @@
 package com.aspoliakov.securenotes.domain_notes.di
 
-import com.aspoliakov.securenotes.domain_notes.NotesCreateInteractor
+import com.aspoliakov.securenotes.domain_notes.NoteInteractor
 import com.aspoliakov.securenotes.domain_notes.NotesListInteractor
 import org.koin.dsl.module
 
@@ -9,6 +9,6 @@ import org.koin.dsl.module
  */
 
 val notesDomainModule = module {
-    single { NotesCreateInteractor(get()) }
+    single { NoteInteractor(get(), get(), get()) }
     single { NotesListInteractor(get()) }
 }

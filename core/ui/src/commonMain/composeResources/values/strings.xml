@@ -5,8 +5,9 @@
     <string name="common_error_network">Network error</string>
     <string name="common_unexpected_error">Unexpected error</string>
 
-    <string name="common_search">Back</string>
+    <string name="common_search">Search</string>
     <string name="common_back">Back</string>
+    <string name="common_delete">Delete</string>
 
     <string name="feature_about_app_version">App version: %1$s</string>
 

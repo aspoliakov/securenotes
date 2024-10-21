@@ -10,25 +10,23 @@ import androidx.room.PrimaryKey
  */
 
 @Entity(
-        tableName = "notes",
+        tableName = "sync_stack",
         indices = [
-            Index(value = ["note_id"], unique = true)
+            Index(value = ["item_id"], unique = true)
         ]
 )
-data class NoteDB(
+data class SyncStackDB(
         @PrimaryKey(autoGenerate = true)
         @ColumnInfo(name = "_id")
         var _id: Long = 0,
 
-        @ColumnInfo(name = "note_id")
+        @ColumnInfo(name = "item_id")
         var id: String,
 
-        @ColumnInfo(name = "created_at")
-        var createdAt: Long,
-
-        @ColumnInfo(name = "title")
-        var title: String? = null,
-
-        @ColumnInfo(name = "body")
-        var body: String? = null,
-)
+        @ColumnInfo(name = "item_type")
+        var itemType: SyncStackDB.ItemType,
+) {
+    enum class ItemType {
+        NOTE,
+    }
+}

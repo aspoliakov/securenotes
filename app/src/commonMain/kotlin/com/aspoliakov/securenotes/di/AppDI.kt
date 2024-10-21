@@ -2,6 +2,7 @@ package com.aspoliakov.securenotes.di
 
 import androidx.compose.runtime.Composable
 import com.aspoliakov.securenotes.AppComposableViewModel
+import com.aspoliakov.securenotes.domain.SyncStackInteractor
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import org.koin.compose.KoinApplication
@@ -27,10 +28,19 @@ fun AppDI(
                             featureModules
             )
             appDeclaration()
+            appInit(
+                    syncStackInteractor = koin.get<SyncStackInteractor>(),
+            )
         },
         content = content
 )
 
 val appComposableViewModelModule = module {
     viewModel { AppComposableViewModel(get()) }
+}
+
+private fun appInit(
+        syncStackInteractor: SyncStackInteractor,
+) {
+    syncStackInteractor.sync()
 }
