@@ -10,7 +10,7 @@ enum class UserState(val state: Int) {
 
     companion object {
         fun fromIntState(state: Int): UserState {
-            return values().firstOrNull { it.state == state } ?: UNAUTHORIZED
+            return entries.firstOrNull { it.state == state } ?: UNAUTHORIZED
         }
     }
 }

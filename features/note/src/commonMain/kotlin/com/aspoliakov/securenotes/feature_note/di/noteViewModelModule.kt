@@ -10,10 +10,14 @@ import org.koin.dsl.module
  */
 
 val noteViewModelModule = module {
-    viewModel {
+    viewModel { params ->
+        val noteId = params.getOrNull<String>()
         NoteViewModel(
-                initialState = NoteState(),
-                notesCreateInteractor = get(),
+                initialState = NoteState(
+                        noteId = noteId,
+                        newNote = noteId == null,
+                ),
+                noteInteractor = get(),
         )
     }
 }

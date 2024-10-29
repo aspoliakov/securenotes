@@ -27,8 +27,8 @@ data class NoteDB(
         var createdAt: Long,
 
         @ColumnInfo(name = "title")
-        var title: String?,
+        var title: String? = null,
 
         @ColumnInfo(name = "body")
-        var body: String?,
+        var body: String? = null,
 )

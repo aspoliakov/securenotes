@@ -58,13 +58,15 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun NotesBrowserScreenRoute(
         modifier: Modifier = Modifier,
+        onNavigateToNote: (noteId: String) -> Unit,
         onNavigateToCreateNote: () -> Unit,
 ) {
     val viewModel = koinViewModel<NotesBrowserViewModel>()
     NotesBrowserScreen(
             modifier = modifier,
-            onNavigateToCreateNote = onNavigateToCreateNote,
             state = viewModel.currentState,
+            onNavigateToCreateNote = onNavigateToCreateNote,
+            onNavigateToNote = onNavigateToNote,
             intentHandler = viewModel::handleIntent,
     )
 }
@@ -72,8 +74,9 @@ fun NotesBrowserScreenRoute(
 @Composable
 internal fun NotesBrowserScreen(
         modifier: Modifier = Modifier,
-        onNavigateToCreateNote: () -> Unit,
         state: NotesBrowserState = NotesBrowserState(),
+        onNavigateToCreateNote: () -> Unit,
+        onNavigateToNote: (noteId: String) -> Unit,
         intentHandler: (NotesBrowserIntent) -> Unit = {},
 ) {
     val scrollState = rememberScrollState()
@@ -103,6 +106,7 @@ internal fun NotesBrowserScreen(
                 is NotesListState.Loaded -> NotesList(
                         modifier = modifier,
                         notesList = notesListState.notesList,
+                        onNavigateToNote = onNavigateToNote,
                 )
             }
         }
@@ -199,6 +203,7 @@ internal fun NotesInitView(
 internal fun NotesList(
         modifier: Modifier = Modifier,
         notesList: List<NotesListItem>,
+        onNavigateToNote: (noteId: String) -> Unit,
 ) {
     LazyColumn(
             modifier = modifier
@@ -206,6 +211,8 @@ internal fun NotesList(
     ) {
         items(notesList) {
             NotesListItem(
+                    modifier = modifier,
+                    onNavigateToNote = onNavigateToNote,
                     notesListItem = it,
             )
         }
@@ -217,6 +224,7 @@ internal fun NotesList(
 internal fun NotesListItem(
         modifier: Modifier = Modifier,
         notesListItem: NotesListItem,
+        onNavigateToNote: (noteId: String) -> Unit,
 ) {
     Card(
             modifier = modifier
@@ -226,7 +234,7 @@ internal fun NotesListItem(
                     .clip(CardDefaults.shape)
                     .combinedClickable(
                             onClick = {
-                                //
+                                onNavigateToNote(notesListItem.id)
                             },
                             onLongClick = {
                                 //

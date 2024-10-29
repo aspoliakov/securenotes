@@ -1,5 +1,6 @@
 package com.aspoliakov.securenotes.domain_user_state
 
+import com.aspoliakov.securenotes.core_db.DatabaseManager
 import com.aspoliakov.securenotes.core_key_value_storage.KeyValueStorage
 import com.aspoliakov.securenotes.domain_user_state.model.AuthResult
 import com.aspoliakov.securenotes.domain_user_state.model.UserState
@@ -9,8 +10,6 @@ import dev.gitlive.firebase.auth.FirebaseAuthInvalidCredentialsException
 import dev.gitlive.firebase.auth.FirebaseAuthUserCollisionException
 import dev.gitlive.firebase.auth.FirebaseAuthWeakPasswordException
 import io.github.aakira.napier.Napier
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 
 /**
  * Project SecureNotes
@@ -19,6 +18,7 @@ import kotlinx.coroutines.flow.map
 class UserStateInteractor(
         private val keyValueStorage: KeyValueStorage,
         private val auth: FirebaseAuth,
+        private val databaseManager: DatabaseManager,
 ) {
 
     companion object {
@@ -56,16 +56,16 @@ class UserStateInteractor(
         }.getOrElse(this::onAuthFailure)
     }
 
-    fun getUserState(): Flow<UserState> {
-        return keyValueStorage.getInt(USER_AUTH_STATE)
-                .map { it?.let(UserState::fromIntState) ?: UserState.UNAUTHORIZED }
+    suspend fun logout() {
+        auth.signOut()
+        databaseManager.clearAll()
+        setUserUnauthorized()
     }
 
     private suspend fun checkUserAlreadyAuthorized(): Boolean {
         return if (auth.currentUser != null) {
             Napier.e("Current user is not null. Illegal signing in")
-            auth.signOut()
-            setUserUnauthorized()
+            logout()
             true
         } else {
             false
