@@ -53,7 +53,7 @@ class AuthViewModel(
                     AuthType.SIGN_IN -> userStateInteractor.signIn(email = email, password = password)
                     AuthType.SIGN_UP -> userStateInteractor.signUp(email = email, password = password)
                 }
-                Napier.e("Result: $result")
+                Napier.d("Result: $result")
                 val authActionState = when (result) {
                     AuthResult.OK,
                     AuthResult.SIGN_OUT -> AuthActionState.Completed

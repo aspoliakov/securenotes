@@ -14,6 +14,7 @@ kotlin {
         commonMain.dependencies {
             implementation(projects.core.base)
             implementation(projects.core.keyValueStorage)
+            implementation(projects.core.db)
             implementation(libs.firebase.auth)
         }
         androidMain.dependencies {

@@ -43,7 +43,6 @@ kotlin {
             implementation(libs.androidx.ktx)
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.splashScreen)
-            implementation(libs.firebase.firestore)
         }
     }
 }

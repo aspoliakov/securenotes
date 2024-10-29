@@ -19,6 +19,18 @@ interface NotesDao : BaseDao<NoteDB> {
     @Query("SELECT * FROM $TABLE ORDER BY created_at DESC")
     fun selectAllByCreatedAtDesc(): Flow<List<NoteDB>>
 
+    @Query("SELECT * FROM $TABLE WHERE note_id = :noteId")
+    suspend fun selectById(noteId: String): NoteDB?
+
     @Query("SELECT * FROM $TABLE ORDER BY created_at DESC")
     suspend fun searchAllByCreatedAtDesc(): List<NoteDB>
+
+    @Query("UPDATE $TABLE SET title = :title, body = :body WHERE note_id = :noteId")
+    suspend fun updateNote(noteId: String, title: String?, body: String?)
+
+    @Query("DELETE FROM $TABLE WHERE note_id = :noteId")
+    suspend fun delete(noteId: String)
+
+    @Query("DELETE FROM $TABLE")
+    suspend fun deleteAll()
 }

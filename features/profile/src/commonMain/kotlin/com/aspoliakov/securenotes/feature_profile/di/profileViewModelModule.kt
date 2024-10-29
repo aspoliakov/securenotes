@@ -12,7 +12,9 @@ import org.koin.dsl.module
 val profileViewModelModule = module {
     viewModel {
         ProfileViewModel(
-                initialState = ProfileState.Idle,
+                initialState = ProfileState(),
+                userStateProvider = get(),
+                userStateInteractor = get(),
         )
     }
 }

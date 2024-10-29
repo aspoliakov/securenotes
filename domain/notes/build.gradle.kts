@@ -12,9 +12,11 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(projects.domain.userState)
             implementation(projects.core.base)
             implementation(projects.core.db)
             implementation(projects.core.keyValueStorage)
+            implementation(libs.firebase.firestore)
         }
         androidMain.dependencies {
         }

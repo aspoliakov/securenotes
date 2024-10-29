@@ -14,6 +14,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -21,10 +22,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.aspoliakov.securenotes.core_ui.Icons
 import com.aspoliakov.securenotes.core_ui.resources.Res
+import com.aspoliakov.securenotes.core_ui.resources.common_back
+import com.aspoliakov.securenotes.core_ui.resources.common_delete
 import com.aspoliakov.securenotes.core_ui.resources.feature_note_text_field_body_hint
 import com.aspoliakov.securenotes.core_ui.resources.feature_note_text_field_title_hint
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 /**
  * Project SecureNotes
@@ -36,8 +42,17 @@ fun NoteScreenRoute(
         onNavigationBack: () -> Unit,
         noteId: String?,
 ) {
-    val viewModel = koinViewModel<NoteViewModel>()
+    val viewModel = koinViewModel<NoteViewModel>(parameters = { parametersOf(noteId) })
     val state = viewModel.currentState
+
+    LaunchedEffect(viewModel.effects) {
+        viewModel.effects.onEach { effect ->
+            when (effect) {
+                is NoteEffect.Close -> onNavigationBack()
+            }
+        }.collect()
+    }
+
     NoteScreen(
             modifier = modifier,
             onNavigationBack = onNavigationBack,
@@ -56,7 +71,9 @@ internal fun NoteScreen(
     Scaffold(
             topBar = {
                 NoteToolbar(
+                        showDelete = state.noteId != null,
                         onNavigationBack = onNavigationBack,
+                        onDeleteClick = { intentHandler.invoke(NoteIntent.OnDeleteClick) }
                 )
             }
     ) { padding ->
@@ -82,7 +99,9 @@ internal fun NoteScreen(
 @Composable
 internal fun NoteToolbar(
         modifier: Modifier = Modifier,
+        showDelete: Boolean,
         onNavigationBack: () -> Unit,
+        onDeleteClick: () -> Unit,
 ) {
     TopAppBar(
             navigationIcon = {
@@ -91,7 +110,7 @@ internal fun NoteToolbar(
                 ) {
                     Icon(
                             imageVector = Icons.ArrowBack,
-                            contentDescription = null,
+                            contentDescription = stringResource(Res.string.common_back),
                             tint = MaterialTheme.colorScheme.primary,
                     )
                 }
@@ -104,6 +123,19 @@ internal fun NoteToolbar(
                         maxLines = 1,
                 )
             },
+            actions = {
+                if (showDelete) {
+                    IconButton(
+                            onClick = onDeleteClick,
+                    ) {
+                        Icon(
+                                imageVector = Icons.Delete,
+                                contentDescription = stringResource(Res.string.common_delete),
+                                tint = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                }
+            }
     )
 }
 

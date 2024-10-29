@@ -5,5 +5,10 @@ package com.aspoliakov.securenotes.domain_notes.network
  */
 
 interface NotesApi {
-    suspend fun getNotes(from: Long, size: Int): List<NotesResponse>
+
+    suspend fun getAllNotes(): List<GetNotesResponse>
+
+    suspend fun postNote(request: PostNoteRequest)
+
+    suspend fun deleteNote(noteId: String)
 }
