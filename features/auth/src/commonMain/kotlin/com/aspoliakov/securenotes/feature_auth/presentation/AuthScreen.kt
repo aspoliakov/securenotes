@@ -8,9 +8,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -26,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.aspoliakov.securenotes.core_ui.component.ButtonWithLoader
 import com.aspoliakov.securenotes.core_ui.resources.Res
 import com.aspoliakov.securenotes.core_ui.resources.app_name
 import com.aspoliakov.securenotes.core_ui.resources.common_error_network
@@ -62,7 +60,7 @@ fun AuthScreenRoute(
             modifier = modifier,
             state = state,
             effects = viewModel.effects.filterIsInstance(),
-            intentHandler = viewModel::handleIntent,
+            intentHandler = viewModel::emitIntent,
     )
 }
 
@@ -135,40 +133,24 @@ internal fun AuthScreen(
                     AuthType.SIGN_IN -> Res.string.feature_auth_sign_up_suggest
                     AuthType.SIGN_UP -> Res.string.feature_auth_sign_up_back_to_sign_in
                 }
-                when (state.authActionState) {
-                    is AuthActionState.Idle,
-                    is AuthActionState.Error -> {
-                        Button(
-                                onClick = { intentHandler.invoke(AuthIntent.OnNextClick) },
-                        ) {
-                            Text(
-                                    text = stringResource(authActionButtonText),
-                                    textAlign = TextAlign.Center,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                            )
-                        }
-                        Spacer(modifier = modifier.height(60.dp))
-                        Text(
-                                modifier = modifier.clickable {
-                                    intentHandler.invoke(AuthIntent.OnSwitchSignInSignUpClick)
-                                },
-                                text = stringResource(switchAuthTypeButtonText),
-                                textAlign = TextAlign.Center,
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                        )
-                    }
-                    is AuthActionState.Loading -> {
-                        CircularProgressIndicator(
-                                modifier = modifier.size(32.dp),
-                                color = MaterialTheme.colorScheme.secondary,
-                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                        )
-                    }
-                    is AuthActionState.Completed -> {
-                        Spacer(modifier = modifier.height(60.dp))
-                    }
+                if (state.authActionState !is AuthActionState.Completed) {
+                    ButtonWithLoader(
+                            onClick = { intentHandler.invoke(AuthIntent.OnNextClick) },
+                            isLoading = state.authActionState is AuthActionState.Loading,
+                            stringResource = authActionButtonText,
+                    )
+                }
+                if (state.authActionState is AuthActionState.Idle || state.authActionState is AuthActionState.Error) {
+                    Spacer(modifier = modifier.height(60.dp))
+                    Text(
+                            modifier = modifier.clickable {
+                                intentHandler.invoke(AuthIntent.OnSwitchSignInSignUpClick)
+                            },
+                            text = stringResource(switchAuthTypeButtonText),
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                    )
                 }
             }
         }

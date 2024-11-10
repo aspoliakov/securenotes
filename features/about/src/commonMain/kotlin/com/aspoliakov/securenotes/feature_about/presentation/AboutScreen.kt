@@ -27,7 +27,7 @@ fun AboutScreenRoute(
     AboutScreen(
             modifier = modifier,
             state = state,
-            intentHandler = viewModel::handleIntent,
+            intentHandler = viewModel::emitIntent,
     )
 }
 

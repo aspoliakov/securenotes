@@ -24,6 +24,7 @@ class CommonAndroidPlugin : Plugin<Project> {
                 apply(libs.plugins.kotlinMultiplatform.get().pluginId)
                 apply(libs.plugins.jetbrainsCompose.get().pluginId)
                 apply(libs.plugins.ksp.get().pluginId)
+                apply(libs.plugins.kotlinSerialization.get().pluginId)
             }
 
             dependencies {

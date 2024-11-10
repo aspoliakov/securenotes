@@ -3,6 +3,7 @@ package com.aspoliakov.securenotes.di
 import com.aspoliakov.securenotes.feature_about.di.aboutViewModelModule
 import com.aspoliakov.securenotes.feature_auth.di.authViewModelModule
 import com.aspoliakov.securenotes.feature_home.di.homeViewModelModule
+import com.aspoliakov.securenotes.feature_keys.di.keysViewModelModule
 import com.aspoliakov.securenotes.feature_note.di.noteViewModelModule
 import com.aspoliakov.securenotes.feature_notes_browser.di.notesBrowserViewModelModule
 import com.aspoliakov.securenotes.feature_profile.di.profileViewModelModule
@@ -14,6 +15,7 @@ import com.aspoliakov.securenotes.feature_profile.di.profileViewModelModule
 val featureModules = listOf(
         aboutViewModelModule,
         authViewModelModule,
+        keysViewModelModule,
         homeViewModelModule,
         noteViewModelModule,
         notesBrowserViewModelModule,

@@ -7,6 +7,8 @@ import com.aspoliakov.securenotes.core_db.dao.SyncStackDao
 import com.aspoliakov.securenotes.core_db.event_bus.SyncStackEventBus
 import com.aspoliakov.securenotes.core_db.model.NoteDB
 import com.aspoliakov.securenotes.core_db.model.SyncStackDB
+import com.aspoliakov.securenotes.domain_notes.model.NoteVO
+import com.aspoliakov.securenotes.domain_notes.network.NotePayload
 import com.aspoliakov.securenotes.domain_notes.network.NotesApi
 import com.aspoliakov.securenotes.domain_notes.network.PostNoteRequest
 import io.github.aakira.napier.Napier
@@ -24,6 +26,7 @@ class NoteInteractor(
         private val syncStackDao: SyncStackDao,
         private val syncStackEventBus: SyncStackEventBus,
         private val notesApi: NotesApi,
+        private val noteCryptoInteractor: NoteCryptoInteractor,
 ) {
 
     companion object {
@@ -39,6 +42,16 @@ class NoteInteractor(
         )
         notesDao.insertOrReplace(newNoteDB)
         return newNoteDB.id
+    }
+
+    suspend fun getById(noteId: String): NoteVO? {
+        return notesDao.selectById(noteId)?.let {
+            NoteVO(
+                    createdAt = it.createdAt,
+                    title = it.title ?: "",
+                    body = it.body ?: "",
+            )
+        }
     }
 
     fun undoCreation(noteId: String) = IOScope().launch {
@@ -85,11 +98,17 @@ class NoteInteractor(
         val noteDB = notesDao.selectById(noteId)
         if (noteDB != null) {
             Napier.d("upload updated note to server")
+            val encryptedPayload = noteCryptoInteractor.encrypt(
+                    NotePayload(
+                            title = noteDB.title,
+                            body = noteDB.body,
+                    )
+            )
             notesApi.postNote(
                     request = PostNoteRequest(
                             noteId = noteId,
-                            title = noteDB.title,
-                            body = noteDB.body,
+                            keyId = encryptedPayload.keyId,
+                            payload = encryptedPayload.payload,
                     )
             )
         } else {

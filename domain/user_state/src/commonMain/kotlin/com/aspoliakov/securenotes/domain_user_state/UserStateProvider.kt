@@ -6,7 +6,6 @@ import com.aspoliakov.securenotes.domain_user_state.UserStateInteractor.Companio
 import com.aspoliakov.securenotes.domain_user_state.model.UserProfileData
 import com.aspoliakov.securenotes.domain_user_state.model.UserState
 import dev.gitlive.firebase.auth.FirebaseAuth
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.map
@@ -30,7 +29,6 @@ class UserStateProvider(
     }
 
     suspend fun getUserProfileData(): UserProfileData {
-        Napier.d("Current user: ${auth.currentUser?.email}")
         val name = auth.currentUser?.email ?: keyValueStorage.getString(USER_EMAIL).last()
         return UserProfileData(
                 displayName = name ?: "",

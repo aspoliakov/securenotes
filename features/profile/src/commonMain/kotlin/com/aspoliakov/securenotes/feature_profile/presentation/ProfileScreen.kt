@@ -50,7 +50,7 @@ fun ProfileScreenRoute(
     ProfileScreen(
             modifier = modifier,
             state = viewModel.currentState,
-            intentHandler = viewModel::handleIntent,
+            intentHandler = viewModel::emitIntent,
     )
 }
 

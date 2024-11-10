@@ -2,27 +2,30 @@
 
 kotlin = "2.0.20"
 ksp = "2.0.20-1.0.25"
-agp = "8.5.2"
+agp = "8.7.2"
 gradlePlugins-google-services = "4.4.2"
 coroutines = "1.9.0"
 atomicfu = "0.23.2"
 kotlinDatetime = "0.6.1"
-compose-ui = "1.7.4"
+kotlinSerialization = "1.7.3"
+compose-ui = "1.7.5"
 composePlugin = "1.7.0"
 navigationCompose = "2.7.0-alpha07"
 composeCompiler = "1.5.11"
 androidxActivityCompose = "1.9.3"
-androidxLifecycleViewmodel = "2.8.6"
+androidxLifecycleViewmodel = "2.8.7"
 appcompat = "1.7.0"
-ktx = "1.13.1"
+ktx = "1.15.0"
 splashScreen = "1.0.1"
 dataStore = "1.1.1"
-sqlite = "2.5.0-alpha10"
-room = "2.7.0-alpha10"
+sqlite = "2.5.0-alpha11"
+room = "2.7.0-alpha11"
 firebase = "2.0.0"
 koinBom = "4.0.0"
 napier = "2.7.1"
 detekt = "1.23.7"
+libsodium = "0.9.2"
+kvault = "1.12.0"
 
 [libraries]
 
@@ -35,6 +38,7 @@ kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", 
 kotlin-atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "atomicfu" }
 kotlin-atomicfuPlugin = { module = "org.jetbrains.kotlinx:atomicfu-gradle-plugin", version.ref = "atomicfu" }
 kotlin-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinDatetime" }
+kotlin-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinSerialization" }
 
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidxActivityCompose" }
 androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel", version.ref = "androidxLifecycleViewmodel" }
@@ -65,6 +69,9 @@ firebase-firestore = { module = "dev.gitlive:firebase-firestore", version.ref = 
 
 napier = { module = "io.github.aakira:napier", version.ref = "napier" }
 
+libsodium = { module = "com.ionspin.kotlin:multiplatform-crypto-libsodium-bindings", version.ref = "libsodium" }
+kvault = { module = "com.liftric:kvault", version.ref = "kvault" }
+
 [plugins]
 
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -72,6 +79,7 @@ androidLibrary = { id = "com.android.library", version.ref = "agp" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "composePlugin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 commonAndroidPlugin = { id = "common-android-plugin" }

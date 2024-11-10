@@ -25,6 +25,7 @@ class AppComposableViewModel(
                         when (it) {
                             UserState.UNAUTHORIZED -> AppComposableState.Unauthorized
                             UserState.AUTHORIZED -> AppComposableState.Authorized
+                            UserState.ACTIVE -> AppComposableState.Active
                         }
                     }
                 }

@@ -57,7 +57,7 @@ fun NoteScreenRoute(
             modifier = modifier,
             onNavigationBack = onNavigationBack,
             state = state,
-            intentHandler = viewModel::handleIntent,
+            intentHandler = viewModel::emitIntent,
     )
 }
 

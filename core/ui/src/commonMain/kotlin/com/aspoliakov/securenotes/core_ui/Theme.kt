@@ -1,6 +1,5 @@
 package com.aspoliakov.securenotes.core_ui
 
-import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -11,7 +10,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
-@VisibleForTesting
 private val LightDefaultColorScheme = lightColorScheme(
         primary = primaryLight,
         onPrimary = onPrimaryLight,
@@ -50,7 +48,6 @@ private val LightDefaultColorScheme = lightColorScheme(
         surfaceContainerHighest = surfaceContainerHighestLight,
 )
 
-@VisibleForTesting
 private val DarkDefaultColorScheme = darkColorScheme(
         primary = primaryDark,
         onPrimary = onPrimaryDark,

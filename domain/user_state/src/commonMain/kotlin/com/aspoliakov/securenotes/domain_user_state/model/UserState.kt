@@ -6,7 +6,8 @@ package com.aspoliakov.securenotes.domain_user_state.model
 
 enum class UserState(val state: Int) {
     UNAUTHORIZED(1),
-    AUTHORIZED(2);
+    AUTHORIZED(2),
+    ACTIVE(3);
 
     companion object {
         fun fromIntState(state: Int): UserState {

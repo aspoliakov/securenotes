@@ -17,6 +17,7 @@ kotlin {
         commonMain.dependencies {
             implementation(projects.core.base)
             api(libs.androidx.datastore.preferences.core)
+            api(libs.kvault)
         }
         androidMain.dependencies {
         }

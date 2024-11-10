@@ -1,4 +1,4 @@
-package com.aspoliakov.securenotes.domain_notes.data
+package com.aspoliakov.securenotes.domain_notes.model
 
 /**
  * Project SecureNotes
