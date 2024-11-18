@@ -18,6 +18,7 @@ kotlin {
             api(project.dependencies.platform(libs.koin.bom))
             api(libs.kotlin.coroutines)
             api(libs.kotlin.datetime)
+            api(libs.kotlin.serialization)
             api(libs.napier)
             api(libs.koin.core)
             api(libs.koin.compose)

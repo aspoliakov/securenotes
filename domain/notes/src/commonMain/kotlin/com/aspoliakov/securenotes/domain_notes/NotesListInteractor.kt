@@ -3,7 +3,7 @@ package com.aspoliakov.securenotes.domain_notes
 import com.aspoliakov.securenotes.core_base.util.IOScope
 import com.aspoliakov.securenotes.core_db.dao.NotesDao
 import com.aspoliakov.securenotes.core_db.model.NoteDB
-import com.aspoliakov.securenotes.domain_notes.data.NotesListItem
+import com.aspoliakov.securenotes.domain_notes.model.NotesListItem
 import com.aspoliakov.securenotes.domain_notes.network.NotesApi
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.Flow
@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 class NotesListInteractor(
         private val notesDao: NotesDao,
         private val notesApi: NotesApi,
+        private val noteCryptoInteractor: NoteCryptoInteractor,
 ) {
 
     fun getNotesList(): Flow<List<NotesListItem>> {
@@ -42,12 +43,14 @@ class NotesListInteractor(
     private fun sync() = IOScope().launch {
         runCatching {
             notesApi.getAllNotes()
+                    .notes
                     .map {
+                        val notePayload = noteCryptoInteractor.decrypt(it.payload)
                         val noteDBList = NoteDB(
                                 id = it.id,
                                 createdAt = 1, // TODO
-                                title = it.title,
-                                body = it.body,
+                                title = notePayload.title,
+                                body = notePayload.body,
                         )
                         notesDao.insertOrReplace(noteDBList)
                     }

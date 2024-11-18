@@ -13,6 +13,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.domain.userState)
+            implementation(projects.domain.crypto)
             implementation(projects.core.base)
             implementation(projects.core.db)
             implementation(projects.core.keyValueStorage)

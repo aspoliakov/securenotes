@@ -6,8 +6,13 @@
     <string name="common_unexpected_error">Unexpected error</string>
 
     <string name="common_search">Search</string>
+    <string name="common_apply">Apply</string>
+    <string name="common_next">Next</string>
     <string name="common_back">Back</string>
     <string name="common_delete">Delete</string>
+    <string name="common_retry">Retry</string>
+    <string name="common_confirm">Confirm</string>
+    <string name="common_cancel">Cancel</string>
 
     <string name="feature_about_app_version">App version: %1$s</string>
 
@@ -22,6 +27,22 @@
     <string name="feature_auth_error_weak_password">Password must contain at least 6 characters</string>
     <string name="feature_auth_error_wrong_credentials">Wrong email or password</string>
     <string name="feature_auth_error_user_already_registered">User already registered</string>
+
+    <string name="feature_keys_title">All data in %1$s are strongly encrypted</string>
+    <string name="feature_keys_subtitle">Create a password to protect your encryption keys</string>
+    <string name="feature_keys_restore_title">Enter the password for your encryption keys</string>
+    <string name="feature_keys_restore_decryption_error">Wrong password</string>
+    <string name="feature_keys_restore_forgot_password">I forgot my password</string>
+    <string name="feature_keys_restore_reset_keys_title">Reset password</string>
+    <string name="feature_keys_restore_reset_keys_disclaimer_part_1">Resetting your password will generate new encryption keys. </string>
+    <string name="feature_keys_restore_reset_keys_disclaimer_part_2">You will not be able to access your old notes.</string>
+    <string name="feature_keys_restore_reset_keys_confirm">I understand the consequences</string>
+    <string name="feature_keys_password_hide">Hide password</string>
+    <string name="feature_keys_password_show">Show password</string>
+    <string name="feature_keys_password_requirement_length">Password length at least 8 characters</string>
+    <string name="feature_keys_password_requirement_digit">At least one digit</string>
+    <string name="feature_keys_password_requirement_letter">At least one lowercase letter</string>
+    <string name="feature_keys_password_requirement_capital_letter">At least one uppercase letter</string>
 
     <string name="feature_home_menu_item_notes">Notes</string>
     <string name="feature_home_menu_item_profile">Profile</string>

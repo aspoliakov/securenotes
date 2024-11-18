@@ -1,5 +1,6 @@
 package com.aspoliakov.securenotes.domain_notes.di
 
+import com.aspoliakov.securenotes.domain_notes.NoteCryptoInteractor
 import com.aspoliakov.securenotes.domain_notes.NoteInteractor
 import com.aspoliakov.securenotes.domain_notes.NotesListInteractor
 import com.aspoliakov.securenotes.domain_notes.network.NotesApi
@@ -13,7 +14,8 @@ import org.koin.dsl.module
  */
 
 val notesDomainModule = module {
-    single<NotesApi> { NotesFirestoreApi(get(), Firebase.firestore) }
-    single { NoteInteractor(get(), get(), get(), get()) }
-    single { NotesListInteractor(get(), get()) }
+    single<NotesApi> { NotesFirestoreApi(get(), get(), Firebase.firestore) }
+    single { NoteCryptoInteractor(get()) }
+    single { NoteInteractor(get(), get(), get(), get(), get()) }
+    single { NotesListInteractor(get(), get(), get()) }
 }

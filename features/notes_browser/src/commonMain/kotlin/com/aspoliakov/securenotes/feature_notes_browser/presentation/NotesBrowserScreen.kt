@@ -46,7 +46,7 @@ import com.aspoliakov.securenotes.core_ui.resources.common_search
 import com.aspoliakov.securenotes.core_ui.resources.feature_notes_add_note
 import com.aspoliakov.securenotes.core_ui.resources.feature_notes_search_notes
 import com.aspoliakov.securenotes.core_ui.resources.notes
-import com.aspoliakov.securenotes.domain_notes.data.NotesListItem
+import com.aspoliakov.securenotes.domain_notes.model.NotesListItem
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -67,7 +67,7 @@ fun NotesBrowserScreenRoute(
             state = viewModel.currentState,
             onNavigateToCreateNote = onNavigateToCreateNote,
             onNavigateToNote = onNavigateToNote,
-            intentHandler = viewModel::handleIntent,
+            intentHandler = viewModel::emitIntent,
     )
 }
 

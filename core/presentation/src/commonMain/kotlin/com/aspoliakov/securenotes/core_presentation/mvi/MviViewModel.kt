@@ -1,6 +1,5 @@
 package com.aspoliakov.securenotes.core_presentation.mvi
 
-import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -43,12 +42,7 @@ abstract class MviViewModel<S : MviState, E : MviEffect, I : MviIntent>(initialS
         viewModelScope.launch { _intent.emit(intent) }
     }
 
-    abstract fun handleIntent(intent: I)
-
-    @VisibleForTesting
-    fun reduceStateForTest(reduce: S.() -> S) {
-        reduceState(reduce)
-    }
+    protected abstract fun handleIntent(intent: I)
 
     protected fun reduceState(reduce: S.() -> S) {
         synchronized(changeStateLock) {

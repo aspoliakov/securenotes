@@ -1,6 +1,7 @@
 package com.aspoliakov.securenotes.domain_user_state
 
 import com.aspoliakov.securenotes.core_db.DatabaseManager
+import com.aspoliakov.securenotes.core_key_value_storage.EncryptedKeyValueStorage
 import com.aspoliakov.securenotes.core_key_value_storage.KeyValueStorage
 import com.aspoliakov.securenotes.domain_user_state.model.AuthResult
 import com.aspoliakov.securenotes.domain_user_state.model.UserState
@@ -17,6 +18,7 @@ import io.github.aakira.napier.Napier
 
 class UserStateInteractor(
         private val keyValueStorage: KeyValueStorage,
+        private val encryptedKeyValueStorage: EncryptedKeyValueStorage,
         private val auth: FirebaseAuth,
         private val databaseManager: DatabaseManager,
 ) {
@@ -59,7 +61,12 @@ class UserStateInteractor(
     suspend fun logout() {
         auth.signOut()
         databaseManager.clearAll()
-        setUserUnauthorized()
+        encryptedKeyValueStorage.clear()
+        keyValueStorage.clear()
+    }
+
+    suspend fun setUserActive() {
+        keyValueStorage.put(USER_AUTH_STATE, UserState.ACTIVE.state)
     }
 
     private suspend fun checkUserAlreadyAuthorized(): Boolean {
@@ -81,11 +88,6 @@ class UserStateInteractor(
             is FirebaseNetworkException -> AuthResult.NETWORK_ERROR
             else -> AuthResult.UNEXPECTED_ERROR
         }
-    }
-
-    private suspend fun setUserUnauthorized() {
-        keyValueStorage.put(USER_EMAIL, "")
-        keyValueStorage.put(USER_AUTH_STATE, UserState.UNAUTHORIZED.state)
     }
 
     private suspend fun setUserAuthorized(email: String) {

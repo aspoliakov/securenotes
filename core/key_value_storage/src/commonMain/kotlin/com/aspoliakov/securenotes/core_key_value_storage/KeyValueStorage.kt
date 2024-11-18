@@ -42,4 +42,8 @@ class KeyValueStorage(private val dataStore: DataStore<Preferences>) {
     fun getInt(key: String): Flow<Int?> {
         return dataStore.data.map { it[intPreferencesKey(key)] }
     }
+
+    suspend fun clear() {
+        dataStore.edit { it.clear() }
+    }
 }

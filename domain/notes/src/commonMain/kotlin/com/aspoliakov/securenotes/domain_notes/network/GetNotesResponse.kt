@@ -5,7 +5,10 @@ package com.aspoliakov.securenotes.domain_notes.network
  */
 
 data class GetNotesResponse(
-        val id: String,
-        val title: String?,
-        val body: String?,
-)
+        val notes: List<Note>,
+) {
+    data class Note(
+            val id: String,
+            val payload: String,
+    )
+}

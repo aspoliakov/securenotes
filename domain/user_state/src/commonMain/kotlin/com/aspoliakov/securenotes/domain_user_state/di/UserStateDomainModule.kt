@@ -15,6 +15,7 @@ val userStateDomainModule = module {
     single {
         UserStateInteractor(
                 keyValueStorage = get(),
+                encryptedKeyValueStorage = get(),
                 auth = firebaseAuth,
                 databaseManager = get(),
         )

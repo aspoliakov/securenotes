@@ -1,5 +1,6 @@
 package com.aspoliakov.securenotes.domain_notes.network
 
+import com.aspoliakov.securenotes.domain_crypto.UserKeysProvider
 import com.aspoliakov.securenotes.domain_user_state.UserStateProvider
 import dev.gitlive.firebase.firestore.CollectionReference
 import dev.gitlive.firebase.firestore.FirebaseFirestore
@@ -10,6 +11,7 @@ import dev.gitlive.firebase.firestore.FirebaseFirestore
 
 class NotesFirestoreApi(
         private val userStateProvider: UserStateProvider,
+        private val userKeysProvider: UserKeysProvider,
         private val firestore: FirebaseFirestore,
 ) : NotesApi {
 
@@ -18,17 +20,19 @@ class NotesFirestoreApi(
         private const val NOTES_COLLECTION_PATH = "notes"
     }
 
-    override suspend fun getAllNotes(): List<GetNotesResponse> {
-        return getNotesCollection()
+    override suspend fun getAllNotes(): GetNotesResponse {
+        val userKeyId = userKeysProvider.getUserKeyPair().keyId
+        val notes = getNotesCollection()
+                .where { "key_id".equalTo(userKeyId) }
                 .get()
                 .documents
                 .map {
-                    GetNotesResponse(
+                    GetNotesResponse.Note(
                             id = it.get<String>("id"),
-                            title = it.get<String?>("title"),
-                            body = it.get<String?>("body"),
+                            payload = it.get<String>("payload"),
                     )
                 }
+        return GetNotesResponse(notes)
     }
 
     override suspend fun postNote(request: PostNoteRequest) {
@@ -37,8 +41,8 @@ class NotesFirestoreApi(
                 .set(
                         mapOf(
                                 "id" to request.noteId,
-                                "title" to request.title,
-                                "body" to request.body,
+                                "key_id" to request.keyId,
+                                "payload" to request.payload,
                         )
                 )
     }

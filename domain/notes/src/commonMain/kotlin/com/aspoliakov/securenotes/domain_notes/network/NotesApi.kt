@@ -6,7 +6,7 @@ package com.aspoliakov.securenotes.domain_notes.network
 
 interface NotesApi {
 
-    suspend fun getAllNotes(): List<GetNotesResponse>
+    suspend fun getAllNotes(): GetNotesResponse
 
     suspend fun postNote(request: PostNoteRequest)
 

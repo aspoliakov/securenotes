@@ -38,7 +38,7 @@ fun HomeScreenRoute(
             modifier = modifier,
             navItems = navItems,
             state = state,
-            intentHandler = viewModel::handleIntent,
+            intentHandler = viewModel::emitIntent,
     )
 }
 

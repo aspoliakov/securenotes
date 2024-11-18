@@ -12,6 +12,7 @@ sealed class AppComposableState : MviState() {
     data object Loading : AppComposableState()
     data object Unauthorized : AppComposableState()
     data object Authorized : AppComposableState()
+    data object Active : AppComposableState()
 }
 
 object AppComposableEffect : MviEffect()

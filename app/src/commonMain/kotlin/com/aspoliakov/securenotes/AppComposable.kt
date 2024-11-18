@@ -8,6 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import com.aspoliakov.securenotes.core_presentation.navigation.AppGlobalScreen
 import com.aspoliakov.securenotes.core_ui.AppTheme
 import com.aspoliakov.securenotes.feature_auth.presentation.AuthScreenRoute
+import com.aspoliakov.securenotes.feature_keys.presentation.KeysScreenRoute
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
@@ -35,6 +36,7 @@ internal fun MainAppNavHost(
     ) {
         composable(AppGlobalScreen.Splash.toString()) { SplashScreen() }
         composable(AppGlobalScreen.Auth.toString()) { AuthScreenRoute() }
+        composable(AppGlobalScreen.Keys.toString()) { KeysScreenRoute() }
         composable(AppGlobalScreen.Main.toString()) { MainScreen() }
     }
     val state = mainViewModel.currentState
@@ -43,7 +45,8 @@ internal fun MainAppNavHost(
             when (state) {
                 is AppComposableState.Loading -> AppGlobalScreen.Splash.toString()
                 is AppComposableState.Unauthorized -> AppGlobalScreen.Auth.toString()
-                is AppComposableState.Authorized -> AppGlobalScreen.Main.toString()
+                is AppComposableState.Authorized -> AppGlobalScreen.Keys.toString()
+                is AppComposableState.Active -> AppGlobalScreen.Main.toString()
             }
     )
 }
