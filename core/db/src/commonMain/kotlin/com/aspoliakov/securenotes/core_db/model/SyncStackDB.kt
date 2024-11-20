@@ -18,7 +18,7 @@ import androidx.room.PrimaryKey
 data class SyncStackDB(
         @PrimaryKey(autoGenerate = true)
         @ColumnInfo(name = "_id")
-        var _id: Long = 0,
+        var id: Long = 0,
 
         @ColumnInfo(name = "item_id")
         var itemId: String,

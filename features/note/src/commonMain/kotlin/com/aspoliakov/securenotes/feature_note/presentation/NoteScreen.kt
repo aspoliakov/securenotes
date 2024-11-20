@@ -98,7 +98,6 @@ internal fun NoteScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun NoteToolbar(
-        modifier: Modifier = Modifier,
         showDelete: Boolean,
         onNavigationBack: () -> Unit,
         onDeleteClick: () -> Unit,

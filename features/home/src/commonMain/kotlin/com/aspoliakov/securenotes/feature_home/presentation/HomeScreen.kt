@@ -21,7 +21,6 @@ import androidx.navigation.compose.rememberNavController
 import com.aspoliakov.securenotes.feature_home.HomeNavItem
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Project SecureNotes
@@ -32,13 +31,9 @@ fun HomeScreenRoute(
         modifier: Modifier = Modifier,
         navItems: List<HomeNavItem>,
 ) {
-    val viewModel = koinViewModel<HomeViewModel>()
-    val state = viewModel.currentState
     HomeScreen(
             modifier = modifier,
             navItems = navItems,
-            state = state,
-            intentHandler = viewModel::emitIntent,
     )
 }
 
@@ -46,8 +41,6 @@ fun HomeScreenRoute(
 internal fun HomeScreen(
         modifier: Modifier = Modifier,
         navItems: List<HomeNavItem>,
-        state: HomeState = HomeState.Idle,
-        intentHandler: (HomeIntent) -> Unit = {},
 ) {
     val navController = rememberNavController()
     Scaffold(

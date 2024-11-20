@@ -10,6 +10,6 @@ import androidx.datastore.preferences.core.Preferences
 
 internal class PlatformDataStore(private val context: Context) {
     fun getDataStore(): DataStore<Preferences> = getDataStore(
-            producePath = { context.filesDir.resolve("datastore/$dataStoreFileName").absolutePath },
+            producePath = { context.filesDir.resolve("datastore/$DATA_STORE_FILE_NAME").absolutePath },
     )
 }

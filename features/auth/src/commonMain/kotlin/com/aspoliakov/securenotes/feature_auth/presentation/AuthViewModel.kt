@@ -37,6 +37,7 @@ class AuthViewModel(
         }
     }
 
+    @Suppress("MaxLineLength")
     private fun onNextClick() = launchOnIO {
         val email = currentState.email
         val password = currentState.password

@@ -18,10 +18,10 @@ import androidx.room.PrimaryKey
 data class NoteDB(
         @PrimaryKey(autoGenerate = true)
         @ColumnInfo(name = "_id")
-        var _id: Long = 0,
+        var id: Long = 0,
 
         @ColumnInfo(name = "note_id")
-        var id: String,
+        var noteId: String,
 
         @ColumnInfo(name = "created_at")
         var createdAt: Long,

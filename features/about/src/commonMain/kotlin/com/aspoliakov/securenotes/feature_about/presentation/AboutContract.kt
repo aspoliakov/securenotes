@@ -8,7 +8,9 @@ import com.aspoliakov.securenotes.core_presentation.mvi.MviState
  * Project SecureNotes
  */
 
-object AboutState : MviState()
+data class AboutState(
+        val appVersion: String = "stub",
+) : MviState()
 
 sealed class AboutEffect : MviEffect() {
     data class ShowSnackbar(val message: String) : AboutEffect()

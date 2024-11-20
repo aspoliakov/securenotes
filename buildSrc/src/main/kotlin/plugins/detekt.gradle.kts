@@ -10,9 +10,8 @@ configure<DetektExtension> {
     autoCorrect = true
     buildUponDefaultConfig = true
     allRules = false
-    source = files("src")
-    config = files("$rootDir/tools/verification/detekt_config.yml")
-//    filters = ".*/resources/.*,.*/tmp/.*,.*/dao/.*,.*/migrations/.*"
+    source.setFrom("src")
+    config.setFrom("$rootDir/tools/verification/detekt_config.yml")
 }
 
 tasks.withType<Detekt>().configureEach {
