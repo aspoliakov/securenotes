@@ -47,10 +47,10 @@ Core modules can also depend on each other. These dependencies are determined by
 
 Android
 
-<img src="screenshots/Android.png" width="480">
+<img src="assets/screenshots/Android.png" width="480" alt="screenshot from Android">
 
 iOS
 
-<img src="screenshots/iOS.png" width="480">
+<img src="assets/screenshots/iOS.png" width="480" alt="screenshot from iOS">
 
 ## License
