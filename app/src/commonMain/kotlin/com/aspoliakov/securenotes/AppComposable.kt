@@ -32,21 +32,23 @@ internal fun MainAppNavHost(
     val mainViewModel = koinViewModel<AppComposableViewModel>()
     NavHost(
             navController = navController,
-            startDestination = AppGlobalScreen.Splash.toString(),
+            startDestination = mainViewModel.currentState.toScreen(),
     ) {
-        composable(AppGlobalScreen.Splash.toString()) { SplashScreen() }
         composable(AppGlobalScreen.Auth.toString()) { AuthScreenRoute() }
         composable(AppGlobalScreen.Keys.toString()) { KeysScreenRoute() }
         composable(AppGlobalScreen.Main.toString()) { MainScreen() }
     }
-    val state = mainViewModel.currentState
-    navController.popBackStack()
-    navController.navigate(
-            when (state) {
-                is AppComposableState.Loading -> AppGlobalScreen.Splash.toString()
-                is AppComposableState.Unauthorized -> AppGlobalScreen.Auth.toString()
-                is AppComposableState.Authorized -> AppGlobalScreen.Keys.toString()
-                is AppComposableState.Active -> AppGlobalScreen.Main.toString()
-            }
-    )
+    val destination = mainViewModel.currentState.toScreen()
+    if (navController.currentDestination?.route != destination) {
+        navController.popBackStack()
+        navController.navigate(destination)
+    }
+}
+
+fun AppComposableState.toScreen(): String {
+    return when (this) {
+        is AppComposableState.Unauthorized -> AppGlobalScreen.Auth
+        is AppComposableState.Authorized -> AppGlobalScreen.Keys
+        is AppComposableState.Active -> AppGlobalScreen.Main
+    }.toString()
 }

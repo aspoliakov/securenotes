@@ -42,18 +42,18 @@ class NotesListInteractor(
 
     private fun sync() = IOScope().launch {
         runCatching {
-            notesApi.getAllNotes()
+            val notes = notesApi.getAllNotes()
                     .notes
                     .map {
                         val notePayload = noteCryptoInteractor.decrypt(it.payload)
-                        val noteDBList = NoteDB(
+                        NoteDB(
                                 noteId = it.id,
                                 createdAt = 1, // TODO
                                 title = notePayload.title,
                                 body = notePayload.body,
                         )
-                        notesDao.insertOrReplace(noteDBList)
                     }
+            notesDao.insertOrReplace(notes)
         }
                 .onFailure {
                     Napier.e("Error syncing notes: $it")
