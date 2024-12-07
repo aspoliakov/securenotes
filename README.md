@@ -39,6 +39,8 @@ Domain modules can depend on each other. These dependencies are built hierarchic
 
 Core modules can also depend on each other. These dependencies are determined by how commonly used they are.
 
+<img src="assets/images/securenotes_arch.png" width="480" alt="screenshot from Android">
+
 ## Presentation architecture
 
 ## Firestore backend
