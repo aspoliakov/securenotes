@@ -12,6 +12,7 @@ A KMP project for a simple Notes app using data encryption and Firestore as a ba
 The project has a completely common code base for Android and iOS both domain and UI. The application UI is based on Compose Material3.
 
 - [Compose Multiplatform](https://github.com/JetBrains/compose-multiplatform) - shared UI
+- [Compose ViewModel](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-viewmodel.html) - shared ViewModel
 - [Room Database](https://developer.android.com/kotlin/multiplatform/room) - DB abstraction layer over SQLite
 - [Data Store](https://developer.android.com/jetpack/androidx/releases/datastore) - key-value storage for non-secret data
 - [KVault](https://github.com/Liftric/KVault) - encrypted key-value storage for secret data
@@ -22,7 +23,7 @@ The project has a completely common code base for Android and iOS both domain an
 - [Napier](https://github.com/AAkira/Napier) - Logger for KMP
 - [Libdosium](https://github.com/ionspin/kotlin-multiplatform-libsodium) - data encryption with Libsodium for KMP.
 
-## Global project architecture
+## Global Project Architecture
 
 Android and iOS applications implements its own base initialization point:
 
@@ -39,9 +40,17 @@ Domain modules can depend on each other. These dependencies are built hierarchic
 
 Core modules can also depend on each other. These dependencies are determined by how commonly used they are.
 
-<img src="assets/images/securenotes_arch.png" width="480" alt="screenshot from Android">
+<img src="assets/images/securenotes_arch.png" width="480" alt="Global Project Architecture">
 
-## Presentation architecture
+## Presentational Architecture
+
+The project's presentational architecture is a simplified version of MVI.
+
+The ViewModel is the central element of the architecture. It contains the declarative state that is updated through its reducer. It receives signals (intents) from the View. It observes the domain state.
+
+The declarative state of the ViewModel is implemented as a composable MutableState. The Composable View observes this state and recomposes whenever it changes.
+
+<img src="assets/images/securenotes_presentational_arch.png" width="480" alt="Presentational Architecture">
 
 ## Firestore backend
 
