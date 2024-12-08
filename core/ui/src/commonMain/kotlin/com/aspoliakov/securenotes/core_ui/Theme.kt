@@ -88,24 +88,15 @@ private val DarkDefaultColorScheme = darkColorScheme(
 
 @Immutable
 data class CustomColorScheme(
-        val tabMenuBackground: Color = Color.Unspecified,
-        val tabMenuAccent: Color = Color.Unspecified,
-        val tabMenuAccentSelect: Color = Color.Unspecified,
-        val tabMenuInactive: Color = Color.Unspecified,
+        val logoBackground: Color = Color.Unspecified,
 )
 
 val LightCustomColorScheme = CustomColorScheme(
-        tabMenuBackground = onPrimaryLight,
-        tabMenuAccent = primaryLight,
-        tabMenuAccentSelect = secondaryLight,
-        tabMenuInactive = onSecondaryContainerLight,
+        logoBackground = logoBackgorundLight,
 )
 
 val DarkCustomColorScheme = CustomColorScheme(
-        tabMenuBackground = onPrimaryDark,
-        tabMenuAccent = primaryDark,
-        tabMenuAccentSelect = secondaryDark,
-        tabMenuInactive = onSecondaryContainerDark,
+        logoBackground = logoBackgorundDark,
 )
 
 val LocalCustomColorSchemeProvider = staticCompositionLocalOf { CustomColorScheme() }

@@ -3,6 +3,8 @@ package com.aspoliakov.securenotes.feature_auth.presentation
 import com.aspoliakov.securenotes.core_presentation.mvi.MviEffect
 import com.aspoliakov.securenotes.core_presentation.mvi.MviIntent
 import com.aspoliakov.securenotes.core_presentation.mvi.MviState
+import com.aspoliakov.securenotes.core_ui.resources.*
+import org.jetbrains.compose.resources.StringResource
 
 /**
  * Project SecureNotes
@@ -27,14 +29,14 @@ sealed class AuthActionState {
     data object Completed : AuthActionState()
 }
 
-enum class AuthError {
-    WRONG_EMAIL,
-    PASSWORD_IS_EMPTY,
-    WEAK_PASSWORD,
-    WRONG_CREDENTIALS,
-    USER_ALREADY_REGISTERED,
-    NETWORK_ERROR,
-    UNEXPECTED_ERROR,
+enum class AuthError(val res: StringResource) {
+    WRONG_EMAIL(Res.string.feature_auth_error_wrong_email),
+    PASSWORD_IS_EMPTY(Res.string.feature_auth_error_empty_password),
+    WEAK_PASSWORD(Res.string.feature_auth_error_weak_password),
+    WRONG_CREDENTIALS(Res.string.feature_auth_error_wrong_credentials),
+    USER_ALREADY_REGISTERED(Res.string.feature_auth_error_user_already_registered),
+    NETWORK_ERROR(Res.string.common_error_network),
+    UNEXPECTED_ERROR(Res.string.common_unexpected_error),
 }
 
 sealed class AuthEffect : MviEffect() {
