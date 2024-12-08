@@ -93,4 +93,6 @@ iOS
 
 <img src="assets/screenshots/iOS.png" width="480" alt="screenshot from iOS">
 
-## License
+## Author
+
+The project SecureNotes is developed and maintained by Anton Poliakov.
