@@ -85,13 +85,9 @@ Now you have your own version of the SecureNotes and your own Cloud Firestore.
 
 ## Screenshots
 
-Android
+Android/iOS
 
-<img src="assets/screenshots/Android.png" width="480" alt="screenshot from Android">
-
-iOS
-
-<img src="assets/screenshots/iOS.png" width="480" alt="screenshot from iOS">
+<img src="assets/screenshots/Android.png" width="240" alt="screenshot from Android"> <img src="assets/screenshots/iOS.png" width="240" alt="screenshot from iOS">
 
 ## Author
 
