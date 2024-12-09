@@ -75,8 +75,3 @@ sealed class CommonEffect : MviEffect() {
 //            val duration: Int = Toast.LENGTH_SHORT,
 //    ) : CommonEffect()
 }
-
-data class StateChange<S>(
-        val newState: S,
-        val oldState: S?,
-)

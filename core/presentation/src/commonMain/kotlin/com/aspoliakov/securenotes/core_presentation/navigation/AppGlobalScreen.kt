@@ -5,7 +5,6 @@ package com.aspoliakov.securenotes.core_presentation.navigation
  */
 
 sealed class AppGlobalScreen {
-    data object Splash : AppGlobalScreen()
     data object Auth : AppGlobalScreen()
     data object Keys : AppGlobalScreen()
     data object Main : AppGlobalScreen()

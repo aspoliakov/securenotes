@@ -26,4 +26,4 @@ fun getDataStore(producePath: () -> String): DataStore<Preferences> =
             }
         }
 
-internal const val dataStoreFileName = "main_preferences.preferences_pb"
+internal const val DATA_STORE_FILE_NAME = "main_preferences.preferences_pb"

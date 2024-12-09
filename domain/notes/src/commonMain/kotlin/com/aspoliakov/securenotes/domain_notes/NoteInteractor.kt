@@ -37,11 +37,11 @@ class NoteInteractor(
 
     suspend fun createNew(): String {
         val newNoteDB = NoteDB(
-                id = randomUUIDString(),
+                noteId = randomUUIDString(),
                 createdAt = Clock.System.now().toEpochMilliseconds(),
         )
         notesDao.insertOrReplace(newNoteDB)
-        return newNoteDB.id
+        return newNoteDB.noteId
     }
 
     suspend fun getById(noteId: String): NoteVO? {

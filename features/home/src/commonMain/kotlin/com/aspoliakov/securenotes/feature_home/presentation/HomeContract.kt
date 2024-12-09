@@ -14,5 +14,4 @@ sealed class HomeState : MviState() {
 
 sealed class HomeEffect : MviEffect()
 
-sealed class HomeIntent : MviIntent() {
-}
+sealed class HomeIntent : MviIntent()

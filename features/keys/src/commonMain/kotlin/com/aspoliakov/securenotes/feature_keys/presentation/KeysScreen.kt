@@ -62,7 +62,6 @@ internal fun KeysScreen(
         when (state) {
             is KeysState.Loading -> KeysLoadingState(
                     modifier = modifier.padding(paddings),
-                    intentHandler = intentHandler,
             )
             is KeysState.LoadingFailed -> KeysLoadingFailedState(
                     modifier = modifier.padding(paddings),
@@ -87,7 +86,6 @@ internal fun KeysScreen(
 @Composable
 internal fun KeysLoadingState(
         modifier: Modifier,
-        intentHandler: (KeysIntent) -> Unit = {},
 ) {
     Column(
             modifier = modifier.fillMaxSize(),

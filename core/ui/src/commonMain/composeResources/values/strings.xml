@@ -13,6 +13,8 @@
     <string name="common_retry">Retry</string>
     <string name="common_confirm">Confirm</string>
     <string name="common_cancel">Cancel</string>
+    <string name="common_password_hide">Hide password</string>
+    <string name="common_password_show">Show password</string>
 
     <string name="feature_about_app_version">App version: %1$s</string>
 
@@ -37,8 +39,6 @@
     <string name="feature_keys_restore_reset_keys_disclaimer_part_1">Resetting your password will generate new encryption keys. </string>
     <string name="feature_keys_restore_reset_keys_disclaimer_part_2">You will not be able to access your old notes.</string>
     <string name="feature_keys_restore_reset_keys_confirm">I understand the consequences</string>
-    <string name="feature_keys_password_hide">Hide password</string>
-    <string name="feature_keys_password_show">Show password</string>
     <string name="feature_keys_password_requirement_length">Password length at least 8 characters</string>
     <string name="feature_keys_password_requirement_digit">At least one digit</string>
     <string name="feature_keys_password_requirement_letter">At least one lowercase letter</string>

@@ -16,7 +16,9 @@ fun AuthScreenPreview() {
                 state = AuthState(
                         email = "test@email.com",
                         password = "password",
-                        authActionState = AuthActionState.Idle,
+                        authActionState = AuthActionState.Error(
+                                error = AuthError.UNEXPECTED_ERROR,
+                        ),
                         authType = AuthType.SIGN_IN,
                 )
         )

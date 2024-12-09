@@ -1,11 +1,7 @@
-package com.aspoliakov.securenotes.feature_keys.presentation
+package com.aspoliakov.securenotes.core_ui.component
 
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,8 +15,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import com.aspoliakov.securenotes.core_ui.Icons
 import com.aspoliakov.securenotes.core_ui.resources.Res
-import com.aspoliakov.securenotes.core_ui.resources.feature_keys_password_hide
-import com.aspoliakov.securenotes.core_ui.resources.feature_keys_password_show
+import com.aspoliakov.securenotes.core_ui.resources.common_password_hide
+import com.aspoliakov.securenotes.core_ui.resources.common_password_show
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -63,9 +59,9 @@ fun PasswordTextField(
                     Icons.VisibilityOff
                 }
                 val description = if (passwordVisible) {
-                    stringResource(Res.string.feature_keys_password_hide)
+                    stringResource(Res.string.common_password_hide)
                 } else {
-                    stringResource(Res.string.feature_keys_password_show)
+                    stringResource(Res.string.common_password_show)
                 }
                 IconButton(
                         onClick = { passwordVisible = !passwordVisible },

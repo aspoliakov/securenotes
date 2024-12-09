@@ -19,14 +19,9 @@ import org.koin.android.ext.koin.androidContext
 class AppActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
-
-        val splashScreen = installSplashScreen()
-
-        splashScreen.setKeepOnScreenCondition { false }
-
         enableEdgeToEdge()
-
         setContent {
             AppDI(
                     appDeclaration = {

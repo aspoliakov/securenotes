@@ -12,7 +12,9 @@ import org.koin.dsl.module
 val aboutViewModelModule = module {
     viewModel {
         AboutViewModel(
-                initialState = AboutState,
+                initialState = AboutState(
+                        appVersion = "0.1",
+                ),
         )
     }
 }

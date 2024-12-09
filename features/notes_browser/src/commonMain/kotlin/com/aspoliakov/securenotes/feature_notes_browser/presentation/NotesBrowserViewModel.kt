@@ -5,7 +5,6 @@ import com.aspoliakov.securenotes.core_base.util.flowOnIO
 import com.aspoliakov.securenotes.core_presentation.mvi.MviViewModel
 import com.aspoliakov.securenotes.core_presentation.utils.launchOnIO
 import com.aspoliakov.securenotes.domain_notes.NotesListInteractor
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -21,9 +20,6 @@ class NotesBrowserViewModel(
     init {
         notesListInteractor.getNotesList()
                 .onEach { notesList ->
-                    if (currentState.notesListState is NotesListState.Idle) {
-                        delay(200)
-                    }
                     reduceState {
                         copy(
                                 notesListState = NotesListState.Loaded(

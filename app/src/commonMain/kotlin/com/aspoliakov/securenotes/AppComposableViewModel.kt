@@ -4,8 +4,6 @@ import androidx.lifecycle.viewModelScope
 import com.aspoliakov.securenotes.core_base.util.flowOnMain
 import com.aspoliakov.securenotes.core_presentation.mvi.MviViewModel
 import com.aspoliakov.securenotes.domain_user_state.UserStateProvider
-import com.aspoliakov.securenotes.domain_user_state.model.UserState
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -15,20 +13,12 @@ import kotlinx.coroutines.flow.onEach
 
 class AppComposableViewModel(
         userStateProvider: UserStateProvider,
-) : MviViewModel<AppComposableState, AppComposableEffect, AppComposableIntent>(AppComposableState.Loading) {
+        initialState: AppComposableState,
+) : MviViewModel<AppComposableState, AppComposableEffect, AppComposableIntent>(initialState) {
 
     init {
-        userStateProvider.getUserState()
-                .onEach {
-                    reduceState {
-                        Napier.d("UserState: $it")
-                        when (it) {
-                            UserState.UNAUTHORIZED -> AppComposableState.Unauthorized
-                            UserState.AUTHORIZED -> AppComposableState.Authorized
-                            UserState.ACTIVE -> AppComposableState.Active
-                        }
-                    }
-                }
+        userStateProvider.observeUserState()
+                .onEach { reduceState { it.toAppState() } }
                 .flowOnMain()
                 .launchIn(viewModelScope)
     }

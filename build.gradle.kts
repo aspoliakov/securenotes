@@ -26,7 +26,8 @@ allprojects {
         mavenCentral()
         maven("https://maven.google.com")
     }
+    plugins.apply("plugins.detekt")
 }
-plugins.apply("plugins.detekt")
+
 
 apply("gradle-tools/dependency-graph.gradle")

@@ -27,13 +27,13 @@ class NotesListInteractor(
     }
 
     suspend fun searchNotesList(query: String): List<NotesListItem> {
-        return notesDao.searchAllByCreatedAtDesc()
+        return notesDao.searchAllByCreatedAtDesc(query)
                 .map(this::mapNoteDBToNotesListItem)
     }
 
     private fun mapNoteDBToNotesListItem(noteDB: NoteDB): NotesListItem {
         return NotesListItem(
-                id = noteDB.id,
+                id = noteDB.noteId,
                 createdAt = noteDB.createdAt,
                 title = noteDB.title,
                 body = noteDB.body,
@@ -42,18 +42,18 @@ class NotesListInteractor(
 
     private fun sync() = IOScope().launch {
         runCatching {
-            notesApi.getAllNotes()
+            val notes = notesApi.getAllNotes()
                     .notes
                     .map {
                         val notePayload = noteCryptoInteractor.decrypt(it.payload)
-                        val noteDBList = NoteDB(
-                                id = it.id,
+                        NoteDB(
+                                noteId = it.id,
                                 createdAt = 1, // TODO
                                 title = notePayload.title,
                                 body = notePayload.body,
                         )
-                        notesDao.insertOrReplace(noteDBList)
                     }
+            notesDao.insertOrReplace(notes)
         }
                 .onFailure {
                     Napier.e("Error syncing notes: $it")

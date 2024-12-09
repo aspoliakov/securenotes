@@ -18,8 +18,18 @@ class AuthViewModel(
 
     override fun handleIntent(intent: AuthIntent) {
         when (intent) {
-            is AuthIntent.OnEmailChanged -> reduceState { currentState.copy(email = intent.email) }
-            is AuthIntent.OnPasswordChanged -> reduceState { currentState.copy(password = intent.password) }
+            is AuthIntent.OnEmailChanged -> reduceState {
+                currentState.copy(
+                        email = intent.email,
+                        authActionState = AuthActionState.Idle,
+                )
+            }
+            is AuthIntent.OnPasswordChanged -> reduceState {
+                currentState.copy(
+                        password = intent.password,
+                        authActionState = AuthActionState.Idle,
+                )
+            }
             is AuthIntent.OnSwitchSignInSignUpClick -> onSwitchSignInSignUpClick()
             is AuthIntent.OnNextClick -> onNextClick()
         }
@@ -37,8 +47,9 @@ class AuthViewModel(
         }
     }
 
+    @Suppress("MaxLineLength")
     private fun onNextClick() = launchOnIO {
-        val email = currentState.email
+        val email = currentState.email.trim()
         val password = currentState.password
         when {
             email.isBlank() || !Patterns.checkEmailIsValid(email) -> {

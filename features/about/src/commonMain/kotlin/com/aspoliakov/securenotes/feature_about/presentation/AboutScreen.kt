@@ -1,5 +1,6 @@
 package com.aspoliakov.securenotes.feature_about.presentation
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,7 +35,7 @@ fun AboutScreenRoute(
 @Composable
 internal fun AboutScreen(
         modifier: Modifier = Modifier,
-        state: AboutState = AboutState,
+        state: AboutState = AboutState(),
         intentHandler: (AboutIntent) -> Unit = {},
 ) {
     Scaffold(modifier = modifier) { paddings ->
@@ -46,7 +47,10 @@ internal fun AboutScreen(
                 verticalArrangement = Arrangement.Center,
         ) {
             Text(
-                    text = "About",
+                    modifier = Modifier.clickable {
+                        intentHandler.invoke(AboutIntent)
+                    },
+                    text = state.appVersion,
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
