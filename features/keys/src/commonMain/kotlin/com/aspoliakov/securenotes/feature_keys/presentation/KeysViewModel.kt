@@ -74,6 +74,7 @@ class KeysViewModel(
                     state.copy(
                             password = password,
                             passwordRequirements = passwordRequirements,
+                            actionState = KeysActionState.Idle,
                     )
                 }
             }

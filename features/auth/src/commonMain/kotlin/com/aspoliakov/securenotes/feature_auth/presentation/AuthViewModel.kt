@@ -18,8 +18,18 @@ class AuthViewModel(
 
     override fun handleIntent(intent: AuthIntent) {
         when (intent) {
-            is AuthIntent.OnEmailChanged -> reduceState { currentState.copy(email = intent.email) }
-            is AuthIntent.OnPasswordChanged -> reduceState { currentState.copy(password = intent.password) }
+            is AuthIntent.OnEmailChanged -> reduceState {
+                currentState.copy(
+                        email = intent.email,
+                        authActionState = AuthActionState.Idle,
+                )
+            }
+            is AuthIntent.OnPasswordChanged -> reduceState {
+                currentState.copy(
+                        password = intent.password,
+                        authActionState = AuthActionState.Idle,
+                )
+            }
             is AuthIntent.OnSwitchSignInSignUpClick -> onSwitchSignInSignUpClick()
             is AuthIntent.OnNextClick -> onNextClick()
         }

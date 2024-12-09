@@ -78,7 +78,7 @@ internal fun AuthScreen(
         ) {
             Column(
                     modifier = Modifier
-                            .weight(3f),
+                            .weight(2f),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -95,7 +95,7 @@ internal fun AuthScreen(
             Column(
                     modifier = Modifier
                             .weight(1f),
-                    verticalArrangement = Arrangement.Center,
+                    verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 LoginTextField(
@@ -112,7 +112,7 @@ internal fun AuthScreen(
             }
             Column(
                     modifier = Modifier
-                            .weight(3f),
+                            .weight(2f),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -151,13 +151,6 @@ internal fun SignInSignOutActionView(
         state: AuthState,
         intentHandler: (AuthIntent) -> Unit = {},
 ) {
-    Spacer(modifier = modifier.height(60.dp))
-    if (state.authActionState is AuthActionState.Error) {
-        AuthErrorText(
-                authError = state.authActionState.error,
-        )
-        Spacer(modifier = modifier.height(30.dp))
-    }
     val authActionButtonText = when (state.authType) {
         AuthType.SIGN_IN -> Res.string.feature_auth_sign_in
         AuthType.SIGN_UP -> Res.string.feature_auth_sign_up

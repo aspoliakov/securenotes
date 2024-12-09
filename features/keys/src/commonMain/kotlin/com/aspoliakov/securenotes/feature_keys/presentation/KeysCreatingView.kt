@@ -98,6 +98,7 @@ internal fun KeysCreatingView(
                             .fillMaxWidth(),
                     password = state.password,
                     onValueChanged = { intentHandler(KeysIntent.OnPasswordChanged(it)) },
+                    errorStringRes = (state.actionState as? KeysActionState.Error)?.error?.res,
             )
             PasswordRequirementsView(state)
         }
