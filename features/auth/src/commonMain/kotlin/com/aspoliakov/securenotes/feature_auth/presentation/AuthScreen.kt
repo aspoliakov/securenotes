@@ -69,7 +69,7 @@ internal fun AuthScreen(
     Scaffold(
             modifier = modifier,
             snackbarHost = { SnackbarHost(snackbarHostState) },
-    ) { paddings ->
+    ) {
         Column(
                 modifier = modifier
                         .fillMaxSize()

@@ -39,7 +39,7 @@ class AuthViewModel(
 
     @Suppress("MaxLineLength")
     private fun onNextClick() = launchOnIO {
-        val email = currentState.email
+        val email = currentState.email.trim()
         val password = currentState.password
         when {
             email.isBlank() || !Patterns.checkEmailIsValid(email) -> {
