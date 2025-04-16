@@ -4,7 +4,8 @@ import com.aspoliakov.securenotes.core_base.util.IOScope
 import com.aspoliakov.securenotes.core_db.dao.NotesDao
 import com.aspoliakov.securenotes.core_db.model.NoteDB
 import com.aspoliakov.securenotes.domain_notes.model.NotesListItem
-import com.aspoliakov.securenotes.domain_notes.network.NotesApi
+import com.aspoliakov.securenotes.domain_notes.network.NotesApiProvider
+import com.aspoliakov.securenotes.domain_user_state.UserStateInteractor
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -16,7 +17,8 @@ import kotlinx.coroutines.launch
 
 class NotesListInteractor(
         private val notesDao: NotesDao,
-        private val notesApi: NotesApi,
+        private val notesApiProvider: NotesApiProvider,
+        private val userStateInteractor: UserStateInteractor,
         private val noteCryptoInteractor: NoteCryptoInteractor,
 ) {
 
@@ -42,12 +44,14 @@ class NotesListInteractor(
 
     private fun sync() = IOScope().launch {
         runCatching {
-            val notes = notesApi.getAllNotes()
+            val notes = notesApiProvider.provideApi().getAllNotes(
+                    token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
+            )
                     .notes
                     .map {
                         val notePayload = noteCryptoInteractor.decrypt(it.payload)
                         NoteDB(
-                                noteId = it.id,
+                                noteId = it.noteId,
                                 createdAt = 1, // TODO
                                 title = notePayload.title,
                                 body = notePayload.body,

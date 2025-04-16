@@ -1,17 +1,10 @@
 package com.aspoliakov.securenotes.domain_crypto
 
-import com.aspoliakov.securenotes.core_base.util.randomUUIDString
 import com.aspoliakov.securenotes.core_key_value_storage.EncryptedKeyValueStorage
-import com.aspoliakov.securenotes.domain_crypto.network.GetKeysResponse
-import com.aspoliakov.securenotes.domain_crypto.network.KeysApi
-import com.aspoliakov.securenotes.domain_crypto.network.PostKeyPairRequest
-import com.aspoliakov.securenotes.domain_crypto.sodium.SodiumKeyPair
-import com.aspoliakov.securenotes.domain_crypto.sodium.cipherFromBase64
-import com.aspoliakov.securenotes.domain_crypto.sodium.decryptSym
-import com.aspoliakov.securenotes.domain_crypto.sodium.encodeBase64
-import com.aspoliakov.securenotes.domain_crypto.sodium.encryptSym
-import com.aspoliakov.securenotes.domain_crypto.sodium.hashed
-import com.aspoliakov.securenotes.domain_crypto.sodium.toBase64
+import com.aspoliakov.securenotes.domain_crypto.model.KeyDTO
+import com.aspoliakov.securenotes.domain_crypto.model.PostKeyPairRequest
+import com.aspoliakov.securenotes.domain_crypto.network.KeysApiProvider
+import com.aspoliakov.securenotes.domain_crypto.sodium.*
 import com.aspoliakov.securenotes.domain_user_state.UserStateInteractor
 
 /**
@@ -22,7 +15,7 @@ import com.aspoliakov.securenotes.domain_user_state.UserStateInteractor
 class UserKeysInteractor(
         private val userStateInteractor: UserStateInteractor,
         private val encryptedKeyValueStorage: EncryptedKeyValueStorage,
-        private val keysApi: KeysApi,
+        private val keysApiProvider: KeysApiProvider,
 ) {
 
     companion object {
@@ -41,16 +34,15 @@ class UserKeysInteractor(
         val encryptedPrivateKey = privateKey
                 .encryptSym(hashedPassword)
                 .toBase64()
-        val postKeyPairRequest = PostKeyPairRequest(
-                id = randomUUIDString(),
-                publicKey = encodedPublicKey,
-                encryptedPrivateKey = encryptedPrivateKey,
-                version = 1,
-        )
         return runCatching {
-            deleteAllUserKeys()
-            keysApi.postNewUserKey(postKeyPairRequest)
-            encryptedKeyValueStorage.put(USER_KEY_PAIR_ID, postKeyPairRequest.id)
+            val response = keysApiProvider.provideApi().postNewUserKey(
+                    token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
+                    request = PostKeyPairRequest(
+                            publicKey = encodedPublicKey,
+                            encryptedPrivateKey = encryptedPrivateKey,
+                    ),
+            )
+            encryptedKeyValueStorage.put(USER_KEY_PAIR_ID, response.key.keyId)
             encryptedKeyValueStorage.put(USER_PUBLIC_KEY, publicKey.encodeBase64())
             encryptedKeyValueStorage.put(USER_PRIVATE_KEY, privateKey.encodeBase64())
             userStateInteractor.setUserActive()
@@ -60,8 +52,11 @@ class UserKeysInteractor(
         }
     }
 
-    suspend fun loadKey(): GetKeysResponse.KeyPair? {
-        return keysApi.getUserKeys().keys.takeIf { it.isNotEmpty() }?.maxBy { it.version }
+    suspend fun loadKey(): KeyDTO? {
+        val allUserKeys = keysApiProvider.provideApi().getAllUserKeys(
+                token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
+        ).keys
+        return allUserKeys.takeIf { it.isNotEmpty() }?.maxBy { it.version }
     }
 
     suspend fun restoreKey(
@@ -82,11 +77,6 @@ class UserKeysInteractor(
         }.getOrElse {
             KeysRestoreResult.FAILED
         }
-    }
-
-    private suspend fun deleteAllUserKeys() {
-        val currentKeys = keysApi.getUserKeys().keys
-        currentKeys.forEach { keysApi.deleteUserKey(it.id) }
     }
 }
 

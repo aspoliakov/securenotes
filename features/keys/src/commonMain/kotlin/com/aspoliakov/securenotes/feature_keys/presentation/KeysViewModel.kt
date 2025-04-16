@@ -50,7 +50,7 @@ class KeysViewModel(
             } else {
                 reduceState {
                     KeysState.Restoring(
-                            keyId = keyPair.id,
+                            keyId = keyPair.keyId,
                             publicKey = keyPair.publicKey,
                             encryptedPrivateKey = keyPair.encryptedPrivateKey,
                     )

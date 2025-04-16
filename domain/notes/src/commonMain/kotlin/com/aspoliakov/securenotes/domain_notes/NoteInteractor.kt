@@ -7,10 +7,11 @@ import com.aspoliakov.securenotes.core_db.dao.SyncStackDao
 import com.aspoliakov.securenotes.core_db.event_bus.SyncStackEventBus
 import com.aspoliakov.securenotes.core_db.model.NoteDB
 import com.aspoliakov.securenotes.core_db.model.SyncStackDB
+import com.aspoliakov.securenotes.domain_notes.model.NotePayload
 import com.aspoliakov.securenotes.domain_notes.model.NoteVO
-import com.aspoliakov.securenotes.domain_notes.network.NotePayload
-import com.aspoliakov.securenotes.domain_notes.network.NotesApi
-import com.aspoliakov.securenotes.domain_notes.network.PostNoteRequest
+import com.aspoliakov.securenotes.domain_notes.model.PostNoteRequest
+import com.aspoliakov.securenotes.domain_notes.network.NotesApiProvider
+import com.aspoliakov.securenotes.domain_user_state.UserStateInteractor
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -25,7 +26,8 @@ class NoteInteractor(
         private val notesDao: NotesDao,
         private val syncStackDao: SyncStackDao,
         private val syncStackEventBus: SyncStackEventBus,
-        private val notesApi: NotesApi,
+        private val notesApiProvider: NotesApiProvider,
+        private val userStateInteractor: UserStateInteractor,
         private val noteCryptoInteractor: NoteCryptoInteractor,
 ) {
 
@@ -104,7 +106,8 @@ class NoteInteractor(
                             body = noteDB.body,
                     )
             )
-            notesApi.postNote(
+            notesApiProvider.provideApi().saveNote(
+                    token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
                     request = PostNoteRequest(
                             noteId = noteId,
                             keyId = encryptedPayload.keyId,
@@ -113,7 +116,10 @@ class NoteInteractor(
             )
         } else {
             Napier.d("remove note from server")
-            notesApi.deleteNote(noteId)
+            notesApiProvider.provideApi().deleteNote(
+                    token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
+                    noteId = noteId,
+            )
         }
     }
 

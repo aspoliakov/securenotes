@@ -26,7 +26,6 @@
     <string name="feature_auth_password_hint">password</string>
     <string name="feature_auth_error_wrong_email">Wrong email</string>
     <string name="feature_auth_error_empty_password">Password cannot be empty</string>
-    <string name="feature_auth_error_weak_password">Password must contain at least 6 characters</string>
     <string name="feature_auth_error_wrong_credentials">Wrong email or password</string>
     <string name="feature_auth_error_user_already_registered">User already registered</string>
 

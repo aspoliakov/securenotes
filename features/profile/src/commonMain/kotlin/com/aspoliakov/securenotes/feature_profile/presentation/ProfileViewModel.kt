@@ -29,7 +29,6 @@ class ProfileViewModel(
 
     override fun handleIntent(intent: ProfileIntent) {
         when (intent) {
-            is ProfileIntent.OnAboutClick -> {}
             is ProfileIntent.OnLogoutClick -> onLogoutClick()
         }
     }

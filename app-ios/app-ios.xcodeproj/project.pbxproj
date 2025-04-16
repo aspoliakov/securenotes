@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AF1265AF2C8308F80035CF9E /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = AF1265AE2C8308F80035CF9E /* FirebaseAuth */; };
-		AF1265B12C8308F80035CF9E /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = AF1265B02C8308F80035CF9E /* FirebaseFirestore */; };
 		AF627E502B19D41A0099D6FF /* app_iosApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF627E4F2B19D41A0099D6FF /* app_iosApp.swift */; };
 		AF627E522B19D41A0099D6FF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF627E512B19D41A0099D6FF /* ContentView.swift */; };
 		AF627E542B19D41B0099D6FF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AF627E532B19D41B0099D6FF /* Assets.xcassets */; };
@@ -56,8 +54,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AF1265AF2C8308F80035CF9E /* FirebaseAuth in Frameworks */,
-				AF1265B12C8308F80035CF9E /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

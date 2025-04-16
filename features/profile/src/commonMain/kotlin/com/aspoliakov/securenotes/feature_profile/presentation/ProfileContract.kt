@@ -19,6 +19,5 @@ sealed class ProfileDataState {
 sealed class ProfileEffect : MviEffect()
 
 sealed class ProfileIntent : MviIntent() {
-    data object OnAboutClick : ProfileIntent()
     data object OnLogoutClick : ProfileIntent()
 }

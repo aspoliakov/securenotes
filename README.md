@@ -1,6 +1,6 @@
 # SecureNotes - KMP Mobile App
 
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.0.20-blue.svg?style=flat&logo=kotlin)](https://kotlinlang.org)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.1.20-blue.svg?style=flat&logo=kotlin)](https://kotlinlang.org)
 
 ![badge-android](http://img.shields.io/badge/platform-android-6EDB8D.svg?style=flat)
 ![badge-ios](https://img.shields.io/badge/platform-ios-6EDB8D.svg?style=flat)
@@ -19,7 +19,6 @@ SecureNotes is a KMP project with completely shared code base across Android and
 - [Data Store](https://developer.android.com/jetpack/androidx/releases/datastore) - key-value storage for non-secret data
 - [KVault](https://github.com/Liftric/KVault) - encrypted key-value storage for secret data
 - [Koin](https://github.com/InsertKoinIO/koin) - DI Framework
-- [Firebase](https://github.com/GitLiveApp/firebase-kotlin-sdk) - Kotlin-first SDK for Firebase
 - [Kotlinx Serialization](https://github.com/Kotlin/kotlinx.serialization) - JSON serialization
 - [Navigation Compose](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-navigation-routing.html) - Compose Multiplatform adaptation for KMP
 - [Napier](https://github.com/AAkira/Napier) - Logger for KMP
@@ -56,32 +55,7 @@ The declarative state of the ViewModel is implemented as a composable MutableSta
 
 ## Backend
 
-SecureNotes uses [Cloud Firestore](https://firebase.google.com/docs/firestore) as a Backend.
-
-To set up your own project, follow these simple steps:
-
-1. Change the app package to your own:
-   - APPLICATION_ID for Android (buildSrc/src/main/kotlin/Config.kt)
-   - BUNDLE_ID for iOS (app-ios/Configuration/Config.xcconfig)
-2. Create a new Firebase Project with this package [here](https://console.firebase.google.com/)
-3. Set up simple Firestore Rules. In the Firestore Database section, on the Rules tab, you need to add the following code:
-    ```js
-    service cloud.firestore {
-      match /databases/{database}/documents {
-        match /users/{userId}/notes/{noteId} {
-          allow read, write: if request.auth != null && request.auth.uid == userId;
-        }
-        match /users/{userId}/keys/{keyId} {
-          allow read, write: if request.auth != null && request.auth.uid == userId;
-        }
-      }
-    }
-    ```
-4. Generate the project configuration files by opening `Project Settings -> General`. In the "Your apps" section, create applications for Android and iOS, and then download the resulting json and plist files. Then move these configuration files:
-   - google-services.json for Android to the `app/` directory
-   - GoogleService-Info.plist for iOS to the `app-ios/app-ios` directory
-
-Now you have your own version of the SecureNotes and your own Cloud Firestore.
+SecureNotes uses FastAPI [Backend](https://github.com/aspoliakov/securenotes-backend).
 
 ## Screenshots
 
