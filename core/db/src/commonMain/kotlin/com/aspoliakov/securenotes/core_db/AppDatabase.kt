@@ -33,7 +33,9 @@ abstract class AppDatabase : RoomDatabase() {
 }
 
 @Suppress("NO_ACTUAL_FOR_EXPECT", "EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
-expect object AppDatabaseConstructor : RoomDatabaseConstructor<AppDatabase>
+expect object AppDatabaseConstructor : RoomDatabaseConstructor<AppDatabase> {
+    override fun initialize(): AppDatabase
+}
 
 fun getDatabase(
         builder: RoomDatabase.Builder<AppDatabase>

@@ -32,7 +32,6 @@ sealed class AuthActionState {
 enum class AuthError(val res: StringResource) {
     WRONG_EMAIL(Res.string.feature_auth_error_wrong_email),
     PASSWORD_IS_EMPTY(Res.string.feature_auth_error_empty_password),
-    WEAK_PASSWORD(Res.string.feature_auth_error_weak_password),
     WRONG_CREDENTIALS(Res.string.feature_auth_error_wrong_credentials),
     USER_ALREADY_REGISTERED(Res.string.feature_auth_error_user_already_registered),
     NETWORK_ERROR(Res.string.common_error_network),

@@ -3,8 +3,7 @@ package com.aspoliakov.securenotes.domain_notes
 import com.aspoliakov.securenotes.domain_crypto.UserKeysProvider
 import com.aspoliakov.securenotes.domain_crypto.decryptText
 import com.aspoliakov.securenotes.domain_crypto.encryptText
-import com.aspoliakov.securenotes.domain_notes.network.NotePayload
-import kotlinx.serialization.encodeToString
+import com.aspoliakov.securenotes.domain_notes.model.NotePayload
 import kotlinx.serialization.json.Json
 
 /**

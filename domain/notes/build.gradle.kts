@@ -2,6 +2,8 @@ plugins {
     id(libs.plugins.commonAndroidPlugin.get().pluginId)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.ktorfit)
 }
 
 kotlin {
@@ -17,7 +19,12 @@ kotlin {
             implementation(projects.core.base)
             implementation(projects.core.db)
             implementation(projects.core.keyValueStorage)
-            implementation(libs.firebase.firestore)
+            implementation(projects.core.network)
+            implementation(libs.ktorfit.lib)
+            implementation(libs.ktor.client.serialization)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.client.logging)
+            implementation(libs.ktor.serialization.kotlinx.json)
         }
         androidMain.dependencies {
         }

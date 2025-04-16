@@ -27,6 +27,7 @@ include(":domain:crypto", "domain/crypto")
 include(":core:base", "core/base")
 include(":core:db", "core/db")
 include(":core:key_value_storage", "core/key_value_storage")
+include(":core:network", "core/network")
 include(":core:presentation", "core/presentation")
 include(":core:ui", "core/ui")
 

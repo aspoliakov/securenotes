@@ -66,10 +66,8 @@ class AuthViewModel(
                 }
                 Napier.d("Result: $result")
                 val authActionState = when (result) {
-                    AuthResult.OK,
-                    AuthResult.SIGN_OUT -> AuthActionState.Completed
+                    AuthResult.OK -> AuthActionState.Completed
                     AuthResult.SIGN_IN_WRONG_CREDENTIALS -> AuthActionState.Error(AuthError.WRONG_CREDENTIALS)
-                    AuthResult.SIGN_UP_WEAK_PASSWORD -> AuthActionState.Error(AuthError.WEAK_PASSWORD)
                     AuthResult.SIGN_UP_USER_ALREADY_REGISTERERD -> AuthActionState.Error(AuthError.USER_ALREADY_REGISTERED)
                     AuthResult.NETWORK_ERROR -> AuthActionState.Error(AuthError.NETWORK_ERROR)
                     AuthResult.UNEXPECTED_ERROR -> AuthActionState.Error(AuthError.UNEXPECTED_ERROR)

@@ -41,7 +41,13 @@ internal fun MainScreen() {
                                         },
                                 )
                             },
-                            profileItem { ProfileScreenRoute() },
+                            profileItem {
+                                ProfileScreenRoute(
+                                        onNavigateToAbout = {
+                                            navController.navigate("${Screen.About}")
+                                        }
+                                )
+                            },
                     ),
             )
         }
