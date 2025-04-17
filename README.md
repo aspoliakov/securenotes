@@ -7,7 +7,7 @@
 
 SecureNotes is a simple notes app that can be used on both Android and iOS platforms.
 
-All data is encrypted and synced with the Cloud Firestore. Only the owner of the note can decrypt it.
+All data is encrypted and synced with [SecureNotes Backend](https://github.com/aspoliakov/securenotes-backend). Only the owner of the note can decrypt it.
 
 ## Project Tech Stack
 
