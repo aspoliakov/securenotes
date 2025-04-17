@@ -3,7 +3,7 @@ plugins {
     id(libs.plugins.kotlinMultiplatform.get().pluginId)
     id(libs.plugins.androidLibrary.get().pluginId)
     alias(libs.plugins.jetbrainsCompose)
-    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.composeCompiler)
     alias(libs.plugins.ksp)
 }
 

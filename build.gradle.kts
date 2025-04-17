@@ -1,8 +1,8 @@
 plugins {
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.jetbrainsCompose) apply false
-    alias(libs.plugins.compose.compiler) apply false
-    alias(libs.plugins.google.services) apply false
+    alias(libs.plugins.composeCompiler) apply false
+    alias(libs.plugins.gms) apply false
     alias(libs.plugins.kotlinSerialization) apply false
 }
 

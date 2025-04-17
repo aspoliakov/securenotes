@@ -2,9 +2,9 @@ plugins {
     id(libs.plugins.kotlinMultiplatform.get().pluginId)
     id(libs.plugins.androidApplication.get().pluginId)
     alias(libs.plugins.jetbrainsCompose)
-    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.composeCompiler)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.google.services)
+    alias(libs.plugins.gms)
 }
 
 kotlin {

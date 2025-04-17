@@ -69,7 +69,7 @@ internal fun Project.configureCommonAndroid(
         }
 
         composeOptions {
-            kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get().toString()
+            kotlinCompilerExtensionVersion = libs.versions.kotlin.get().toString()
         }
     }
 

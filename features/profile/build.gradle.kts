@@ -1,7 +1,7 @@
 plugins {
     id(libs.plugins.commonModulePlugin.get().pluginId)
     alias(libs.plugins.jetbrainsCompose)
-    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.composeCompiler)
 }
 
 kotlin {
