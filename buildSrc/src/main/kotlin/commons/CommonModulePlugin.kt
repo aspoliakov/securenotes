@@ -10,11 +10,10 @@ import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
-import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.the
 
-class CommonAndroidPlugin : Plugin<Project> {
+class CommonModulePlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             val libs = the<LibrariesForLibs>()
@@ -58,8 +57,6 @@ internal fun Project.configureCommonAndroid(
             sourceCompatibility = JavaVersion.VERSION_21
             targetCompatibility = JavaVersion.VERSION_21
         }
-
-        sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
 
         testOptions {
             unitTests.isIncludeAndroidResources = false

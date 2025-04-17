@@ -86,9 +86,7 @@ kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", versio
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 ktorfit = { id = "de.jensklingenberg.ktorfit", version.ref = "ktorfit" }
 
-commonAndroidPlugin = { id = "common-android-plugin" }
-coreModule = { id = "core-module-plugin" }
-featureModule = { id = "feature-module-plugin" }
+commonModulePlugin = { id = "common-module-plugin" }
 
 room = { id = "androidx.room", version.ref = "room" }
 kotlinAndroid = { id = "kotlin-android" }

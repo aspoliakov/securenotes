@@ -24,17 +24,9 @@ dependencies {
 
 gradlePlugin {
     plugins {
-        register("common-android-plugin") {
-            id = "common-android-plugin"
-            implementationClass = "commons.CommonAndroidPlugin"
-        }
-        register("core-module-plugin") {
-            id = "core-module-plugin"
-            implementationClass = "commons.CoreModulePlugin"
-        }
-        register("feature-module-plugin") {
-            id = "feature-module-plugin"
-            implementationClass = "commons.FeatureModulePlugin"
+        register("common-module-plugin") {
+            id = "common-module-plugin"
+            implementationClass = "commons.CommonModulePlugin"
         }
     }
 }
