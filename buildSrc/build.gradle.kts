@@ -8,14 +8,8 @@ repositories {
     maven("https://plugins.gradle.org/m2/")
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-}
-
 dependencies {
-    implementation(files(libs.javaClass.superclass.protectionDomain.codeSource.location))
+    compileOnly(files((libs as Any).javaClass.superclass.protectionDomain.codeSource.location))
 
     implementation(libs.android.buildTools)
     implementation(libs.kotlin.gradlePlugin)

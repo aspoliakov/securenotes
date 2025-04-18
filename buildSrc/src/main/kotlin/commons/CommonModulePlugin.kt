@@ -38,8 +38,7 @@ internal fun Project.libs(): LibrariesForLibs {
     return the<LibrariesForLibs>()
 }
 
-internal fun Project.configureKotlin(
-) {
+internal fun Project.configureKotlin() {
     extensions.getByType<KotlinMultiplatformExtension>().apply {
         androidTarget()
         iosX64()
