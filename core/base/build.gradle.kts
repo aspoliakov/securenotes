@@ -6,9 +6,9 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(project.dependencies.platform(libs.koin.bom))
-            api(libs.kotlin.coroutines)
-            api(libs.kotlin.datetime)
-            api(libs.kotlin.serialization)
+            api(libs.kotlinx.coroutines)
+            api(libs.kotlinx.datetime)
+            api(libs.kotlinx.serialization)
             api(libs.napier)
             api(libs.koin.core)
             api(libs.koin.compose)

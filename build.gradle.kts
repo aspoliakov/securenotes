@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.composeCompiler) apply false
     alias(libs.plugins.gms) apply false
     alias(libs.plugins.kotlinSerialization) apply false
+    alias(libs.plugins.atomicfuPlugin) apply false
 }
 
 buildscript {
@@ -14,19 +15,17 @@ buildscript {
     }
     dependencies {
         classpath(libs.kotlin.gradlePlugin)
-        classpath(libs.kotlin.atomicfuPlugin)
 //        classpath(libs.google.services)
     }
 }
 
 allprojects {
-    apply(plugin = "kotlinx-atomicfu")
     repositories {
         google()
         mavenCentral()
         maven("https://maven.google.com")
     }
-    plugins.apply("plugins.detekt")
+    apply(plugin = "plugins.detekt")
 }
 
 

@@ -7,8 +7,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.core.base)
-            api(libs.kotlin.coroutines)
-            api(libs.kotlin.atomicfu)
+            api(libs.kotlinx.coroutines)
             api(libs.napier)
             api(libs.room.runtime)
             api(libs.sqlite.bundled)
