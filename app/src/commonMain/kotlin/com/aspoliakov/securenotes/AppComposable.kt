@@ -1,6 +1,7 @@
 package com.aspoliakov.securenotes
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -30,9 +31,10 @@ internal fun MainAppNavHost(
         navController: NavHostController,
 ) {
     val mainViewModel = koinViewModel<AppComposableViewModel>()
+    val startDestination = remember { mainViewModel.currentState.toScreen() }
     NavHost(
             navController = navController,
-            startDestination = mainViewModel.currentState.toScreen(),
+            startDestination = startDestination,
     ) {
         composable(AppGlobalScreen.Auth.toString()) { AuthScreenRoute() }
         composable(AppGlobalScreen.Keys.toString()) { KeysScreenRoute() }
