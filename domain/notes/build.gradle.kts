@@ -12,11 +12,6 @@ kotlin {
             implementation(projects.core.db)
             implementation(projects.core.keyValueStorage)
             implementation(projects.core.network)
-            implementation(libs.ktorfit.lib)
-            implementation(libs.ktor.client.serialization)
-            implementation(libs.ktor.client.content.negotiation)
-            implementation(libs.ktor.client.logging)
-            implementation(libs.ktor.serialization.kotlinx.json)
         }
         androidMain.dependencies {
         }

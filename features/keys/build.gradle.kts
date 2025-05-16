@@ -1,6 +1,5 @@
 plugins {
     id(libs.plugins.commonModulePlugin.get().pluginId)
-    alias(libs.plugins.ktorfit)
 }
 
 kotlin {
@@ -12,11 +11,6 @@ kotlin {
             implementation(projects.core.presentation)
             implementation(projects.core.ui)
             implementation(projects.core.network)
-            implementation(libs.ktorfit.lib)
-            implementation(libs.ktor.client.serialization)
-            implementation(libs.ktor.client.content.negotiation)
-            implementation(libs.ktor.client.logging)
-            implementation(libs.ktor.serialization.kotlinx.json)
         }
         androidMain.dependencies {
         }
