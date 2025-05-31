@@ -1,5 +1,9 @@
 package com.aspoliakov.securenotes
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
@@ -7,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.savedstate.read
 import com.aspoliakov.securenotes.core_presentation.navigation.Screen
 import com.aspoliakov.securenotes.feature_about.presentation.AboutScreenRoute
 import com.aspoliakov.securenotes.feature_home.notesItem
@@ -26,6 +31,20 @@ internal fun MainScreen() {
     NavHost(
             navController = navController,
             startDestination = Screen.Home.toString(),
+            enterTransition = {
+                slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Start,
+                        animationSpec = tween(durationMillis = 300),
+                )
+            },
+            exitTransition = { ExitTransition.None },
+            popEnterTransition = { EnterTransition.None },
+            popExitTransition = {
+                slideOutOfContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.End,
+                        animationSpec = tween(durationMillis = 300),
+                )
+            },
     ) {
         composable(Screen.Home.toString()) {
             HomeScreenRoute(
@@ -61,7 +80,7 @@ internal fun MainScreen() {
                 )
         ) { entry ->
             NoteScreenRoute(
-                    noteId = entry.arguments?.getString(Screen.Note.ARG_NOTE_ID),
+                    noteId = entry.arguments?.read { getStringOrNull(Screen.Note.ARG_NOTE_ID) },
                     onNavigationBack = { navController.popBackStack() },
             )
         }
