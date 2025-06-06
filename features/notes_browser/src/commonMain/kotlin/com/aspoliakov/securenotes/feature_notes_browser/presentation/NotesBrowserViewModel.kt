@@ -5,7 +5,6 @@ import com.aspoliakov.securenotes.core_base.util.flowOnIO
 import com.aspoliakov.securenotes.core_presentation.mvi.MviViewModel
 import com.aspoliakov.securenotes.core_presentation.utils.launchOnIO
 import com.aspoliakov.securenotes.domain_notes.NotesListInteractor
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -18,10 +17,9 @@ class NotesBrowserViewModel(
         private val notesListInteractor: NotesListInteractor,
 ) : MviViewModel<NotesBrowserState, NotesBrowserEffect, NotesBrowserIntent>(initialState) {
 
-    init {
+    override fun initData() {
         notesListInteractor.getNotesList()
                 .onEach { notesList ->
-                    delay(100) // TODO wtf?!
                     reduceState {
                         copy(
                                 notesListState = NotesListState.Loaded(

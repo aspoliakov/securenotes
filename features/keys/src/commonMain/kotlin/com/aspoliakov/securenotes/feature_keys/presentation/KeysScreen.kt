@@ -20,13 +20,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
 import com.aspoliakov.securenotes.core_ui.resources.Res
 import com.aspoliakov.securenotes.core_ui.resources.common_retry
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filterIsInstance
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Project SecureNotes
@@ -36,7 +36,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun KeysScreenRoute(
         modifier: Modifier = Modifier,
 ) {
-    val viewModel = koinViewModel<KeysViewModel>()
+    val viewModel = koinMviViewModel<KeysViewModel>()
     val state = viewModel.currentState
     KeysScreen(
             modifier = modifier,

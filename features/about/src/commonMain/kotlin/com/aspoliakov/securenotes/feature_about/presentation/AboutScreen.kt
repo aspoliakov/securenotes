@@ -13,7 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import org.koin.compose.viewmodel.koinViewModel
+import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
 
 /**
  * Project SecureAbouts
@@ -23,7 +23,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun AboutScreenRoute(
         modifier: Modifier = Modifier,
 ) {
-    val viewModel = koinViewModel<AboutViewModel>()
+    val viewModel = koinMviViewModel<AboutViewModel>()
     val state = viewModel.currentState
     AboutScreen(
             modifier = modifier,

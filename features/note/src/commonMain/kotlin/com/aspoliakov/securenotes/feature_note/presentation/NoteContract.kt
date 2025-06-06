@@ -1,8 +1,8 @@
 package com.aspoliakov.securenotes.feature_note.presentation
 
-import com.aspoliakov.securenotes.core_presentation.mvi.MviEffect
-import com.aspoliakov.securenotes.core_presentation.mvi.MviIntent
-import com.aspoliakov.securenotes.core_presentation.mvi.MviState
+import com.aspoliakov.securenotes.core_presentation.mvi.Effect
+import com.aspoliakov.securenotes.core_presentation.mvi.Intent
+import com.aspoliakov.securenotes.core_presentation.mvi.State
 
 /**
  * Project SecureNotes
@@ -13,13 +13,13 @@ data class NoteState(
         val newNote: Boolean = true,
         val title: String = "",
         val body: String = "",
-) : MviState()
+) : State()
 
-sealed class NoteEffect : MviEffect() {
+sealed class NoteEffect : Effect() {
     data object Close : NoteEffect()
 }
 
-sealed class NoteIntent : MviIntent() {
+sealed class NoteIntent : Intent() {
     data object OnDeleteClick : NoteIntent()
     data class OnTitleChanged(val text: String) : NoteIntent()
     data class OnBodyChanged(val text: String) : NoteIntent()

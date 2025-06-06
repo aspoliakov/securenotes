@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
 import com.aspoliakov.securenotes.core_ui.Icons
 import com.aspoliakov.securenotes.core_ui.resources.Res
 import com.aspoliakov.securenotes.core_ui.resources.common_back
@@ -29,7 +30,6 @@ import com.aspoliakov.securenotes.core_ui.resources.feature_note_text_field_titl
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 /**
@@ -42,7 +42,7 @@ fun NoteScreenRoute(
         onNavigationBack: () -> Unit,
         noteId: String?,
 ) {
-    val viewModel = koinViewModel<NoteViewModel>(parameters = { parametersOf(noteId) })
+    val viewModel = koinMviViewModel<NoteViewModel>(parameters = { parametersOf(noteId) })
     val state = viewModel.currentState
 
     LaunchedEffect(viewModel.effects) {

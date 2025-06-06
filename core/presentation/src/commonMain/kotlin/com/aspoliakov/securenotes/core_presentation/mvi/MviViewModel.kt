@@ -1,5 +1,7 @@
 package com.aspoliakov.securenotes.core_presentation.mvi
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -12,12 +14,14 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.ParametersDefinition
 
 /**
  * Project SecureNotes
  */
 
-abstract class MviViewModel<S : MviState, E : MviEffect, I : MviIntent>(initialState: S) : ViewModel() {
+abstract class MviViewModel<S : State, E : Effect, I : Intent>(initialState: S) : ViewModel() {
 
     var currentState by mutableStateOf(initialState)
         private set
@@ -25,7 +29,7 @@ abstract class MviViewModel<S : MviState, E : MviEffect, I : MviIntent>(initialS
     private val _intent = MutableSharedFlow<I>()
     val intent = _intent.asSharedFlow()
 
-    private val _effects = Channel<MviEffect>()
+    private val _effects = Channel<Effect>()
     val effects = _effects.receiveAsFlow()
 
     private val changeStateLock = SynchronizedObject()
@@ -36,6 +40,10 @@ abstract class MviViewModel<S : MviState, E : MviEffect, I : MviIntent>(initialS
                 handleIntent(it)
             }
         }
+    }
+
+    open fun initData() {
+        // initial loading
     }
 
     fun emitIntent(intent: I) {
@@ -50,28 +58,22 @@ abstract class MviViewModel<S : MviState, E : MviEffect, I : MviIntent>(initialS
         }
     }
 
-    protected fun <E : MviEffect> sendEffect(builder: () -> E) {
+    protected fun <E : Effect> sendEffect(builder: () -> E) {
         viewModelScope.launch { _effects.send(builder()) }
     }
 }
 
-open class MviState
-open class MviEffect
-open class MviIntent
-
-sealed class CommonEffect : MviEffect() {
-    data class ShowError(
-            val resId: Int,
-            val errorBody: ErrorBody,
-    ) : CommonEffect() {
-        sealed class ErrorBody {
-            data class Cause(val cause: Throwable) : ErrorBody()
-            data class Message(val message: String) : ErrorBody()
-        }
+@Composable
+inline fun <reified T : MviViewModel<*, *, *>> koinMviViewModel(
+        noinline parameters: ParametersDefinition? = null,
+): T {
+    val mviViewModel = koinViewModel<T>(parameters = parameters)
+    LaunchedEffect(Unit) {
+        mviViewModel.initData()
     }
-
-//    data class ShowToast(
-//            @StringRes val resId: Int,
-//            val duration: Int = Toast.LENGTH_SHORT,
-//    ) : CommonEffect()
+    return mviViewModel
 }
+
+open class State
+open class Effect
+open class Intent

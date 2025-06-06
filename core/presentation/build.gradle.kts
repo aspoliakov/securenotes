@@ -6,6 +6,7 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
+            implementation(projects.core.base)
             implementation(projects.core.ui)
             implementation(libs.kotlinx.atomicfu)
             api(libs.jetbrains.navigation.compose)

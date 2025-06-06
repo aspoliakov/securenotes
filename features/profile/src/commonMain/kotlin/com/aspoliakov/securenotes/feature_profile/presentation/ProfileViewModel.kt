@@ -4,7 +4,6 @@ import com.aspoliakov.securenotes.core_presentation.mvi.MviViewModel
 import com.aspoliakov.securenotes.core_presentation.utils.launchOnIO
 import com.aspoliakov.securenotes.domain_user_state.UserStateInteractor
 import com.aspoliakov.securenotes.domain_user_state.UserStateProvider
-import kotlinx.coroutines.delay
 
 class ProfileViewModel(
         initialState: ProfileState,
@@ -12,9 +11,8 @@ class ProfileViewModel(
         private val userStateInteractor: UserStateInteractor,
 ) : MviViewModel<ProfileState, ProfileEffect, ProfileIntent>(initialState) {
 
-    init {
+    override fun initData() {
         launchOnIO {
-            delay(100) // TODO wtf?!
             val userProfileData = userStateProvider.getUserProfileData()
             reduceState {
                 copy(

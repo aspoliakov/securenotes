@@ -1,8 +1,8 @@
 package com.aspoliakov.securenotes.feature_about.presentation
 
-import com.aspoliakov.securenotes.core_presentation.mvi.MviEffect
-import com.aspoliakov.securenotes.core_presentation.mvi.MviIntent
-import com.aspoliakov.securenotes.core_presentation.mvi.MviState
+import com.aspoliakov.securenotes.core_presentation.mvi.Effect
+import com.aspoliakov.securenotes.core_presentation.mvi.Intent
+import com.aspoliakov.securenotes.core_presentation.mvi.State
 
 /**
  * Project SecureNotes
@@ -10,10 +10,10 @@ import com.aspoliakov.securenotes.core_presentation.mvi.MviState
 
 data class AboutState(
         val appVersion: String = "stub",
-) : MviState()
+) : State()
 
-sealed class AboutEffect : MviEffect() {
+sealed class AboutEffect : Effect() {
     data class ShowSnackbar(val message: String) : AboutEffect()
 }
 
-object AboutIntent : MviIntent()
+object AboutIntent : Intent()

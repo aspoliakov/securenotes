@@ -1,8 +1,8 @@
 package com.aspoliakov.securenotes.feature_notes_browser.presentation
 
-import com.aspoliakov.securenotes.core_presentation.mvi.MviEffect
-import com.aspoliakov.securenotes.core_presentation.mvi.MviIntent
-import com.aspoliakov.securenotes.core_presentation.mvi.MviState
+import com.aspoliakov.securenotes.core_presentation.mvi.Effect
+import com.aspoliakov.securenotes.core_presentation.mvi.Intent
+import com.aspoliakov.securenotes.core_presentation.mvi.State
 import com.aspoliakov.securenotes.domain_notes.model.NotesListItem
 
 /**
@@ -13,7 +13,7 @@ data class NotesBrowserState(
         val notesListState: NotesListState = NotesListState.Idle,
         val notesListFilteredState: NotesListState = NotesListState.Idle,
         val searchState: SearchState = SearchState.Idle,
-) : MviState()
+) : State()
 
 sealed class NotesListState {
     data object Idle : NotesListState()
@@ -27,10 +27,10 @@ sealed class SearchState {
     data class Completed(val query: String) : SearchState()
 }
 
-sealed class NotesBrowserEffect : MviEffect() {
+sealed class NotesBrowserEffect : Effect() {
     data class ShowSnackbar(val message: String) : NotesBrowserEffect()
 }
 
-sealed class NotesBrowserIntent : MviIntent() {
+sealed class NotesBrowserIntent : Intent() {
     data class OnSearch(val query: String) : NotesBrowserIntent()
 }

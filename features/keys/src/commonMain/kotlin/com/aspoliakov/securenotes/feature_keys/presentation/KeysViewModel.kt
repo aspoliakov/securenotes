@@ -23,7 +23,7 @@ class KeysViewModel(
         private const val MAX_PASSWORD_LENGTH = 128
     }
 
-    init {
+    override fun initData() {
         loadKeys()
     }
 

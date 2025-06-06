@@ -1,8 +1,8 @@
 package com.aspoliakov.securenotes.feature_auth.presentation
 
-import com.aspoliakov.securenotes.core_presentation.mvi.MviEffect
-import com.aspoliakov.securenotes.core_presentation.mvi.MviIntent
-import com.aspoliakov.securenotes.core_presentation.mvi.MviState
+import com.aspoliakov.securenotes.core_presentation.mvi.Effect
+import com.aspoliakov.securenotes.core_presentation.mvi.Intent
+import com.aspoliakov.securenotes.core_presentation.mvi.State
 import com.aspoliakov.securenotes.core_ui.resources.*
 import org.jetbrains.compose.resources.StringResource
 
@@ -15,7 +15,7 @@ data class AuthState(
         val password: String = "",
         val authActionState: AuthActionState = AuthActionState.Idle,
         val authType: AuthType = AuthType.SIGN_IN,
-) : MviState()
+) : State()
 
 enum class AuthType {
     SIGN_IN,
@@ -38,11 +38,11 @@ enum class AuthError(val res: StringResource) {
     UNEXPECTED_ERROR(Res.string.common_unexpected_error),
 }
 
-sealed class AuthEffect : MviEffect() {
+sealed class AuthEffect : Effect() {
     data class ShowSnackbar(val stringRes: Int) : AuthEffect()
 }
 
-sealed class AuthIntent : MviIntent() {
+sealed class AuthIntent : Intent() {
     data class OnEmailChanged(val email: String) : AuthIntent()
     data class OnPasswordChanged(val password: String) : AuthIntent()
     data object OnSwitchSignInSignUpClick : AuthIntent()

@@ -3,10 +3,20 @@ package com.aspoliakov.securenotes.feature_profile.presentation
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,13 +26,17 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
 import com.aspoliakov.securenotes.core_ui.Icons
 import com.aspoliakov.securenotes.core_ui.component.ShimmerEffect
-import com.aspoliakov.securenotes.core_ui.resources.*
+import com.aspoliakov.securenotes.core_ui.resources.Res
+import com.aspoliakov.securenotes.core_ui.resources.feature_profile_about
+import com.aspoliakov.securenotes.core_ui.resources.feature_profile_avatar_description
+import com.aspoliakov.securenotes.core_ui.resources.feature_profile_logout
+import com.aspoliakov.securenotes.core_ui.resources.profile
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Project SecureNotes
@@ -33,7 +47,7 @@ fun ProfileScreenRoute(
         modifier: Modifier = Modifier,
         onNavigateToAbout: () -> Unit,
 ) {
-    val viewModel = koinViewModel<ProfileViewModel>()
+    val viewModel = koinMviViewModel<ProfileViewModel>()
     ProfileScreen(
             modifier = modifier,
             state = viewModel.currentState,

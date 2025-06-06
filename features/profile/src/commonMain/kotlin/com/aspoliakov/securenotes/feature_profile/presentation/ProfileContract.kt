@@ -1,12 +1,12 @@
 package com.aspoliakov.securenotes.feature_profile.presentation
 
-import com.aspoliakov.securenotes.core_presentation.mvi.MviEffect
-import com.aspoliakov.securenotes.core_presentation.mvi.MviIntent
-import com.aspoliakov.securenotes.core_presentation.mvi.MviState
+import com.aspoliakov.securenotes.core_presentation.mvi.Effect
+import com.aspoliakov.securenotes.core_presentation.mvi.Intent
+import com.aspoliakov.securenotes.core_presentation.mvi.State
 
 data class ProfileState(
         val profileDataState: ProfileDataState = ProfileDataState.Idle,
-) : MviState()
+) : State()
 
 sealed class ProfileDataState {
     data object Idle : ProfileDataState()
@@ -16,8 +16,8 @@ sealed class ProfileDataState {
     ) : ProfileDataState()
 }
 
-sealed class ProfileEffect : MviEffect()
+sealed class ProfileEffect : Effect()
 
-sealed class ProfileIntent : MviIntent() {
+sealed class ProfileIntent : Intent() {
     data object OnLogoutClick : ProfileIntent()
 }

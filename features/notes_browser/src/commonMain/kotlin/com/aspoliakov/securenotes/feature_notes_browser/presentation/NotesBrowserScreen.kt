@@ -37,6 +37,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
 import com.aspoliakov.securenotes.core_ui.component.Spacer12dp
 import com.aspoliakov.securenotes.core_ui.component.Spacer4dp
 import com.aspoliakov.securenotes.core_ui.resources.Res
@@ -48,7 +49,6 @@ import com.aspoliakov.securenotes.core_ui.resources.notes
 import com.aspoliakov.securenotes.domain_notes.model.NotesListItem
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Project SecureNotes
@@ -60,7 +60,7 @@ fun NotesBrowserScreenRoute(
         onNavigateToNote: (noteId: String) -> Unit,
         onNavigateToCreateNote: () -> Unit,
 ) {
-    val viewModel = koinViewModel<NotesBrowserViewModel>()
+    val viewModel = koinMviViewModel<NotesBrowserViewModel>()
     NotesBrowserScreen(
             modifier = modifier,
             state = viewModel.currentState,

@@ -1,15 +1,15 @@
 package com.aspoliakov.securenotes
 
-import com.aspoliakov.securenotes.core_presentation.mvi.MviEffect
-import com.aspoliakov.securenotes.core_presentation.mvi.MviIntent
-import com.aspoliakov.securenotes.core_presentation.mvi.MviState
+import com.aspoliakov.securenotes.core_presentation.mvi.Effect
+import com.aspoliakov.securenotes.core_presentation.mvi.Intent
+import com.aspoliakov.securenotes.core_presentation.mvi.State
 import com.aspoliakov.securenotes.domain_user_state.model.UserState
 
 /**
  * Project SecureNotes
  */
 
-sealed class AppComposableState : MviState() {
+sealed class AppComposableState : State() {
     data object Unauthorized : AppComposableState()
     data object Authorized : AppComposableState()
     data object Active : AppComposableState()
@@ -23,6 +23,6 @@ fun UserState.toAppState(): AppComposableState {
     }
 }
 
-object AppComposableEffect : MviEffect()
+object AppComposableEffect : Effect()
 
-object AppComposableIntent : MviIntent()
+object AppComposableIntent : Intent()

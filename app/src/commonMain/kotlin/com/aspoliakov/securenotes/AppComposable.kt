@@ -14,11 +14,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
 import com.aspoliakov.securenotes.core_presentation.navigation.AppGlobalScreen
 import com.aspoliakov.securenotes.core_ui.AppTheme
 import com.aspoliakov.securenotes.feature_auth.presentation.AuthScreenRoute
 import com.aspoliakov.securenotes.feature_keys.presentation.KeysScreenRoute
-import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Project SecureNotes
@@ -28,7 +28,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun MainAppComposable() {
     val navController = rememberNavController()
     AppTheme {
-        val mainViewModel = koinViewModel<AppComposableViewModel>()
+        val mainViewModel = koinMviViewModel<AppComposableViewModel>()
         MainAppNavHost(
                 state = mainViewModel.currentState,
                 navController = navController,

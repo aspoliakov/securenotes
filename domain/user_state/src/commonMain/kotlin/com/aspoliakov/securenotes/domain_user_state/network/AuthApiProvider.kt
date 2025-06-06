@@ -6,16 +6,13 @@ import com.aspoliakov.securenotes.core_network.exceptions.ErrorResponse
 import com.aspoliakov.securenotes.core_network.exceptions.ErrorResponseException
 import de.jensklingenberg.ktorfit.ktorfit
 import io.github.aakira.napier.Napier
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.ClientRequestException
-import io.ktor.client.plugins.HttpResponseValidator
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.logging.LogLevel
-import io.ktor.client.plugins.logging.Logger
-import io.ktor.client.plugins.logging.Logging
-import io.ktor.client.statement.bodyAsText
-import io.ktor.http.HttpStatusCode
-import io.ktor.serialization.kotlinx.json.json
+import io.ktor.client.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 
 /**

@@ -1,8 +1,8 @@
 package com.aspoliakov.securenotes.feature_keys.presentation
 
-import com.aspoliakov.securenotes.core_presentation.mvi.MviEffect
-import com.aspoliakov.securenotes.core_presentation.mvi.MviIntent
-import com.aspoliakov.securenotes.core_presentation.mvi.MviState
+import com.aspoliakov.securenotes.core_presentation.mvi.Effect
+import com.aspoliakov.securenotes.core_presentation.mvi.Intent
+import com.aspoliakov.securenotes.core_presentation.mvi.State
 import com.aspoliakov.securenotes.core_ui.resources.Res
 import com.aspoliakov.securenotes.core_ui.resources.common_error_network
 import com.aspoliakov.securenotes.core_ui.resources.common_unexpected_error
@@ -13,7 +13,7 @@ import org.jetbrains.compose.resources.StringResource
  * Project SecureNotes
  */
 
-sealed class KeysState : MviState() {
+sealed class KeysState : State() {
     data object Loading : KeysState()
 
     data class LoadingFailed(val keysError: KeysError) : KeysState()
@@ -57,11 +57,11 @@ enum class KeysError(val res: StringResource) {
     DECRYPTION_ERROR(Res.string.feature_keys_restore_decryption_error),
 }
 
-sealed class KeysEffect : MviEffect() {
+sealed class KeysEffect : Effect() {
     data class ShowError(val keysError: KeysError) : KeysEffect()
 }
 
-sealed class KeysIntent : MviIntent() {
+sealed class KeysIntent : Intent() {
     data object OnBackClick : KeysIntent()
     data object OnReloadKeysClick : KeysIntent()
     data class OnPasswordChanged(val password: String) : KeysIntent()

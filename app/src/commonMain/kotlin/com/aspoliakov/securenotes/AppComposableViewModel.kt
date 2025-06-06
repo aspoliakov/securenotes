@@ -12,11 +12,11 @@ import kotlinx.coroutines.flow.onEach
  */
 
 class AppComposableViewModel(
-        userStateProvider: UserStateProvider,
+        private val userStateProvider: UserStateProvider,
         initialState: AppComposableState,
 ) : MviViewModel<AppComposableState, AppComposableEffect, AppComposableIntent>(initialState) {
 
-    init {
+    override fun initData() {
         userStateProvider.observeUserState()
                 .onEach { reduceState { it.toAppState() } }
                 .flowOnMain()
