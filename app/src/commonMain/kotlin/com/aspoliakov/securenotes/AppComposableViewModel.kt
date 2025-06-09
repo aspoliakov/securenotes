@@ -16,7 +16,7 @@ class AppComposableViewModel(
         initialState: AppComposableState,
 ) : MviViewModel<AppComposableState, AppComposableEffect, AppComposableIntent>(initialState) {
 
-    override fun initData() {
+    init {
         userStateProvider.observeUserState()
                 .onEach { reduceState { it.toAppState() } }
                 .flowOnMain()

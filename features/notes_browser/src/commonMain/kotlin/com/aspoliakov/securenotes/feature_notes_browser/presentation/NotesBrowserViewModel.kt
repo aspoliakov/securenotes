@@ -17,7 +17,7 @@ class NotesBrowserViewModel(
         private val notesListInteractor: NotesListInteractor,
 ) : MviViewModel<NotesBrowserState, NotesBrowserEffect, NotesBrowserIntent>(initialState) {
 
-    override fun initData() {
+    init {
         notesListInteractor.getNotesList()
                 .onEach { notesList ->
                     reduceState {

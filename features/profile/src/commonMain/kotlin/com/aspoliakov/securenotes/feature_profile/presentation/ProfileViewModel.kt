@@ -11,7 +11,7 @@ class ProfileViewModel(
         private val userStateInteractor: UserStateInteractor,
 ) : MviViewModel<ProfileState, ProfileEffect, ProfileIntent>(initialState) {
 
-    override fun initData() {
+    init {
         launchOnIO {
             val userProfileData = userStateProvider.getUserProfileData()
             reduceState {

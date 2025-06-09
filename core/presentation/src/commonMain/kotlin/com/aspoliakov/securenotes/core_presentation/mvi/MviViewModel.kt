@@ -1,17 +1,16 @@
 package com.aspoliakov.securenotes.core_presentation.mvi
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
@@ -23,14 +22,17 @@ import org.koin.core.parameter.ParametersDefinition
 
 abstract class MviViewModel<S : State, E : Effect, I : Intent>(initialState: S) : ViewModel() {
 
-    var currentState by mutableStateOf(initialState)
-        private set
+    private val _state = MutableStateFlow(initialState)
+    val state: StateFlow<S> = _state.asStateFlow()
 
     private val _intent = MutableSharedFlow<I>()
     val intent = _intent.asSharedFlow()
 
     private val _effects = Channel<Effect>()
     val effects = _effects.receiveAsFlow()
+
+    val currentState: S
+        get() = state.value
 
     private val changeStateLock = SynchronizedObject()
 
@@ -42,10 +44,6 @@ abstract class MviViewModel<S : State, E : Effect, I : Intent>(initialState: S) 
         }
     }
 
-    open fun initData() {
-        // initial loading
-    }
-
     fun emitIntent(intent: I) {
         viewModelScope.launch { _intent.emit(intent) }
     }
@@ -54,7 +52,7 @@ abstract class MviViewModel<S : State, E : Effect, I : Intent>(initialState: S) 
 
     protected fun reduceState(reduce: S.() -> S) {
         synchronized(changeStateLock) {
-            this.currentState = currentState.reduce()
+            _state.value = _state.value.reduce()
         }
     }
 
@@ -67,11 +65,7 @@ abstract class MviViewModel<S : State, E : Effect, I : Intent>(initialState: S) 
 inline fun <reified T : MviViewModel<*, *, *>> koinMviViewModel(
         noinline parameters: ParametersDefinition? = null,
 ): T {
-    val mviViewModel = koinViewModel<T>(parameters = parameters)
-    LaunchedEffect(Unit) {
-        mviViewModel.initData()
-    }
-    return mviViewModel
+    return koinViewModel<T>(parameters = parameters)
 }
 
 open class State

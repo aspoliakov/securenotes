@@ -18,6 +18,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,7 +28,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aspoliakov.securenotes.core_presentation.mvi.Effect
 import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
+import com.aspoliakov.securenotes.core_presentation.utils.CollectEffects
 import com.aspoliakov.securenotes.core_ui.Icons
 import com.aspoliakov.securenotes.core_ui.component.ShimmerEffect
 import com.aspoliakov.securenotes.core_ui.resources.Res
@@ -34,6 +38,8 @@ import com.aspoliakov.securenotes.core_ui.resources.feature_profile_about
 import com.aspoliakov.securenotes.core_ui.resources.feature_profile_avatar_description
 import com.aspoliakov.securenotes.core_ui.resources.feature_profile_logout
 import com.aspoliakov.securenotes.core_ui.resources.profile
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -48,9 +54,11 @@ fun ProfileScreenRoute(
         onNavigateToAbout: () -> Unit,
 ) {
     val viewModel = koinMviViewModel<ProfileViewModel>()
+    val state by viewModel.state.collectAsState()
     ProfileScreen(
             modifier = modifier,
-            state = viewModel.currentState,
+            state = state,
+            effects = viewModel.effects,
             onNavigateToAbout = onNavigateToAbout,
             intentHandler = viewModel::emitIntent,
     )
@@ -60,9 +68,15 @@ fun ProfileScreenRoute(
 internal fun ProfileScreen(
         modifier: Modifier = Modifier,
         state: ProfileState = ProfileState(),
+        effects: Flow<Effect> = emptyFlow(),
         onNavigateToAbout: () -> Unit,
         intentHandler: (ProfileIntent) -> Unit = {},
 ) {
+    CollectEffects<ProfileEffect>(effects) { effect ->
+        when (effect) {
+            else -> {}
+        }
+    }
     Column(
             modifier = modifier
                     .padding(top = 16.dp)

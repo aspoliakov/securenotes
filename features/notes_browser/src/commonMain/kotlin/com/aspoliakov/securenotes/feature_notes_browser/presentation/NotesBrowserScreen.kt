@@ -27,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,7 +38,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.aspoliakov.securenotes.core_presentation.mvi.Effect
 import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
+import com.aspoliakov.securenotes.core_presentation.utils.CollectEffects
 import com.aspoliakov.securenotes.core_ui.component.Spacer12dp
 import com.aspoliakov.securenotes.core_ui.component.Spacer4dp
 import com.aspoliakov.securenotes.core_ui.resources.Res
@@ -47,6 +50,8 @@ import com.aspoliakov.securenotes.core_ui.resources.feature_notes_add_note
 import com.aspoliakov.securenotes.core_ui.resources.feature_notes_search_notes
 import com.aspoliakov.securenotes.core_ui.resources.notes
 import com.aspoliakov.securenotes.domain_notes.model.NotesListItem
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -61,9 +66,11 @@ fun NotesBrowserScreenRoute(
         onNavigateToCreateNote: () -> Unit,
 ) {
     val viewModel = koinMviViewModel<NotesBrowserViewModel>()
+    val state by viewModel.state.collectAsState()
     NotesBrowserScreen(
             modifier = modifier,
-            state = viewModel.currentState,
+            state = state,
+            effects = viewModel.effects,
             onNavigateToCreateNote = onNavigateToCreateNote,
             onNavigateToNote = onNavigateToNote,
             intentHandler = viewModel::emitIntent,
@@ -74,10 +81,16 @@ fun NotesBrowserScreenRoute(
 internal fun NotesBrowserScreen(
         modifier: Modifier = Modifier,
         state: NotesBrowserState = NotesBrowserState(),
+        effects: Flow<Effect> = emptyFlow(),
         onNavigateToCreateNote: () -> Unit,
         onNavigateToNote: (noteId: String) -> Unit,
         intentHandler: (NotesBrowserIntent) -> Unit = {},
 ) {
+    CollectEffects<NotesBrowserEffect>(effects) { effect ->
+        when (effect) {
+            is NotesBrowserEffect.ShowSnackbar -> {}
+        }
+    }
     Box {
         SearchView(
                 modifier = modifier

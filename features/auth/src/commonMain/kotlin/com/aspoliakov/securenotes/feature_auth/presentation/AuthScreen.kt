@@ -19,7 +19,8 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -29,7 +30,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.aspoliakov.securenotes.core_presentation.mvi.Effect
 import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
+import com.aspoliakov.securenotes.core_presentation.utils.CollectEffects
 import com.aspoliakov.securenotes.core_ui.LocalCustomColorSchemeProvider
 import com.aspoliakov.securenotes.core_ui.component.ButtonWithLoader
 import com.aspoliakov.securenotes.core_ui.component.PasswordTextField
@@ -41,10 +44,7 @@ import com.aspoliakov.securenotes.core_ui.resources.feature_auth_sign_up
 import com.aspoliakov.securenotes.core_ui.resources.feature_auth_sign_up_back_to_sign_in
 import com.aspoliakov.securenotes.core_ui.resources.feature_auth_sign_up_suggest
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -58,11 +58,11 @@ fun AuthScreenRoute(
         modifier: Modifier = Modifier,
 ) {
     val viewModel = koinMviViewModel<AuthViewModel>()
-    val state = viewModel.currentState
+    val state by viewModel.state.collectAsState()
     AuthScreen(
             modifier = modifier,
             state = state,
-            effects = viewModel.effects.filterIsInstance(),
+            effects = viewModel.effects,
             intentHandler = viewModel::emitIntent,
     )
 }
@@ -71,20 +71,18 @@ fun AuthScreenRoute(
 internal fun AuthScreen(
         modifier: Modifier = Modifier,
         state: AuthState = AuthState(),
-        effects: Flow<AuthEffect> = emptyFlow(),
+        effects: Flow<Effect> = emptyFlow(),
         intentHandler: (AuthIntent) -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(effects) {
-        effects.onEach { effect ->
-            when (effect) {
-                is AuthEffect.ShowSnackbar -> scope.launch {
-                    snackbarHostState.showSnackbar("error")
-                }
+    CollectEffects<AuthEffect>(effects) { effect ->
+        when (effect) {
+            is AuthEffect.ShowSnackbar -> scope.launch {
+                snackbarHostState.showSnackbar("error")
             }
-        }.collect()
+        }
     }
 
     Scaffold(

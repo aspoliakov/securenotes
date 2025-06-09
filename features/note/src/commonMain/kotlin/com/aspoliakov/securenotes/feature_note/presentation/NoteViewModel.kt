@@ -13,7 +13,7 @@ class NoteViewModel(
         private val noteInteractor: NoteInteractor,
 ) : MviViewModel<NoteState, NoteEffect, NoteIntent>(initialState) {
 
-    override fun initData() {
+    init {
         if (currentState.noteId == null) {
             launchOnIO {
                 val newNoteId = noteInteractor.createNew()

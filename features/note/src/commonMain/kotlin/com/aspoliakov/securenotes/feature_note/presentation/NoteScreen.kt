@@ -14,21 +14,24 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.aspoliakov.securenotes.core_presentation.mvi.Effect
 import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
+import com.aspoliakov.securenotes.core_presentation.utils.CollectEffects
 import com.aspoliakov.securenotes.core_ui.Icons
 import com.aspoliakov.securenotes.core_ui.resources.Res
 import com.aspoliakov.securenotes.core_ui.resources.common_back
 import com.aspoliakov.securenotes.core_ui.resources.common_delete
 import com.aspoliakov.securenotes.core_ui.resources.feature_note_text_field_body_hint
 import com.aspoliakov.securenotes.core_ui.resources.feature_note_text_field_title_hint
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import org.jetbrains.compose.resources.stringResource
 import org.koin.core.parameter.parametersOf
 
@@ -43,20 +46,12 @@ fun NoteScreenRoute(
         noteId: String?,
 ) {
     val viewModel = koinMviViewModel<NoteViewModel>(parameters = { parametersOf(noteId) })
-    val state = viewModel.currentState
-
-    LaunchedEffect(viewModel.effects) {
-        viewModel.effects.onEach { effect ->
-            when (effect) {
-                is NoteEffect.Close -> onNavigationBack()
-            }
-        }.collect()
-    }
-
+    val state by viewModel.state.collectAsState()
     NoteScreen(
             modifier = modifier,
-            onNavigationBack = onNavigationBack,
             state = state,
+            effects = viewModel.effects,
+            onNavigationBack = onNavigationBack,
             intentHandler = viewModel::emitIntent,
     )
 }
@@ -64,10 +59,16 @@ fun NoteScreenRoute(
 @Composable
 internal fun NoteScreen(
         modifier: Modifier = Modifier,
-        onNavigationBack: () -> Unit,
         state: NoteState = NoteState(),
+        effects: Flow<Effect> = emptyFlow(),
+        onNavigationBack: () -> Unit,
         intentHandler: (NoteIntent) -> Unit = {},
 ) {
+    CollectEffects<NoteEffect>(effects) { effect ->
+        when (effect) {
+            is NoteEffect.Close -> onNavigationBack()
+        }
+    }
     Scaffold(
             topBar = {
                 NoteToolbar(

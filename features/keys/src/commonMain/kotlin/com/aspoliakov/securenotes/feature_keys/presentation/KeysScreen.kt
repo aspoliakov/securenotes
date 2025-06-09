@@ -14,18 +14,21 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.aspoliakov.securenotes.core_presentation.mvi.Effect
 import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
+import com.aspoliakov.securenotes.core_presentation.utils.CollectEffects
 import com.aspoliakov.securenotes.core_ui.resources.Res
 import com.aspoliakov.securenotes.core_ui.resources.common_retry
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.filterIsInstance
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -37,11 +40,11 @@ fun KeysScreenRoute(
         modifier: Modifier = Modifier,
 ) {
     val viewModel = koinMviViewModel<KeysViewModel>()
-    val state = viewModel.currentState
+    val state by viewModel.state.collectAsState()
     KeysScreen(
             modifier = modifier,
             state = state,
-            effects = viewModel.effects.filterIsInstance(),
+            effects = viewModel.effects,
             intentHandler = viewModel::emitIntent,
     )
 }
@@ -50,11 +53,15 @@ fun KeysScreenRoute(
 internal fun KeysScreen(
         modifier: Modifier = Modifier,
         state: KeysState = KeysState.Loading,
-        effects: Flow<KeysEffect> = emptyFlow(),
+        effects: Flow<Effect> = emptyFlow(),
         intentHandler: (KeysIntent) -> Unit = {},
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-
+    CollectEffects<KeysEffect>(effects) { effect ->
+        when (effect) {
+            is KeysEffect.ShowError -> {}
+        }
+    }
     Scaffold(
             modifier = modifier,
             snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -71,7 +78,6 @@ internal fun KeysScreen(
             is KeysState.Creating -> KeysCreatingView(
                     modifier = modifier.padding(paddings),
                     state = state,
-                    effects = effects,
                     intentHandler = intentHandler,
             )
             is KeysState.Restoring -> KeysRestoring(

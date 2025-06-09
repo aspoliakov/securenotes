@@ -1,14 +1,16 @@
 package com.aspoliakov.securenotes.feature_keys.presentation
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -17,11 +19,15 @@ import androidx.compose.ui.unit.dp
 import com.aspoliakov.securenotes.core_ui.Icons
 import com.aspoliakov.securenotes.core_ui.component.ButtonWithLoader
 import com.aspoliakov.securenotes.core_ui.component.PasswordTextField
-import com.aspoliakov.securenotes.core_ui.resources.*
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
+import com.aspoliakov.securenotes.core_ui.resources.Res
+import com.aspoliakov.securenotes.core_ui.resources.app_name
+import com.aspoliakov.securenotes.core_ui.resources.common_apply
+import com.aspoliakov.securenotes.core_ui.resources.feature_keys_password_requirement_capital_letter
+import com.aspoliakov.securenotes.core_ui.resources.feature_keys_password_requirement_digit
+import com.aspoliakov.securenotes.core_ui.resources.feature_keys_password_requirement_length
+import com.aspoliakov.securenotes.core_ui.resources.feature_keys_password_requirement_letter
+import com.aspoliakov.securenotes.core_ui.resources.feature_keys_subtitle
+import com.aspoliakov.securenotes.core_ui.resources.feature_keys_title
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -33,20 +39,8 @@ import org.jetbrains.compose.resources.stringResource
 internal fun KeysCreatingView(
         modifier: Modifier = Modifier,
         state: KeysState.Creating,
-        effects: Flow<KeysEffect>,
         intentHandler: (KeysIntent) -> Unit = {},
 ) {
-    val scope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
-    LaunchedEffect(effects) {
-        effects.onEach { effect ->
-            when (effect) {
-                is KeysEffect.ShowError -> scope.launch {
-                    snackbarHostState.showSnackbar("error") // TODO
-                }
-            }
-        }.collect()
-    }
     Column(
             modifier = modifier
                     .fillMaxSize()
