@@ -1,3 +1,5 @@
+rootProject.buildFileName = "build.gradle.kts"
+
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
@@ -8,8 +10,6 @@ pluginManagement {
         mavenCentral()
     }
 }
-
-rootProject.buildFileName = "build.gradle.kts"
 
 include(":app")
 

@@ -1,3 +1,5 @@
+private val moduleName = "core_key_value_storage"
+
 plugins {
     alias(libs.plugins.commonModulePlugin)
     alias(libs.plugins.atomicfuPlugin)
@@ -17,5 +19,5 @@ kotlin {
 }
 
 android {
-    namespace = "${Config.APPLICATION_ID}.core_key_value_storage"
+    namespace = "${Config.APPLICATION_ID}.$moduleName"
 }

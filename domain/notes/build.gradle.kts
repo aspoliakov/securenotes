@@ -1,3 +1,5 @@
+private val moduleName = "domain_notes"
+
 plugins {
     alias(libs.plugins.commonModulePlugin)
     alias(libs.plugins.ktorfit)
@@ -19,5 +21,5 @@ kotlin {
 }
 
 android {
-    namespace = "${Config.APPLICATION_ID}.domain_notes"
+    namespace = "${Config.APPLICATION_ID}.$moduleName"
 }

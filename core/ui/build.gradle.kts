@@ -1,3 +1,5 @@
+private val moduleName = "core_ui"
+
 plugins {
     alias(libs.plugins.commonModulePlugin)
 }
@@ -23,10 +25,10 @@ kotlin {
 
 compose.resources {
     publicResClass = true
-    packageOfResClass = "${Config.APPLICATION_ID}.core_ui.resources"
+    packageOfResClass = "${Config.APPLICATION_ID}.$moduleName.resources"
     generateResClass = always
 }
 
 android {
-    namespace = "${Config.APPLICATION_ID}.core_ui"
+    namespace = "${Config.APPLICATION_ID}.$moduleName"
 }

@@ -1,3 +1,5 @@
+private val moduleName = "core_network"
+
 plugins {
     alias(libs.plugins.commonModulePlugin)
     alias(libs.plugins.ktorfit)
@@ -17,5 +19,5 @@ kotlin {
 }
 
 android {
-    namespace = "${Config.APPLICATION_ID}.core_network"
+    namespace = "${Config.APPLICATION_ID}.$moduleName"
 }

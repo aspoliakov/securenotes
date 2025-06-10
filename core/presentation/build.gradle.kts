@@ -1,3 +1,5 @@
+private val moduleName = "core_presentation"
+
 plugins {
     alias(libs.plugins.commonModulePlugin)
     alias(libs.plugins.atomicfuPlugin)
@@ -17,5 +19,5 @@ kotlin {
 }
 
 android {
-    namespace = "${Config.APPLICATION_ID}.core_presentation"
+    namespace = "${Config.APPLICATION_ID}.$moduleName"
 }

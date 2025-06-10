@@ -1,3 +1,5 @@
+private val moduleName = "domain_crypto"
+
 plugins {
     alias(libs.plugins.commonModulePlugin)
     alias(libs.plugins.ktorfit)
@@ -18,5 +20,5 @@ kotlin {
 }
 
 android {
-    namespace = "${Config.APPLICATION_ID}.domain_crypto"
+    namespace = "${Config.APPLICATION_ID}.$moduleName"
 }

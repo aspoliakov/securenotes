@@ -11,18 +11,6 @@ plugins {
     alias(libs.plugins.detekt)
 }
 
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-        maven("https://plugins.gradle.org/m2/")
-    }
-    dependencies {
-        classpath(libs.kotlin.gradlePlugin)
-//        classpath(libs.google.services)
-    }
-}
-
 allprojects {
     repositories {
         google()
@@ -31,6 +19,5 @@ allprojects {
     }
     apply(plugin = "plugins.detekt")
 }
-
 
 apply("gradle-tools/dependency-graph.gradle")

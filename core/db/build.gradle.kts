@@ -1,3 +1,5 @@
+private val moduleName = "core_db"
+
 plugins {
     alias(libs.plugins.commonModulePlugin)
     alias(libs.plugins.room)
@@ -19,7 +21,7 @@ kotlin {
 }
 
 android {
-    namespace = "${Config.APPLICATION_ID}.core_db"
+    namespace = "${Config.APPLICATION_ID}.$moduleName"
 }
 
 dependencies {

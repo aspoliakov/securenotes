@@ -1,3 +1,5 @@
+private val moduleName = "feature_notes_browser"
+
 plugins {
     alias(libs.plugins.commonModulePlugin)
 }
@@ -16,5 +18,5 @@ kotlin {
 }
 
 android {
-    namespace = "${Config.APPLICATION_ID}.feature_notes_browser"
+    namespace = "${Config.APPLICATION_ID}.$moduleName"
 }

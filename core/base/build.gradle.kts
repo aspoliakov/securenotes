@@ -1,3 +1,5 @@
+private val moduleName = "core_base"
+
 plugins {
     alias(libs.plugins.commonModulePlugin)
 }
@@ -21,5 +23,5 @@ kotlin {
 }
 
 android {
-    namespace = "${Config.APPLICATION_ID}.core_base"
+    namespace = "${Config.APPLICATION_ID}.$moduleName"
 }

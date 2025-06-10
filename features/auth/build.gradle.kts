@@ -1,3 +1,5 @@
+private val moduleName = "feature_auth"
+
 plugins {
     alias(libs.plugins.commonModulePlugin)
 }
@@ -16,5 +18,5 @@ kotlin {
 }
 
 android {
-    namespace = "${Config.APPLICATION_ID}.feature_auth"
+    namespace = "${Config.APPLICATION_ID}.$moduleName"
 }
