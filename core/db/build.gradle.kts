@@ -1,5 +1,5 @@
 plugins {
-    id(libs.plugins.commonModulePlugin.get().pluginId)
+    alias(libs.plugins.commonModulePlugin)
     alias(libs.plugins.room)
 }
 
