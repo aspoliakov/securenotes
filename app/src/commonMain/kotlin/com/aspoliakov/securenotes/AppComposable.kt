@@ -6,6 +6,7 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,8 +30,9 @@ fun MainAppComposable() {
     val navController = rememberNavController()
     AppTheme {
         val mainViewModel = koinMviViewModel<AppComposableViewModel>()
+        val state by mainViewModel.state.collectAsState()
         MainAppNavHost(
-                state = mainViewModel.currentState,
+                state = state,
                 navController = navController,
         )
     }
