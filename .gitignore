@@ -48,3 +48,8 @@ proguard/**
 /captures/
 
 .kotlin/**
+
+# Services credentials
+
+google-services.json
+GoogleService-Info.plist

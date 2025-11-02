@@ -13,10 +13,11 @@ import com.aspoliakov.securenotes.domain_notes.model.PostNoteRequest
 import com.aspoliakov.securenotes.domain_notes.network.NotesApiProvider
 import com.aspoliakov.securenotes.domain_user_state.UserStateInteractor
 import io.github.aakira.napier.Napier
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 
 /**
  * Project SecureNotes
@@ -37,6 +38,7 @@ class NoteInteractor(
 
     private val saveChangesJobs: MutableMap<String, Job> = mutableMapOf()
 
+    @OptIn(ExperimentalTime::class)
     suspend fun createNew(): String {
         val newNoteDB = NoteDB(
                 noteId = randomUUIDString(),
