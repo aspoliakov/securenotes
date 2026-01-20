@@ -42,8 +42,8 @@ abstract class BuildProductFlavor {
 }
 
 sealed class EnvironmentFlavor(
-    override val flavorName: String,
-    private val appIdSuffix: String? = null,
+        override val flavorName: String,
+        private val appIdSuffix: String? = null,
 ) : BuildProductFlavor() {
     override val flavorDimension = FlavorDimensions.ENVIRONMENT
 
@@ -83,21 +83,21 @@ sealed class EnvironmentFlavor(
     }
 
     object Master : EnvironmentFlavor(
-        flavorName = "master",
+            flavorName = "master",
     )
 
     object Dev : EnvironmentFlavor(
-        flavorName = "dev",
-        appIdSuffix = "debug",
+            flavorName = "dev",
+            appIdSuffix = "debug",
     )
 
     object Beta : EnvironmentFlavor(
-        flavorName = "beta",
-        appIdSuffix = "beta",
+            flavorName = "beta",
+            appIdSuffix = "beta",
     )
 
     object Prerelease : EnvironmentFlavor(
-        flavorName = "prerelease",
-        appIdSuffix = "prerelease",
+            flavorName = "prerelease",
+            appIdSuffix = "prerelease",
     )
 }

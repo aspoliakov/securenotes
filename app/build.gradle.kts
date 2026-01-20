@@ -88,9 +88,8 @@ android {
         buildConfig = true
     }
 
-    kotlin {
-        jvmToolchain(21)
+    compileOptions {
+        sourceCompatibility = JavaVersion.toVersion(libs.versions.java.get())
+        targetCompatibility = JavaVersion.toVersion(libs.versions.java.get())
     }
 }
-
-//apply(plugin = libs.plugins.gms.get().pluginId)

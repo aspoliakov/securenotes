@@ -4,13 +4,13 @@ import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 
 abstract class BuildTypeCreator(
-    val name: String,
-    val release: Boolean = true
+        val name: String,
+        val release: Boolean = true
 ) {
 
     fun createOrConfig(
-        signingConfig: SigningConfig?,
-        container: NamedDomainObjectContainer<ApplicationBuildType>
+            signingConfig: SigningConfig?,
+            container: NamedDomainObjectContainer<ApplicationBuildType>
     ): ApplicationBuildType {
         val buildType = container.findByName(name)
         return if (buildType != null) {
