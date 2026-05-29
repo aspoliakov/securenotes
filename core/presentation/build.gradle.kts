@@ -2,10 +2,12 @@ private val moduleName = "core_presentation"
 
 plugins {
     alias(libs.plugins.commonModulePlugin)
-    alias(libs.plugins.atomicfuPlugin)
 }
 
 kotlin {
+    android {
+        namespace = "${Config.APPLICATION_ID}.$moduleName"
+    }
     sourceSets {
         commonMain.dependencies {
             implementation(projects.core.base)
@@ -16,8 +18,4 @@ kotlin {
         androidMain.dependencies {
         }
     }
-}
-
-android {
-    namespace = "${Config.APPLICATION_ID}.$moduleName"
 }

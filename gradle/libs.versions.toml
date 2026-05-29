@@ -2,8 +2,8 @@
 
 java = "21"
 kotlin = "2.3.21"
-ksp = "2.3.3"
-agp = "9.1.1"
+ksp = "2.3.8"
+agp = "9.2.1"
 gms = "4.4.4"
 coroutines = "1.11.0"
 atomicfu = "0.32.1"
@@ -43,6 +43,7 @@ compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = 
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "composeUi" }
 
 jetbrains-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+jetbrainsComposeComponentsResources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composePlugin" }
 
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koinBom" }
 koin-core = { module = "io.insert-koin:koin-core" }
@@ -70,12 +71,12 @@ kvault = { module = "com.liftric:kvault", version.ref = "kvault" }
 [plugins]
 
 androidApplication = { id = "com.android.application", version.ref = "agp" }
+androidKotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
+jetbrainsKotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+jetbrainsComposeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "composePlugin" }
-composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-atomicfuPlugin = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "atomicfu" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 ktorfit = { id = "de.jensklingenberg.ktorfit", version.ref = "ktorfit" }
 commonModulePlugin = { id = "common-module-plugin" }

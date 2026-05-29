@@ -11,7 +11,8 @@ pluginManagement {
     }
 }
 
-include(":app")
+include(":app:android", "app/android")
+include(":app:shared", "app/shared")
 
 include(":features:about", "features/about")
 include(":features:auth", "features/auth")

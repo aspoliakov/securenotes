@@ -6,6 +6,9 @@ plugins {
 }
 
 kotlin {
+    android {
+        namespace = "${Config.APPLICATION_ID}.$moduleName"
+    }
     sourceSets {
         commonMain.dependencies {
             implementation(projects.domain.userState)
@@ -18,8 +21,4 @@ kotlin {
         androidMain.dependencies {
         }
     }
-}
-
-android {
-    namespace = "${Config.APPLICATION_ID}.$moduleName"
 }
