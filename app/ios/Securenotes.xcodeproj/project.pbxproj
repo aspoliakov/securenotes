@@ -7,13 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AF627E502B19D41A0099D6FF /* app_iosApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF627E4F2B19D41A0099D6FF /* app_iosApp.swift */; };
+		AF2166052FCD7A3900C1EDAC /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = AF1265AE2C8308F80035CF9E /* FirebaseAuth */; };
+		AF2166062FCD7A3900C1EDAC /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = AF1265B02C8308F80035CF9E /* FirebaseFirestore */; };
+		AF627E502B19D41A0099D6FF /* SecurenotesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF627E4F2B19D41A0099D6FF /* SecurenotesApp.swift */; };
 		AF627E522B19D41A0099D6FF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF627E512B19D41A0099D6FF /* ContentView.swift */; };
 		AF627E542B19D41B0099D6FF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AF627E532B19D41B0099D6FF /* Assets.xcassets */; };
 		AF627E572B19D41B0099D6FF /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AF627E562B19D41B0099D6FF /* Preview Assets.xcassets */; };
-		AF627E612B19D41C0099D6FF /* app_iosTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF627E602B19D41C0099D6FF /* app_iosTests.swift */; };
-		AF627E6B2B19D41C0099D6FF /* app_iosUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF627E6A2B19D41C0099D6FF /* app_iosUITests.swift */; };
-		AF627E6D2B19D41C0099D6FF /* app_iosUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF627E6C2B19D41C0099D6FF /* app_iosUITestsLaunchTests.swift */; };
+		AF627E612B19D41C0099D6FF /* securenotesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF627E602B19D41C0099D6FF /* securenotesTests.swift */; };
+		AF627E6B2B19D41C0099D6FF /* securenotesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF627E6A2B19D41C0099D6FF /* securenotesUITests.swift */; };
+		AF627E6D2B19D41C0099D6FF /* securenotesUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF627E6C2B19D41C0099D6FF /* securenotesUITestsLaunchTests.swift */; };
 		AFB9B6B22C9EDE4800E79C1E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = AFB9B6B12C9EDE4800E79C1E /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
@@ -23,29 +25,29 @@
 			containerPortal = AF627E442B19D41A0099D6FF /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = AF627E4B2B19D41A0099D6FF;
-			remoteInfo = "app-ios";
+			remoteInfo = securenotes;
 		};
 		AF627E672B19D41C0099D6FF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = AF627E442B19D41A0099D6FF /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = AF627E4B2B19D41A0099D6FF;
-			remoteInfo = "app-ios";
+			remoteInfo = securenotes;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		AF627E4C2B19D41A0099D6FF /* app-ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "app-ios.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		AF627E4F2B19D41A0099D6FF /* app_iosApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = app_iosApp.swift; sourceTree = "<group>"; };
+		AF627E4C2B19D41A0099D6FF /* securenotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = securenotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AF627E4F2B19D41A0099D6FF /* SecurenotesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurenotesApp.swift; sourceTree = "<group>"; };
 		AF627E512B19D41A0099D6FF /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		AF627E532B19D41B0099D6FF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AF627E562B19D41B0099D6FF /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		AF627E5C2B19D41C0099D6FF /* app-iosTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "app-iosTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		AF627E602B19D41C0099D6FF /* app_iosTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = app_iosTests.swift; sourceTree = "<group>"; };
-		AF627E662B19D41C0099D6FF /* app-iosUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "app-iosUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		AF627E6A2B19D41C0099D6FF /* app_iosUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = app_iosUITests.swift; sourceTree = "<group>"; };
-		AF627E6C2B19D41C0099D6FF /* app_iosUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = app_iosUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		AFB9B6B12C9EDE4800E79C1E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		AF627E5C2B19D41C0099D6FF /* securenotesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = securenotesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AF627E602B19D41C0099D6FF /* securenotesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = securenotesTests.swift; sourceTree = "<group>"; };
+		AF627E662B19D41C0099D6FF /* securenotesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = securenotesUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AF627E6A2B19D41C0099D6FF /* securenotesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = securenotesUITests.swift; sourceTree = "<group>"; };
+		AF627E6C2B19D41C0099D6FF /* securenotesUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = securenotesUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		AFB9B6B12C9EDE4800E79C1E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../GoogleService-Info.plist"; sourceTree = "<group>"; };
 		AFE45BF92CC3089100808222 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -54,6 +56,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AF2166062FCD7A3900C1EDAC /* FirebaseFirestore in Frameworks */,
+				AF2166052FCD7A3900C1EDAC /* FirebaseAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -77,9 +81,9 @@
 		AF627E432B19D41A0099D6FF = {
 			isa = PBXGroup;
 			children = (
-				AF627E4E2B19D41A0099D6FF /* app-ios */,
-				AF627E5F2B19D41C0099D6FF /* app-iosTests */,
-				AF627E692B19D41C0099D6FF /* app-iosUITests */,
+				AF627E4E2B19D41A0099D6FF /* securenotes */,
+				AF627E5F2B19D41C0099D6FF /* securenotesTests */,
+				AF627E692B19D41C0099D6FF /* securenotesUITests */,
 				AF627E4D2B19D41A0099D6FF /* Products */,
 			);
 			sourceTree = "<group>";
@@ -87,24 +91,24 @@
 		AF627E4D2B19D41A0099D6FF /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				AF627E4C2B19D41A0099D6FF /* app-ios.app */,
-				AF627E5C2B19D41C0099D6FF /* app-iosTests.xctest */,
-				AF627E662B19D41C0099D6FF /* app-iosUITests.xctest */,
+				AF627E4C2B19D41A0099D6FF /* securenotes.app */,
+				AF627E5C2B19D41C0099D6FF /* securenotesTests.xctest */,
+				AF627E662B19D41C0099D6FF /* securenotesUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		AF627E4E2B19D41A0099D6FF /* app-ios */ = {
+		AF627E4E2B19D41A0099D6FF /* securenotes */ = {
 			isa = PBXGroup;
 			children = (
 				AFE45BF92CC3089100808222 /* Info.plist */,
 				AFB9B6B12C9EDE4800E79C1E /* GoogleService-Info.plist */,
-				AF627E4F2B19D41A0099D6FF /* app_iosApp.swift */,
+				AF627E4F2B19D41A0099D6FF /* SecurenotesApp.swift */,
 				AF627E512B19D41A0099D6FF /* ContentView.swift */,
 				AF627E532B19D41B0099D6FF /* Assets.xcassets */,
 				AF627E552B19D41B0099D6FF /* Preview Content */,
 			);
-			path = "app-ios";
+			path = securenotes;
 			sourceTree = "<group>";
 		};
 		AF627E552B19D41B0099D6FF /* Preview Content */ = {
@@ -115,29 +119,29 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
-		AF627E5F2B19D41C0099D6FF /* app-iosTests */ = {
+		AF627E5F2B19D41C0099D6FF /* securenotesTests */ = {
 			isa = PBXGroup;
 			children = (
-				AF627E602B19D41C0099D6FF /* app_iosTests.swift */,
+				AF627E602B19D41C0099D6FF /* securenotesTests.swift */,
 			);
-			path = "app-iosTests";
+			path = securenotesTests;
 			sourceTree = "<group>";
 		};
-		AF627E692B19D41C0099D6FF /* app-iosUITests */ = {
+		AF627E692B19D41C0099D6FF /* securenotesUITests */ = {
 			isa = PBXGroup;
 			children = (
-				AF627E6A2B19D41C0099D6FF /* app_iosUITests.swift */,
-				AF627E6C2B19D41C0099D6FF /* app_iosUITestsLaunchTests.swift */,
+				AF627E6A2B19D41C0099D6FF /* securenotesUITests.swift */,
+				AF627E6C2B19D41C0099D6FF /* securenotesUITestsLaunchTests.swift */,
 			);
-			path = "app-iosUITests";
+			path = securenotesUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		AF627E4B2B19D41A0099D6FF /* app-ios */ = {
+		AF627E4B2B19D41A0099D6FF /* securenotes */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AF627E702B19D41C0099D6FF /* Build configuration list for PBXNativeTarget "app-ios" */;
+			buildConfigurationList = AF627E702B19D41C0099D6FF /* Build configuration list for PBXNativeTarget "securenotes" */;
 			buildPhases = (
 				AF627E792B19E6370099D6FF /* ShellScript */,
 				AF627E482B19D41A0099D6FF /* Sources */,
@@ -148,18 +152,18 @@
 			);
 			dependencies = (
 			);
-			name = "app-ios";
+			name = securenotes;
 			packageProductDependencies = (
 				AF1265AE2C8308F80035CF9E /* FirebaseAuth */,
 				AF1265B02C8308F80035CF9E /* FirebaseFirestore */,
 			);
-			productName = "app-ios";
-			productReference = AF627E4C2B19D41A0099D6FF /* app-ios.app */;
+			productName = securenotes;
+			productReference = AF627E4C2B19D41A0099D6FF /* securenotes.app */;
 			productType = "com.apple.product-type.application";
 		};
-		AF627E5B2B19D41C0099D6FF /* app-iosTests */ = {
+		AF627E5B2B19D41C0099D6FF /* securenotesTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AF627E732B19D41C0099D6FF /* Build configuration list for PBXNativeTarget "app-iosTests" */;
+			buildConfigurationList = AF627E732B19D41C0099D6FF /* Build configuration list for PBXNativeTarget "securenotesTests" */;
 			buildPhases = (
 				AF627E582B19D41C0099D6FF /* Sources */,
 				AF627E592B19D41C0099D6FF /* Frameworks */,
@@ -170,14 +174,14 @@
 			dependencies = (
 				AF627E5E2B19D41C0099D6FF /* PBXTargetDependency */,
 			);
-			name = "app-iosTests";
-			productName = "app-iosTests";
-			productReference = AF627E5C2B19D41C0099D6FF /* app-iosTests.xctest */;
+			name = securenotesTests;
+			productName = securenotesTests;
+			productReference = AF627E5C2B19D41C0099D6FF /* securenotesTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		AF627E652B19D41C0099D6FF /* app-iosUITests */ = {
+		AF627E652B19D41C0099D6FF /* securenotesUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AF627E762B19D41C0099D6FF /* Build configuration list for PBXNativeTarget "app-iosUITests" */;
+			buildConfigurationList = AF627E762B19D41C0099D6FF /* Build configuration list for PBXNativeTarget "securenotesUITests" */;
 			buildPhases = (
 				AF627E622B19D41C0099D6FF /* Sources */,
 				AF627E632B19D41C0099D6FF /* Frameworks */,
@@ -188,9 +192,9 @@
 			dependencies = (
 				AF627E682B19D41C0099D6FF /* PBXTargetDependency */,
 			);
-			name = "app-iosUITests";
-			productName = "app-iosUITests";
-			productReference = AF627E662B19D41C0099D6FF /* app-iosUITests.xctest */;
+			name = securenotesUITests;
+			productName = securenotesUITests;
+			productReference = AF627E662B19D41C0099D6FF /* securenotesUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -216,7 +220,7 @@
 					};
 				};
 			};
-			buildConfigurationList = AF627E472B19D41A0099D6FF /* Build configuration list for PBXProject "app-ios" */;
+			buildConfigurationList = AF627E472B19D41A0099D6FF /* Build configuration list for PBXProject "Securenotes" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -232,9 +236,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				AF627E4B2B19D41A0099D6FF /* app-ios */,
-				AF627E5B2B19D41C0099D6FF /* app-iosTests */,
-				AF627E652B19D41C0099D6FF /* app-iosUITests */,
+				AF627E4B2B19D41A0099D6FF /* securenotes */,
+				AF627E5B2B19D41C0099D6FF /* securenotesTests */,
+				AF627E652B19D41C0099D6FF /* securenotesUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -282,7 +286,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd \"$SRCROOT/..\"\n./gradlew :app:embedAndSignAppleFrameworkForXcode\n";
+			shellScript = "cd \"$SRCROOT/../..\"\n./gradlew :app:shared:embedAndSignAppleFrameworkForXcode\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -292,7 +296,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AF627E522B19D41A0099D6FF /* ContentView.swift in Sources */,
-				AF627E502B19D41A0099D6FF /* app_iosApp.swift in Sources */,
+				AF627E502B19D41A0099D6FF /* SecurenotesApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -300,7 +304,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AF627E612B19D41C0099D6FF /* app_iosTests.swift in Sources */,
+				AF627E612B19D41C0099D6FF /* securenotesTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -308,8 +312,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AF627E6D2B19D41C0099D6FF /* app_iosUITestsLaunchTests.swift in Sources */,
-				AF627E6B2B19D41C0099D6FF /* app_iosUITests.swift in Sources */,
+				AF627E6D2B19D41C0099D6FF /* securenotesUITestsLaunchTests.swift in Sources */,
+				AF627E6B2B19D41C0099D6FF /* securenotesUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -318,12 +322,12 @@
 /* Begin PBXTargetDependency section */
 		AF627E5E2B19D41C0099D6FF /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = AF627E4B2B19D41A0099D6FF /* app-ios */;
+			target = AF627E4B2B19D41A0099D6FF /* securenotes */;
 			targetProxy = AF627E5D2B19D41C0099D6FF /* PBXContainerItemProxy */;
 		};
 		AF627E682B19D41C0099D6FF /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = AF627E4B2B19D41A0099D6FF /* app-ios */;
+			target = AF627E4B2B19D41A0099D6FF /* securenotes */;
 			targetProxy = AF627E672B19D41C0099D6FF /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -455,13 +459,13 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"app-ios/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"securenotes/Preview Content\"";
 				DEVELOPMENT_TEAM = BJL5WK6667;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)/../app/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)";
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "app-ios/Info.plist";
+				INFOPLIST_FILE = securenotes/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -477,7 +481,7 @@
 					"-framework",
 					app,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.aspoliakov.securenotes.app-ios";
+				PRODUCT_BUNDLE_IDENTIFIER = com.aspoliakov.securenotes.securenotes;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -492,13 +496,13 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"app-ios/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"securenotes/Preview Content\"";
 				DEVELOPMENT_TEAM = BJL5WK6667;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)/../app/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)";
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "app-ios/Info.plist";
+				INFOPLIST_FILE = securenotes/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -514,7 +518,7 @@
 					"-framework",
 					app,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.aspoliakov.securenotes.app-ios";
+				PRODUCT_BUNDLE_IDENTIFIER = com.aspoliakov.securenotes.securenotes;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -533,12 +537,12 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.aspoliakov.securenotes.app-iosTests";
+				PRODUCT_BUNDLE_IDENTIFIER = com.aspoliakov.securenotes.securenotesTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/app-ios.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/app-ios";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/securenotes.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/securenotes";
 			};
 			name = Debug;
 		};
@@ -553,12 +557,12 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.aspoliakov.securenotes.app-iosTests";
+				PRODUCT_BUNDLE_IDENTIFIER = com.aspoliakov.securenotes.securenotesTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/app-ios.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/app-ios";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/securenotes.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/securenotes";
 			};
 			name = Release;
 		};
@@ -571,12 +575,12 @@
 				DEVELOPMENT_TEAM = BJL5WK6667;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.aspoliakov.securenotes.app-iosUITests";
+				PRODUCT_BUNDLE_IDENTIFIER = com.aspoliakov.securenotes.securenotesUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = "app-ios";
+				TEST_TARGET_NAME = securenotes;
 			};
 			name = Debug;
 		};
@@ -589,19 +593,19 @@
 				DEVELOPMENT_TEAM = BJL5WK6667;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.aspoliakov.securenotes.app-iosUITests";
+				PRODUCT_BUNDLE_IDENTIFIER = com.aspoliakov.securenotes.securenotesUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = "app-ios";
+				TEST_TARGET_NAME = securenotes;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		AF627E472B19D41A0099D6FF /* Build configuration list for PBXProject "app-ios" */ = {
+		AF627E472B19D41A0099D6FF /* Build configuration list for PBXProject "Securenotes" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AF627E6E2B19D41C0099D6FF /* Debug */,
@@ -610,7 +614,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AF627E702B19D41C0099D6FF /* Build configuration list for PBXNativeTarget "app-ios" */ = {
+		AF627E702B19D41C0099D6FF /* Build configuration list for PBXNativeTarget "securenotes" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AF627E712B19D41C0099D6FF /* Debug */,
@@ -619,7 +623,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AF627E732B19D41C0099D6FF /* Build configuration list for PBXNativeTarget "app-iosTests" */ = {
+		AF627E732B19D41C0099D6FF /* Build configuration list for PBXNativeTarget "securenotesTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AF627E742B19D41C0099D6FF /* Debug */,
@@ -628,7 +632,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AF627E762B19D41C0099D6FF /* Build configuration list for PBXNativeTarget "app-iosUITests" */ = {
+		AF627E762B19D41C0099D6FF /* Build configuration list for PBXNativeTarget "securenotesUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AF627E772B19D41C0099D6FF /* Debug */,
