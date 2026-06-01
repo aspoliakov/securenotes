@@ -5,6 +5,9 @@ plugins {
 }
 
 kotlin {
+    android {
+        namespace = "${Config.APPLICATION_ID}.$moduleName"
+    }
     sourceSets {
         commonMain.dependencies {
             api(project.dependencies.platform(libs.koin.bom))
@@ -20,8 +23,4 @@ kotlin {
             api(libs.koin.android)
         }
     }
-}
-
-android {
-    namespace = "${Config.APPLICATION_ID}.$moduleName"
 }

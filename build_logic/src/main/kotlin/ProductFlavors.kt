@@ -58,8 +58,8 @@ sealed class EnvironmentFlavor(
 
             ConfigFields.setup(this)
 
-            if (this@EnvironmentFlavor is Dev) {
-                setupDevConfig(this)
+            if (this@EnvironmentFlavor is Beta) {
+                setupBetaConfig(this)
             }
         }
     }
@@ -70,13 +70,13 @@ sealed class EnvironmentFlavor(
 
             ConfigFields.setup(this)
 
-            if (this@EnvironmentFlavor is Dev) {
-                setupDevConfig(this)
+            if (this@EnvironmentFlavor is Beta) {
+                setupBetaConfig(this)
             }
         }
     }
 
-    private fun setupDevConfig(flavor: ProductFlavor) {
+    private fun setupBetaConfig(flavor: ProductFlavor) {
         flavor.resourceConfigurations.addAll(listOf("en", "xxhdpi"))
         (flavor as ExtensionAware).extra["alwaysUpdateBuildId"] = false
         (flavor as ExtensionAware).extra["enableCrashlytics"] = false
@@ -86,18 +86,8 @@ sealed class EnvironmentFlavor(
             flavorName = "master",
     )
 
-    object Dev : EnvironmentFlavor(
-            flavorName = "dev",
-            appIdSuffix = "debug",
-    )
-
     object Beta : EnvironmentFlavor(
             flavorName = "beta",
             appIdSuffix = "beta",
-    )
-
-    object Prerelease : EnvironmentFlavor(
-            flavorName = "prerelease",
-            appIdSuffix = "prerelease",
     )
 }

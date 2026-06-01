@@ -6,6 +6,9 @@ plugins {
 }
 
 kotlin {
+    android {
+        namespace = "${Config.APPLICATION_ID}.$moduleName"
+    }
     sourceSets {
         commonMain.dependencies {
             implementation(projects.core.base)
@@ -16,8 +19,4 @@ kotlin {
             api(libs.ktorfit.lib)
         }
     }
-}
-
-android {
-    namespace = "${Config.APPLICATION_ID}.$moduleName"
 }

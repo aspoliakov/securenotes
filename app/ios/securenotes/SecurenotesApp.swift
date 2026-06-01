@@ -1,6 +1,6 @@
 //
-//  app_iosApp.swift
-//  app-ios
+//  SecurenotesApp.swift
+//  Securenotes
 //
 //  Created by Anton Poliakov on 01.12.2023.
 //
@@ -8,7 +8,7 @@
 import SwiftUI
 
 @main
-struct iOSApp: App {
+struct SecurenotesApp: App {
     
     init(){
     }

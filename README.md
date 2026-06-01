@@ -1,6 +1,6 @@
 # SecureNotes - KMP Mobile App
 
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.1.20-blue.svg?style=flat&logo=kotlin)](https://kotlinlang.org)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.3.21-blue.svg?style=flat&logo=kotlin)](https://kotlinlang.org)
 
 ![badge-android](http://img.shields.io/badge/platform-android-6EDB8D.svg?style=flat)
 ![badge-ios](https://img.shields.io/badge/platform-ios-6EDB8D.svg?style=flat)
@@ -28,12 +28,14 @@ SecureNotes is a KMP project with completely shared code base across Android and
 
 Android and iOS applications implements its own base initialization point:
 
-- app for Android
-- app-ios for iOS
+- :app:android Gradle module for Android
+- app/ios for iOS
 
-These initialization points create a global UI controller and a dependency graph. These main things are implemented in the App module.
+These initialization points create a global UI controller and a dependency graph.
 
-SecureNotes is a multi-module project: the App module depends on the Feature, Domain, and Core modules.
+Each application depends directly only on the Shared module (:app:shared).
+
+SecureNotes is a multi-module project: the Shared module depends on the Feature, Domain, and Core modules.
 
 Feature modules cannot depend on each other.
 

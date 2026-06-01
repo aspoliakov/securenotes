@@ -6,6 +6,9 @@ plugins {
 }
 
 kotlin {
+    android {
+        namespace = "${Config.APPLICATION_ID}.$moduleName"
+    }
     sourceSets {
         commonMain.dependencies {
             implementation(projects.core.base)
@@ -20,15 +23,10 @@ kotlin {
     }
 }
 
-android {
-    namespace = "${Config.APPLICATION_ID}.$moduleName"
-}
-
 dependencies {
     add("kspAndroid", libs.room.compiler)
-    add("kspIosSimulatorArm64", libs.room.compiler)
-    add("kspIosX64", libs.room.compiler)
     add("kspIosArm64", libs.room.compiler)
+    add("kspIosSimulatorArm64", libs.room.compiler)
 }
 
 ksp {

@@ -5,6 +5,10 @@ plugins {
 }
 
 kotlin {
+    android {
+        namespace = "${Config.APPLICATION_ID}.$moduleName"
+        androidResources.enable = true
+    }
     sourceSets {
         commonMain.dependencies {
             api(compose.runtime)
@@ -15,6 +19,7 @@ kotlin {
             api(compose.ui)
             api(compose.components.resources)
             api(compose.components.uiToolingPreview)
+            api(libs.jetbrainsComposeComponentsResources)
         }
         androidMain.dependencies {
             api(libs.compose.ui.tooling)
@@ -27,8 +32,4 @@ compose.resources {
     publicResClass = true
     packageOfResClass = "${Config.APPLICATION_ID}.$moduleName.resources"
     generateResClass = always
-}
-
-android {
-    namespace = "${Config.APPLICATION_ID}.$moduleName"
 }
