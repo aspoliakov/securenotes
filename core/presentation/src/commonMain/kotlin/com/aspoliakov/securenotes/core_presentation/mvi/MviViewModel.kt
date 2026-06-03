@@ -3,8 +3,8 @@ package com.aspoliakov.securenotes.core_presentation.mvi
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.atomicfu.locks.ReentrantLock
-import kotlinx.atomicfu.locks.withLock
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -29,7 +29,7 @@ abstract class MviViewModel<S : State, E : Effect, I : Intent>(initialState: S) 
     val currentState: S
         get() = state.value
 
-    private val changeStateLock = ReentrantLock()
+    private val changeStateLock = SynchronizedObject()
 
     init {
         viewModelScope.launch {
@@ -46,7 +46,7 @@ abstract class MviViewModel<S : State, E : Effect, I : Intent>(initialState: S) 
     protected abstract fun handleIntent(intent: I)
 
     protected fun reduceState(reduce: S.() -> S) {
-        changeStateLock.withLock {
+        synchronized(changeStateLock) {
             _state.value = _state.value.reduce()
         }
     }
