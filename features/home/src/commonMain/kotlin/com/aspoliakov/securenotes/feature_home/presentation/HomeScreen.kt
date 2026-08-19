@@ -14,6 +14,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -55,12 +57,12 @@ internal fun HomeScreen(
                 modifier = modifier.padding(innerPadding),
         ) {
             NavHost(
-                    startDestination = navItems.first().destinationName,
+                    startDestination = navItems.first().route,
                     navController = navController,
                     modifier = modifier.fillMaxSize(),
             ) {
                 navItems.forEach { navItem ->
-                    composable(route = navItem.destinationName) {
+                    composable(route = navItem.route::class) {
                         navItem.content()
                     }
                 }
@@ -75,22 +77,23 @@ fun BottomNavigationMenu(
         navItems: List<HomeNavItem>,
 ) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = currentBackStackEntry?.destination?.route
+    val currentDestination = currentBackStackEntry?.destination
     NavigationBar(
             containerColor = MaterialTheme.colorScheme.background,
             contentColor = MaterialTheme.colorScheme.background,
             tonalElevation = 8.dp,
     ) {
         navItems.forEach { navItem ->
+            val isSelected = currentDestination?.hasRoute(navItem.route::class) == true
             NavigationBarItem(
                     label = {
                         Text(text = stringResource(navItem.titleRes))
                     },
-                    selected = navItem.destinationName == currentRoute,
+                    selected = isSelected,
                     icon = {
                         Icon(
                                 painter = painterResource(
-                                        if (navItem.destinationName == currentRoute) {
+                                        if (isSelected) {
                                             navItem.iconSelected
                                         } else {
                                             navItem.iconUnselected
@@ -100,12 +103,10 @@ fun BottomNavigationMenu(
                         )
                     },
                     onClick = {
-                        if (navItem.destinationName != currentRoute) {
-                            navController.navigate(navItem.destinationName) {
-                                navController.graph.startDestinationRoute?.let { route ->
-                                    popUpTo(route) {
-                                        saveState = true
-                                    }
+                        if (!isSelected) {
+                            navController.navigate(navItem.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
                                 }
                                 launchSingleTop = true
                                 restoreState = true

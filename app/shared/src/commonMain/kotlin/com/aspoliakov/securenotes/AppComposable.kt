@@ -64,9 +64,9 @@ internal fun MainAppNavHost(
                 )
             },
     ) {
-        composable(AppGlobalScreen.Auth.toString()) { AuthScreenRoute() }
-        composable(AppGlobalScreen.Keys.toString()) { KeysScreenRoute() }
-        composable(AppGlobalScreen.Main.toString()) { MainScreen() }
+        composable<AppGlobalScreen.Auth> { AuthScreenRoute() }
+        composable<AppGlobalScreen.Keys> { KeysScreenRoute() }
+        composable<AppGlobalScreen.Main> { MainScreen() }
     }
     LaunchedEffect(destination) {
         if (initialized) {
@@ -81,10 +81,10 @@ internal fun MainAppNavHost(
     }
 }
 
-fun AppComposableState.toScreen(): String {
+fun AppComposableState.toScreen(): AppGlobalScreen {
     return when (this) {
         is AppComposableState.Unauthorized -> AppGlobalScreen.Auth
         is AppComposableState.Authorized -> AppGlobalScreen.Keys
         is AppComposableState.Active -> AppGlobalScreen.Main
-    }.toString()
+    }
 }

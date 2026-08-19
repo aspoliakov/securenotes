@@ -16,7 +16,7 @@ import org.jetbrains.compose.resources.StringResource
  */
 
 data class HomeNavItem(
-        val destinationName: String,
+        val route: HomeTab,
         val titleRes: StringResource,
         val iconSelected: DrawableResource,
         val iconUnselected: DrawableResource,
@@ -25,7 +25,7 @@ data class HomeNavItem(
 
 fun notesItem(content: @Composable () -> Unit): HomeNavItem {
     return HomeNavItem(
-            destinationName = "notes",
+            route = HomeTab.Notes,
             titleRes = Res.string.feature_home_menu_item_notes,
             iconSelected = Res.drawable.notes_filled,
             iconUnselected = Res.drawable.notes,
@@ -35,7 +35,7 @@ fun notesItem(content: @Composable () -> Unit): HomeNavItem {
 
 fun profileItem(content: @Composable () -> Unit): HomeNavItem {
     return HomeNavItem(
-            destinationName = "profile",
+            route = HomeTab.Profile,
             titleRes = Res.string.feature_home_menu_item_profile,
             iconSelected = Res.drawable.profile_filled,
             iconUnselected = Res.drawable.profile,

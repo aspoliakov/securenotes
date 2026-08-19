@@ -13,7 +13,6 @@ import com.aspoliakov.securenotes.feature_profile.di.profileViewModelModule
  */
 
 val featureModules = listOf(
-        aboutViewModelModule,
         authViewModelModule,
         keysViewModelModule,
         homeViewModelModule,

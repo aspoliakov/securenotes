@@ -2,7 +2,7 @@ object Config {
     const val APPLICATION_ID = "com.aspoliakov.securenotes"
 
     const val COMPILE_SDK_VERSION = 37
-    const val MIN_SDK_VERSION = 24
+    const val MIN_SDK_VERSION = 26
     const val TARGET_SDK_VERSION = 37
 
     const val VERSION_CODE = 1

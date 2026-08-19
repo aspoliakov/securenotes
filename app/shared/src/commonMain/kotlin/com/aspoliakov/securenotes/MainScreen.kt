@@ -6,12 +6,10 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
-import androidx.savedstate.read
+import androidx.navigation.toRoute
 import com.aspoliakov.securenotes.core_presentation.navigation.Screen
 import com.aspoliakov.securenotes.feature_about.presentation.AboutScreenRoute
 import com.aspoliakov.securenotes.feature_home.notesItem
@@ -30,7 +28,7 @@ internal fun MainScreen() {
     val navController = rememberNavController()
     NavHost(
             navController = navController,
-            startDestination = Screen.Home.toString(),
+            startDestination = Screen.Home,
             enterTransition = {
                 slideIntoContainer(
                         towards = AnimatedContentTransitionScope.SlideDirection.Start,
@@ -46,45 +44,38 @@ internal fun MainScreen() {
                 )
             },
     ) {
-        composable(Screen.Home.toString()) {
+        composable<Screen.Home> {
             HomeScreenRoute(
                     modifier = Modifier,
                     navItems = listOf(
                             notesItem {
                                 NotesBrowserScreenRoute(
                                         onNavigateToNote = { noteId ->
-                                            navController.navigate("${Screen.Note}/${noteId}")
+                                            navController.navigate(Screen.Note(noteId = noteId))
                                         },
                                         onNavigateToCreateNote = {
-                                            navController.navigate("${Screen.Note}/null")
+                                            navController.navigate(Screen.Note())
                                         },
                                 )
                             },
                             profileItem {
                                 ProfileScreenRoute(
                                         onNavigateToAbout = {
-                                            navController.navigate("${Screen.About}")
+                                            navController.navigate(Screen.About)
                                         }
                                 )
                             },
                     ),
             )
         }
-        composable(
-                route = "${Screen.Note}/{${Screen.Note.ARG_NOTE_ID}}",
-                arguments = listOf(
-                        navArgument(Screen.Note.ARG_NOTE_ID) {
-                            type = NavType.StringType
-                            nullable = true
-                        },
-                )
-        ) { entry ->
+        composable<Screen.Note> { entry ->
+            val route: Screen.Note = entry.toRoute()
             NoteScreenRoute(
-                    noteId = entry.arguments?.read { getStringOrNull(Screen.Note.ARG_NOTE_ID) },
+                    noteId = route.noteId,
                     onNavigationBack = { navController.popBackStack() },
             )
         }
-        composable(Screen.About.toString()) {
+        composable<Screen.About> {
             AboutScreenRoute()
         }
     }
