@@ -11,14 +11,13 @@ kotlin {
     }
     sourceSets {
         commonMain.dependencies {
-            api(compose.runtime)
-            api(compose.foundation)
-            api(compose.material)
-            api(compose.material3)
-            api(compose.materialIconsExtended)
-            api(compose.ui)
-            api(compose.components.resources)
-            api(compose.components.uiToolingPreview)
+            api(libs.jetbrainsComposeRuntime)
+            api(libs.jetbrainsComposeFoundation)
+            api(libs.jetbrainsComposeMaterial)
+            api(libs.jetbrainsComposeMaterial3)
+            api(libs.jetbrainsComposeMaterialIconsExtended)
+            api(libs.jetbrainsComposeUi)
+            api(libs.jetbrainsComposeUiToolingPreview)
             api(libs.jetbrainsComposeComponentsResources)
         }
         androidMain.dependencies {

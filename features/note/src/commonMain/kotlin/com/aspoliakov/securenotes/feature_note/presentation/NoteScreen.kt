@@ -4,15 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -20,16 +12,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.aspoliakov.securenotes.core_presentation.mvi.Effect
 import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
 import com.aspoliakov.securenotes.core_presentation.utils.CollectEffects
+import com.aspoliakov.securenotes.core_ui.AppTheme
 import com.aspoliakov.securenotes.core_ui.Icons
-import com.aspoliakov.securenotes.core_ui.resources.Res
-import com.aspoliakov.securenotes.core_ui.resources.common_back
-import com.aspoliakov.securenotes.core_ui.resources.common_delete
-import com.aspoliakov.securenotes.core_ui.resources.feature_note_text_field_body_hint
-import com.aspoliakov.securenotes.core_ui.resources.feature_note_text_field_title_hint
+import com.aspoliakov.securenotes.core_ui.resources.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import org.jetbrains.compose.resources.stringResource
@@ -80,9 +70,9 @@ internal fun NoteScreen(
     ) { padding ->
         Column(
                 modifier = modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                        .padding(horizontal = 4.dp),
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(horizontal = 4.dp),
         ) {
             NoteTitle(
                     value = state.title,
@@ -149,7 +139,7 @@ internal fun NoteTitle(
     )
     TextField(
             modifier = Modifier
-                    .fillMaxWidth(),
+                .fillMaxWidth(),
             value = value,
             onValueChange = onValueChange,
             textStyle = style,
@@ -182,7 +172,7 @@ internal fun NoteBody(
     )
     TextField(
             modifier = Modifier
-                    .fillMaxSize(),
+                .fillMaxSize(),
             value = value,
             onValueChange = onValueChange,
             textStyle = style,
@@ -203,4 +193,20 @@ internal fun NoteBody(
                     disabledIndicatorColor = Color.Transparent
             ),
     )
+}
+
+@Preview
+@Composable
+private fun NoteScreenPreview() {
+    AppTheme {
+        NoteScreen(
+                state = NoteState(
+                        noteId = "note_id",
+                        newNote = false,
+                        title = "Title",
+                        body = "Body",
+                ),
+                onNavigationBack = {},
+        )
+    }
 }

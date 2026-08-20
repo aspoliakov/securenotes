@@ -11,6 +11,8 @@ kotlinDatetime = "0.8.0"
 kotlinSerialization = "1.11.0"
 composeUi = "1.12.0"
 composePlugin = "1.11.1"
+composeMaterial3 = "1.9.0"
+composeMaterialIconsExtended = "1.7.3"
 navigationCompose = "2.9.2"
 appcompat = "1.8.0"
 ktx = "1.19.0"
@@ -44,6 +46,13 @@ compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview"
 
 jetbrains-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 jetbrainsComposeComponentsResources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composePlugin" }
+jetbrainsComposeRuntime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composePlugin" }
+jetbrainsComposeFoundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composePlugin" }
+jetbrainsComposeMaterial = { module = "org.jetbrains.compose.material:material", version.ref = "composePlugin" }
+jetbrainsComposeMaterial3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "composeMaterial3" }
+jetbrainsComposeMaterialIconsExtended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "composeMaterialIconsExtended" }
+jetbrainsComposeUi = { module = "org.jetbrains.compose.ui:ui", version.ref = "composePlugin" }
+jetbrainsComposeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composePlugin" }
 
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koinBom" }
 koin-core = { module = "io.insert-koin:koin-core" }

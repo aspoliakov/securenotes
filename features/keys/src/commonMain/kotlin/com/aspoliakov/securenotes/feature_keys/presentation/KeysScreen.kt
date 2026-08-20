@@ -1,18 +1,7 @@
 package com.aspoliakov.securenotes.feature_keys.presentation
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -21,10 +10,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.aspoliakov.securenotes.core_presentation.mvi.Effect
 import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
 import com.aspoliakov.securenotes.core_presentation.utils.CollectEffects
+import com.aspoliakov.securenotes.core_ui.AppTheme
 import com.aspoliakov.securenotes.core_ui.resources.Res
 import com.aspoliakov.securenotes.core_ui.resources.common_retry
 import kotlinx.coroutines.flow.Flow
@@ -122,7 +113,7 @@ internal fun KeysLoadingFailedState(
         )
         Button(
                 modifier = Modifier
-                        .padding(12.dp),
+                    .padding(12.dp),
                 shape = ButtonDefaults.textShape,
                 onClick = { intentHandler.invoke(KeysIntent.OnReloadKeysClick) },
         ) {
@@ -147,4 +138,20 @@ internal fun KeysErrorText(
             fontWeight = FontWeight.Normal,
             color = MaterialTheme.colorScheme.error,
     )
+}
+
+@Preview
+@Composable
+private fun KeysScreenPreview() {
+    AppTheme {
+        KeysScreen(
+                state = KeysState.Restoring(
+                        keyId = "key_id",
+                        publicKey = "public_key",
+                        encryptedPrivateKey = "encrypted_private_key",
+                        password = "password",
+                        actionState = KeysActionState.Error(KeysError.DECRYPTION_ERROR),
+                ),
+        )
+    }
 }

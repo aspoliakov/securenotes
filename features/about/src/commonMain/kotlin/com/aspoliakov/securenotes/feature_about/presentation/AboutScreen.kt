@@ -15,9 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import com.aspoliakov.securenotes.core_presentation.mvi.Effect
 import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
 import com.aspoliakov.securenotes.core_presentation.utils.CollectEffects
+import com.aspoliakov.securenotes.core_ui.AppTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 
@@ -54,8 +56,8 @@ internal fun AboutScreen(
     Scaffold(modifier = modifier) { paddings ->
         Column(
                 modifier = modifier
-                        .padding(paddings)
-                        .fillMaxSize(),
+                    .padding(paddings)
+                    .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
         ) {
@@ -69,5 +71,15 @@ internal fun AboutScreen(
                     fontWeight = FontWeight.Bold,
             )
         }
+    }
+}
+
+@Preview
+@Composable
+private fun AboutScreenPreview() {
+    AppTheme {
+        AboutScreen(
+                state = AboutState(appVersion = "1.0.0"),
+        )
     }
 }
