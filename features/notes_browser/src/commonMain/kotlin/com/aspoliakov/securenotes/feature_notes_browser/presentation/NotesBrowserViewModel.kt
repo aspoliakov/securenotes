@@ -19,17 +19,17 @@ class NotesBrowserViewModel(
 
     init {
         notesListInteractor.getNotesList()
-                .onEach { notesList ->
-                    reduceState {
-                        copy(
-                                notesListState = NotesListState.Loaded(
-                                        notesList = notesList,
-                                )
-                        )
-                    }
+            .onEach { notesList ->
+                reduceState {
+                    copy(
+                            notesListState = NotesListState.Loaded(
+                                    notesList = notesList,
+                            )
+                    )
                 }
-                .flowOnIO()
-                .launchIn(viewModelScope)
+            }
+            .flowOnIO()
+            .launchIn(viewModelScope)
     }
 
     override fun handleIntent(intent: NotesBrowserIntent) {
@@ -39,13 +39,29 @@ class NotesBrowserViewModel(
     }
 
     private fun searchNotes(query: String) = launchOnIO {
-        reduceState { copy(searchState = SearchState.Searching(query)) }
+        if (query.isBlank()) {
+            reduceState { copy(searchState = SearchState.Idle) }
+            return@launchOnIO
+        }
+        val previousResults = when (val searchState = currentState.searchState) {
+            is SearchState.Searching -> searchState.results
+            is SearchState.Completed -> searchState.results
+            is SearchState.Idle -> NotesListState.Idle
+        }
+        reduceState {
+            copy(
+                    searchState = SearchState.Searching(
+                            query = query,
+                            results = previousResults,
+                    ),
+            )
+        }
         val foundSearchList = notesListInteractor.searchNotesList(query)
         reduceState {
             copy(
-                    searchState = SearchState.Completed(query),
-                    notesListFilteredState = NotesListState.Loaded(
-                            notesList = foundSearchList,
+                    searchState = SearchState.Completed(
+                            query = query,
+                            results = NotesListState.Loaded(notesList = foundSearchList),
                     ),
             )
         }

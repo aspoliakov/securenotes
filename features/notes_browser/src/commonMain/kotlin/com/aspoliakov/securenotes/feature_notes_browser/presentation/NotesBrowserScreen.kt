@@ -68,32 +68,32 @@ internal fun NotesBrowserScreen(
             is NotesBrowserEffect.ShowSnackbar -> {}
         }
     }
-    Box {
-        SearchView(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(
-                            start = 16.dp,
-                            top = 16.dp,
-                            end = 16.dp,
-                            bottom = 0.dp,
-                    ),
-                searchState = state.searchState,
-                intentHandler = intentHandler,
-        )
+    Box(
+            modifier = modifier.fillMaxSize(),
+    ) {
         Column(
-                modifier = modifier
-                    .fillMaxSize()
-                    .padding(top = 80.dp),
+                modifier = modifier.fillMaxSize(),
         ) {
-            when (val notesListState = state.notesListState) {
+            SearchView(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    searchState = state.searchState,
+                    intentHandler = intentHandler,
+            )
+            val activeNotesListState = when (val searchState = state.searchState) {
+                is SearchState.Idle -> state.notesListState
+                is SearchState.Searching -> searchState.results
+                is SearchState.Completed -> searchState.results
+            }
+            when (activeNotesListState) {
                 is NotesListState.Idle,
                 is NotesListState.Loading -> NotesInitView(
                         modifier = modifier,
                 )
                 is NotesListState.Loaded -> NotesList(
                         modifier = modifier,
-                        notesList = notesListState.notesList,
+                        notesList = activeNotesListState.notesList,
                         onNavigateToNote = onNavigateToNote,
                 )
             }
@@ -115,58 +115,48 @@ internal fun SearchView(
         intentHandler: (NotesBrowserIntent) -> Unit = {},
 ) {
     var query by remember { mutableStateOf("") }
-    var expanded by remember { mutableStateOf(searchState is SearchState.Searching) }
-    val onExpandedChange: (Boolean) -> Unit = {
-        expanded = it
-    }
-    DockedSearchBar(
-            inputField = {
-                SearchBarDefaults.InputField(
-                        query = query,
-                        onQueryChange = {
-                            query = it
-                            intentHandler(NotesBrowserIntent.OnSearch(it))
-                        },
-                        onSearch = { expanded = false },
-                        expanded = expanded,
-                        onExpandedChange = onExpandedChange,
-                        modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text(text = stringResource(Res.string.feature_notes_search_notes)) },
-                        leadingIcon = {
-                            if (expanded) {
-                                Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                        contentDescription = stringResource(Res.string.common_back),
-                                        modifier = Modifier
-                                            .padding(start = 16.dp)
-                                            .clickable {
-                                                expanded = false
-                                                query = ""
-                                            },
-                                )
-                            } else {
-                                Icon(
-                                        imageVector = Icons.Default.Search,
-                                        contentDescription = stringResource(Res.string.common_search),
-                                        modifier = Modifier.padding(start = 16.dp),
-                                )
-                            }
-                        },
-                        trailingIcon = {
-                            if (searchState is SearchState.Searching) {
-                                CircularProgressIndicator(
-                                        modifier = Modifier.size(20.dp),
-                                        color = MaterialTheme.colorScheme.secondary,
-                                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                                )
-                            }
-                        },
-                )
+    var expanded by remember { mutableStateOf(false) }
+    SearchBarDefaults.InputField(
+            query = query,
+            onQueryChange = {
+                query = it
+                intentHandler(NotesBrowserIntent.OnSearch(it))
             },
+            onSearch = {},
             expanded = expanded,
-            onExpandedChange = onExpandedChange,
-            modifier = modifier,
-            content = {},
+            onExpandedChange = { expanded = it },
+            modifier = modifier.fillMaxWidth(),
+            placeholder = { Text(text = stringResource(Res.string.feature_notes_search_notes)) },
+            leadingIcon = {
+                if (expanded) {
+                    Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(Res.string.common_back),
+                            modifier = Modifier
+                                .padding(start = 16.dp)
+                                .clickable {
+                                    expanded = false
+                                    query = ""
+                                    intentHandler(NotesBrowserIntent.OnSearch(""))
+                                },
+                    )
+                } else {
+                    Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = stringResource(Res.string.common_search),
+                            modifier = Modifier.padding(start = 16.dp),
+                    )
+                }
+            },
+            trailingIcon = {
+                if (searchState is SearchState.Searching) {
+                    CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            color = MaterialTheme.colorScheme.secondary,
+                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    )
+                }
+            },
     )
 }
 
