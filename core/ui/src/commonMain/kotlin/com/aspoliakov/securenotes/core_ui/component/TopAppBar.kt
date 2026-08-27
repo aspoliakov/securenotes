@@ -1,11 +1,6 @@
 package com.aspoliakov.securenotes.core_ui.component
 
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -21,7 +16,7 @@ fun TopAppBar(
         title: String = "",
         onBackClick: () -> Unit = {},
 ) {
-    androidx.compose.material3.TopAppBar(
+    TopAppBar(
             navigationIcon = {
                 IconButton(onClick = { onBackClick() }) {
                     Icon(
@@ -39,11 +34,5 @@ fun TopAppBar(
                         maxLines = 1,
                 )
             },
-            colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.secondary,
-                    titleContentColor = MaterialTheme.colorScheme.onSecondary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                    actionIconContentColor = MaterialTheme.colorScheme.onSecondary,
-            ),
     )
 }

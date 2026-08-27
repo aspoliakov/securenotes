@@ -3,14 +3,14 @@
 java = "21"
 kotlin = "2.4.10"
 ksp = "2.3.11"
-agp = "9.3.1"
+agp = "9.3.2"
 gms = "4.5.0"
 coroutines = "1.11.0"
 atomicfu = "0.33.0"
 kotlinDatetime = "0.8.0"
 kotlinSerialization = "1.11.0"
 composeUi = "1.12.0"
-composePlugin = "1.11.1"
+composePlugin = "1.12.0"
 composeMaterial3 = "1.9.0"
 composeMaterialIconsExtended = "1.7.3"
 navigationCompose = "2.9.2"
@@ -27,6 +27,7 @@ napier = "2.7.1"
 detekt = "1.23.8"
 libsodium = "0.9.5"
 kvault = "1.12.0"
+coil = "3.6.0"
 
 [libraries]
 
@@ -76,6 +77,9 @@ napier = { module = "io.github.aakira:napier", version.ref = "napier" }
 
 libsodium = { module = "com.ionspin.kotlin:multiplatform-crypto-libsodium-bindings", version.ref = "libsodium" }
 kvault = { module = "com.liftric:kvault", version.ref = "kvault" }
+
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
 
 [plugins]
 

@@ -76,7 +76,9 @@ internal fun MainScreen() {
             )
         }
         composable<Screen.About> {
-            AboutScreenRoute()
+            AboutScreenRoute(
+                    onNavigationBack = { navController.popBackStack() },
+            )
         }
     }
 }

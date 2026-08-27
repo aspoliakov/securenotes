@@ -19,6 +19,8 @@ kotlin {
             api(libs.jetbrainsComposeUi)
             api(libs.jetbrainsComposeUiToolingPreview)
             api(libs.jetbrainsComposeComponentsResources)
+            api(libs.coil.compose)
+            api(libs.coil.network.ktor3)
         }
         androidMain.dependencies {
             api(libs.compose.ui.tooling)

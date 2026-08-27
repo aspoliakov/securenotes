@@ -1,35 +1,45 @@
 package com.aspoliakov.securenotes.feature_profile.presentation
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil3.ImageLoader
+import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
+import coil3.network.ktor3.KtorNetworkFetcherFactory
 import com.aspoliakov.securenotes.core_presentation.mvi.Effect
 import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
 import com.aspoliakov.securenotes.core_presentation.utils.CollectEffects
 import com.aspoliakov.securenotes.core_ui.AppTheme
 import com.aspoliakov.securenotes.core_ui.Icons
 import com.aspoliakov.securenotes.core_ui.component.ShimmerEffect
-import com.aspoliakov.securenotes.core_ui.resources.*
+import com.aspoliakov.securenotes.core_ui.component.Spacer16dp
+import com.aspoliakov.securenotes.core_ui.resources.Res
+import com.aspoliakov.securenotes.core_ui.resources.feature_profile_about
+import com.aspoliakov.securenotes.core_ui.resources.feature_profile_avatar_description
+import com.aspoliakov.securenotes.core_ui.resources.feature_profile_logout
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import org.jetbrains.compose.resources.StringResource
-import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -67,142 +77,182 @@ internal fun ProfileScreen(
     }
     Column(
             modifier = modifier
-                .padding(top = 16.dp)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .padding(horizontal = 24.dp),
     ) {
-        ProfileDataView(
-                modifier = modifier,
+        Spacer(modifier = Modifier.height(40.dp))
+        ProfileHeader(
+                modifier = Modifier.fillMaxWidth(),
                 profileDataState = state.profileDataState,
         )
-        AboutButton(
-                onClick = { onNavigateToAbout() }
-        )
-        LogoutButton(
-                onClick = { intentHandler.invoke(ProfileIntent.OnLogoutClick) }
+        Spacer(modifier = Modifier.height(48.dp))
+        ProfileActions(
+                onAboutClick = { onNavigateToAbout() },
+                onLogoutClick = { intentHandler(ProfileIntent.OnLogoutClick) },
         )
     }
 }
 
 @Composable
-internal fun ProfileDataView(
+internal fun ProfileHeader(
         modifier: Modifier = Modifier,
         profileDataState: ProfileDataState = ProfileDataState.Idle,
 ) {
-    Card(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(12.dp)
-                .clip(CardDefaults.shape),
-            border = BorderStroke(
-                    width = 2.dp,
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-            ),
-            colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-            ),
+    Column(
+            modifier = modifier,
+            horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth()
-        ) {
-            when (profileDataState) {
-                is ProfileDataState.Idle -> {
-                    ShimmerEffect(
-                            modifier = modifier
-                                .size(80.dp)
-                                .clip(CircleShape),
-                    )
-                    ShimmerEffect(
-                            modifier = modifier
-                                .padding(start = 12.dp)
-                                .fillMaxWidth()
-                                .height(40.dp)
-                                .clip(CircleShape),
-                    )
-                }
-                is ProfileDataState.Loaded -> {
-                    Image(
-                            modifier = modifier
-                                .size(80.dp)
-                                .clip(RoundedCornerShape(40.dp)),
-                            painter = if (profileDataState.avatar != null) {
-                                painterResource(Res.drawable.profile)
-                            } else {
-                                rememberVectorPainter(Icons.Avatar)
-                            },
-                            contentDescription = stringResource(Res.string.feature_profile_avatar_description),
-                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.secondary),
-                    )
-                    Text(
-                            modifier = Modifier
-                                .padding(
-                                        horizontal = 12.dp,
-                                        vertical = 4.dp,
-                                ),
-                            text = profileDataState.name,
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                    fontWeight = FontWeight.Normal,
-                            ),
-                    )
-                }
+        when (profileDataState) {
+            is ProfileDataState.Idle -> {
+                ShimmerEffect(
+                        modifier = Modifier
+                            .size(88.dp)
+                            .clip(CircleShape),
+                )
+                Spacer16dp()
+                ShimmerEffect(
+                        modifier = Modifier
+                            .width(140.dp)
+                            .height(24.dp)
+                            .clip(RoundedCornerShape(8.dp)),
+                )
+            }
+            is ProfileDataState.Loaded -> {
+                ProfileAvatar(
+                        name = profileDataState.name,
+                        avatar = profileDataState.avatar,
+                )
+                Spacer16dp()
+                Text(
+                        text = profileDataState.name,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                )
             }
         }
     }
 }
 
 @Composable
-internal fun AboutButton(
-        onClick: () -> Unit = {},
+internal fun ProfileAvatar(
+        modifier: Modifier = Modifier,
+        name: String,
+        avatar: String? = null,
 ) {
-    ProfileItemButton(
-            imageVector = Icons.About,
-            text = Res.string.feature_profile_about,
-            onClick = onClick,
-    )
+    if (avatar != null) {
+        AsyncImage(
+                modifier = modifier
+                    .size(88.dp)
+                    .clip(CircleShape),
+                model = avatar,
+                imageLoader = rememberAvatarImageLoader(),
+                contentDescription = stringResource(Res.string.feature_profile_avatar_description),
+                contentScale = ContentScale.Crop,
+        )
+    } else {
+        val initials = remember(name) {
+            name.trim()
+                .split(" ")
+                .filter { it.isNotBlank() }
+                .take(2)
+                .mapNotNull { it.firstOrNull()?.uppercaseChar() }
+                .joinToString("")
+        }
+        Box(
+                modifier = modifier
+                    .size(88.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primaryContainer),
+                contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                    text = initials,
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+        }
+    }
 }
 
 @Composable
-internal fun LogoutButton(
-        onClick: () -> Unit = {},
-) {
-    ProfileItemButton(
-            imageVector = Icons.Logout,
-            text = Res.string.feature_profile_logout,
-            onClick = onClick,
-    )
+private fun rememberAvatarImageLoader(): ImageLoader {
+    val context = LocalPlatformContext.current
+    return remember(context) {
+        ImageLoader.Builder(context)
+            .components { add(KtorNetworkFetcherFactory()) }
+            .build()
+    }
 }
 
 @Composable
-internal fun ProfileItemButton(
+internal fun ProfileActions(
+        modifier: Modifier = Modifier,
+        onAboutClick: () -> Unit,
+        onLogoutClick: () -> Unit,
+) {
+    Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(20.dp))
+                .background(MaterialTheme.colorScheme.surfaceContainerLow),
+    ) {
+        ProfileActionRow(
+                imageVector = Icons.About,
+                text = Res.string.feature_profile_about,
+                iconTint = MaterialTheme.colorScheme.primary,
+                iconContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                onClick = onAboutClick,
+        )
+        HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 20.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant,
+        )
+        ProfileActionRow(
+                imageVector = Icons.Logout,
+                text = Res.string.feature_profile_logout,
+                iconTint = MaterialTheme.colorScheme.error,
+                iconContainerColor = MaterialTheme.colorScheme.errorContainer,
+                onClick = onLogoutClick,
+        )
+    }
+}
+
+@Composable
+internal fun ProfileActionRow(
         imageVector: ImageVector,
         text: StringResource,
-        contentDescription: StringResource = text,
+        iconTint: Color,
+        iconContainerColor: Color,
         onClick: () -> Unit,
 ) {
     Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { onClick() }
-                .padding(16.dp),
+                .padding(horizontal = 20.dp, vertical = 18.dp),
             verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(
+        Box(
                 modifier = Modifier
-                    .size(24.dp),
-                imageVector = imageVector,
-                contentDescription = stringResource(contentDescription),
-                tint = MaterialTheme.colorScheme.secondary,
-        )
+                    .size(36.dp)
+                    .clip(CircleShape)
+                    .background(iconContainerColor),
+                contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                    modifier = Modifier.size(20.dp),
+                    imageVector = imageVector,
+                    contentDescription = stringResource(text),
+                    tint = iconTint,
+            )
+        }
+        Spacer(modifier = Modifier.width(16.dp))
         Text(
-                modifier = Modifier
-                    .padding(horizontal = 12.dp),
                 text = stringResource(text),
+                style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Normal,
-                ),
         )
     }
 }
@@ -214,10 +264,21 @@ private fun ProfileScreenPreview() {
         ProfileScreen(
                 state = ProfileState(
                         profileDataState = ProfileDataState.Loaded(
-                                name = "Anton",
+                                name = "Anton Poliakov",
                                 avatar = null,
                         ),
                 ),
+                onNavigateToAbout = {},
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun ProfileScreenLoadingPreview() {
+    AppTheme {
+        ProfileScreen(
+                state = ProfileState(),
                 onNavigateToAbout = {},
         )
     }

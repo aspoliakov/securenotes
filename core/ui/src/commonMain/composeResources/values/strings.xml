@@ -17,6 +17,11 @@
     <string name="common_password_show">Show password</string>
 
     <string name="feature_about_app_version">App version: %1$s</string>
+    <string name="feature_about_tagline">Your notes, encrypted end-to-end. Only you can read them.</string>
+    <string name="feature_about_highlight_encryption_title">End-to-end encryption</string>
+    <string name="feature_about_highlight_encryption_subtitle">Notes are encrypted on your device before they ever leave it.</string>
+    <string name="feature_about_highlight_cross_platform_title">Cross-platform</string>
+    <string name="feature_about_highlight_cross_platform_subtitle">One codebase for Android and iOS.</string>
 
     <string name="feature_auth_sign_in">Sign in</string>
     <string name="feature_auth_sign_up">Sign up</string>
