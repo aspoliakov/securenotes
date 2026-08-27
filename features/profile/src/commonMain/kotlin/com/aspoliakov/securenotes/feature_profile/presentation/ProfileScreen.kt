@@ -70,11 +70,7 @@ internal fun ProfileScreen(
         onNavigateToAbout: () -> Unit,
         intentHandler: (ProfileIntent) -> Unit = {},
 ) {
-    CollectEffects<ProfileEffect>(effects) { effect ->
-        when (effect) {
-            else -> {}
-        }
-    }
+    CollectEffects<ProfileEffect>(effects) {}
     Column(
             modifier = modifier
                 .fillMaxSize()
