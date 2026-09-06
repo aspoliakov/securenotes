@@ -74,6 +74,7 @@ internal fun NoteScreen(
                 modifier = modifier
                     .fillMaxSize()
                     .padding(padding)
+                    .imePadding()
                     .padding(horizontal = 4.dp),
         ) {
             NoteTitle(
