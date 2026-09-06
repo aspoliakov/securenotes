@@ -9,4 +9,5 @@ data class NotesListItem(
         val createdAt: Long,
         val title: String?,
         val body: String?,
+        val color: Long? = null,
 )

@@ -5,6 +5,7 @@ import com.aspoliakov.securenotes.core_base.util.flowOnIO
 import com.aspoliakov.securenotes.core_presentation.mvi.MviViewModel
 import com.aspoliakov.securenotes.core_presentation.utils.launchOnIO
 import com.aspoliakov.securenotes.domain_notes.NotesListInteractor
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -32,38 +33,50 @@ class NotesBrowserViewModel(
             .launchIn(viewModelScope)
     }
 
+    private var searchJob: Job? = null
+
     override fun handleIntent(intent: NotesBrowserIntent) {
         when (intent) {
             is NotesBrowserIntent.OnSearch -> searchNotes(intent.query)
+            is NotesBrowserIntent.OnToggleViewMode -> toggleViewMode()
         }
     }
 
-    private fun searchNotes(query: String) = launchOnIO {
+    private fun toggleViewMode() {
+        val nextViewMode = when (currentState.notesViewMode) {
+            NotesViewMode.LIST -> NotesViewMode.GRID
+            NotesViewMode.GRID -> NotesViewMode.LIST
+        }
+        reduceState { copy(notesViewMode = nextViewMode) }
+    }
+
+    private fun searchNotes(query: String) {
+        searchJob?.cancel()
         if (query.isBlank()) {
             reduceState { copy(searchState = SearchState.Idle) }
-            return@launchOnIO
+            return
         }
-        val previousResults = when (val searchState = currentState.searchState) {
-            is SearchState.Searching -> searchState.results
-            is SearchState.Completed -> searchState.results
-            is SearchState.Idle -> NotesListState.Idle
-        }
-        reduceState {
-            copy(
-                    searchState = SearchState.Searching(
-                            query = query,
-                            results = previousResults,
-                    ),
-            )
-        }
-        val foundSearchList = notesListInteractor.searchNotesList(query)
-        reduceState {
-            copy(
-                    searchState = SearchState.Completed(
-                            query = query,
-                            results = NotesListState.Loaded(notesList = foundSearchList),
-                    ),
-            )
+        searchJob = launchOnIO {
+            val previousResults = (currentState.searchState as? SearchState.Active)?.results ?: emptyList()
+            reduceState {
+                copy(
+                        searchState = SearchState.Active(
+                                query = query,
+                                results = previousResults,
+                                inProgress = true,
+                        ),
+                )
+            }
+            val foundSearchList = notesListInteractor.searchNotesList(query)
+            reduceState {
+                copy(
+                        searchState = SearchState.Active(
+                                query = query,
+                                results = foundSearchList,
+                                inProgress = false,
+                        ),
+                )
+            }
         }
     }
 }

@@ -53,6 +53,12 @@
 
     <string name="feature_notes_search_notes">Search notes</string>
     <string name="feature_notes_add_note">Add note</string>
+    <string name="feature_notes_empty_title">No notes yet</string>
+    <string name="feature_notes_empty_subtitle">Tap the button below to create your first encrypted note.</string>
+    <string name="feature_notes_no_results_title">No matches found</string>
+    <string name="feature_notes_no_results_subtitle">Try a different search term.</string>
+    <string name="feature_notes_view_list">List view</string>
+    <string name="feature_notes_view_grid">Grid view</string>
 
     <string name="feature_note_text_field_title_hint">Title</string>
     <string name="feature_note_text_field_body_hint">Note</string>

@@ -11,8 +11,14 @@ import com.aspoliakov.securenotes.domain_notes.model.NotesListItem
 
 data class NotesBrowserState(
         val notesListState: NotesListState = NotesListState.Idle,
+        val notesViewMode: NotesViewMode = NotesViewMode.LIST,
         val searchState: SearchState = SearchState.Idle,
 ) : State()
+
+enum class NotesViewMode {
+    LIST,
+    GRID,
+}
 
 sealed class NotesListState {
     data object Idle : NotesListState()
@@ -22,8 +28,11 @@ sealed class NotesListState {
 
 sealed class SearchState {
     data object Idle : SearchState()
-    data class Searching(val query: String, val results: NotesListState) : SearchState()
-    data class Completed(val query: String, val results: NotesListState) : SearchState()
+    data class Active(
+            val query: String,
+            val inProgress: Boolean,
+            val results: List<NotesListItem> = emptyList(),
+    ) : SearchState()
 }
 
 sealed class NotesBrowserEffect : Effect() {
@@ -32,4 +41,5 @@ sealed class NotesBrowserEffect : Effect() {
 
 sealed class NotesBrowserIntent : Intent() {
     data class OnSearch(val query: String) : NotesBrowserIntent()
+    data object OnToggleViewMode : NotesBrowserIntent()
 }
