@@ -36,6 +36,7 @@ import com.aspoliakov.securenotes.core_ui.component.Spacer16dp
 import com.aspoliakov.securenotes.core_ui.component.Spacer4dp
 import com.aspoliakov.securenotes.core_ui.resources.*
 import com.aspoliakov.securenotes.domain_notes.model.NotesListItem
+import com.aspoliakov.securenotes.domain_user_state.model.NotesViewMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import org.jetbrains.compose.resources.DrawableResource

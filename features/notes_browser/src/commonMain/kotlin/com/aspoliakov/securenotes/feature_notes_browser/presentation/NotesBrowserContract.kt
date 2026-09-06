@@ -4,6 +4,7 @@ import com.aspoliakov.securenotes.core_presentation.mvi.Effect
 import com.aspoliakov.securenotes.core_presentation.mvi.Intent
 import com.aspoliakov.securenotes.core_presentation.mvi.State
 import com.aspoliakov.securenotes.domain_notes.model.NotesListItem
+import com.aspoliakov.securenotes.domain_user_state.model.NotesViewMode
 
 /**
  * Project SecureNotes
@@ -14,11 +15,6 @@ data class NotesBrowserState(
         val notesViewMode: NotesViewMode = NotesViewMode.LIST,
         val searchState: SearchState = SearchState.Idle,
 ) : State()
-
-enum class NotesViewMode {
-    LIST,
-    GRID,
-}
 
 sealed class NotesListState {
     data object Idle : NotesListState()

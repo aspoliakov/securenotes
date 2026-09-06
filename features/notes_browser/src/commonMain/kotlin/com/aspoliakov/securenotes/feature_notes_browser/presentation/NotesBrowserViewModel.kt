@@ -5,6 +5,8 @@ import com.aspoliakov.securenotes.core_base.util.flowOnIO
 import com.aspoliakov.securenotes.core_presentation.mvi.MviViewModel
 import com.aspoliakov.securenotes.core_presentation.utils.launchOnIO
 import com.aspoliakov.securenotes.domain_notes.NotesListInteractor
+import com.aspoliakov.securenotes.domain_user_state.UserPrefsInteractor
+import com.aspoliakov.securenotes.domain_user_state.model.NotesViewMode
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -16,6 +18,7 @@ import kotlinx.coroutines.flow.onEach
 class NotesBrowserViewModel(
         initialState: NotesBrowserState,
         private val notesListInteractor: NotesListInteractor,
+        private val userPrefsInteractor: UserPrefsInteractor,
 ) : MviViewModel<NotesBrowserState, NotesBrowserEffect, NotesBrowserIntent>(initialState) {
 
     init {
@@ -48,6 +51,9 @@ class NotesBrowserViewModel(
             NotesViewMode.GRID -> NotesViewMode.LIST
         }
         reduceState { copy(notesViewMode = nextViewMode) }
+        launchOnIO {
+            userPrefsInteractor.setNotesViewMode(nextViewMode)
+        }
     }
 
     private fun searchNotes(query: String) {

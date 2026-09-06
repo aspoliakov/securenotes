@@ -11,6 +11,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.domain.notes)
+            implementation(projects.domain.userState)
             implementation(projects.core.base)
             implementation(projects.core.presentation)
             implementation(projects.core.ui)
