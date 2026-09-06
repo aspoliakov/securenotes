@@ -7,4 +7,5 @@ data class NoteVO(
         var createdAt: Long,
         var title: String = "",
         var body: String = "",
+        var color: NoteColor = NoteColor.DEFAULT,
 )

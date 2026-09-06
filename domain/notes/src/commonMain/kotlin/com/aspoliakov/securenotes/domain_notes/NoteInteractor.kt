@@ -7,6 +7,7 @@ import com.aspoliakov.securenotes.core_db.dao.SyncStackDao
 import com.aspoliakov.securenotes.core_db.event_bus.SyncStackEventBus
 import com.aspoliakov.securenotes.core_db.model.NoteDB
 import com.aspoliakov.securenotes.core_db.model.SyncStackDB
+import com.aspoliakov.securenotes.domain_notes.model.NoteColor
 import com.aspoliakov.securenotes.domain_notes.model.NotePayload
 import com.aspoliakov.securenotes.domain_notes.model.NoteVO
 import com.aspoliakov.securenotes.domain_notes.model.PostNoteRequest
@@ -14,6 +15,7 @@ import com.aspoliakov.securenotes.domain_notes.network.NotesApiProvider
 import com.aspoliakov.securenotes.domain_user_state.UserStateInteractor
 import io.github.aakira.napier.Napier
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -54,14 +56,15 @@ class NoteInteractor(
                     createdAt = it.createdAt,
                     title = it.title ?: "",
                     body = it.body ?: "",
+                    color = NoteColor.fromArgb(it.color),
             )
         }
     }
 
     fun undoCreation(noteId: String) = IOScope().launch {
-        delay(HANDLE_CHANGES_DELAY)
+        delay(HANDLE_CHANGES_DELAY.milliseconds)
         val noteDB = notesDao.selectById(noteId)
-        val notePayload = createNotePayload(noteDB?.title, noteDB?.body)
+        val notePayload = createNotePayload(noteDB?.title, noteDB?.body, noteDB?.color)
         if (notePayload is NotePayload.Empty) {
             delete(
                     noteId = noteId,
@@ -75,14 +78,16 @@ class NoteInteractor(
             noteId: String,
             title: String,
             body: String,
+            color: NoteColor,
     ) {
         val currentJob = saveChangesJobs[noteId]
         currentJob?.cancel()
         saveChangesJobs[noteId] = IOScope().launch {
-            delay(HANDLE_CHANGES_DELAY)
+            delay(HANDLE_CHANGES_DELAY.milliseconds)
             val notePayload = createNotePayload(
                     title = title,
                     body = body,
+                    color = color.argb,
             )
             when (notePayload) {
                 is NotePayload.Empty -> return@launch
@@ -91,6 +96,7 @@ class NoteInteractor(
                             noteId = noteId,
                             title = notePayload.title,
                             body = notePayload.body,
+                            color = notePayload.color,
                     )
                     addChangesToSyncStack(noteId)
                 }
@@ -106,6 +112,7 @@ class NoteInteractor(
                     NotePayload(
                             title = noteDB.title,
                             body = noteDB.body,
+                            color = NoteColor.fromArgb(noteDB.color).argb,
                     )
             )
             notesApiProvider.provideApi().saveNote(
@@ -139,6 +146,7 @@ class NoteInteractor(
     private fun createNotePayload(
             title: String?,
             body: String?,
+            color: Long?,
     ): NotePayload {
         val processedTitleValue = title?.trim().takeIf { !it.isNullOrBlank() }
         val processedBodyValue = body?.trim().takeIf { !it.isNullOrBlank() }
@@ -148,6 +156,7 @@ class NoteInteractor(
             NotePayload.Payload(
                     title = processedTitleValue,
                     body = processedBodyValue,
+                    color = NoteColor.fromArgb(color).argb,
             )
         }
     }
@@ -166,6 +175,7 @@ class NoteInteractor(
         data class Payload(
                 val title: String?,
                 val body: String?,
+                val color: Long?,
         ) : NotePayload()
     }
 }

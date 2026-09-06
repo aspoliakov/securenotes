@@ -42,6 +42,7 @@ fun getDatabase(
 ): AppDatabase {
     return builder
             .addMigrations()
+            .fallbackToDestructiveMigration(true)
             .fallbackToDestructiveMigrationOnDowngrade(true)
             .setDriver(BundledSQLiteDriver())
             .setQueryCoroutineContext(Dispatchers.IO)

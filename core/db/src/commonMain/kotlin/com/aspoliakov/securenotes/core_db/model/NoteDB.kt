@@ -31,4 +31,7 @@ data class NoteDB(
 
         @ColumnInfo(name = "body")
         var body: String? = null,
+
+        @ColumnInfo(name = "color")
+        var color: Long? = null,
 )

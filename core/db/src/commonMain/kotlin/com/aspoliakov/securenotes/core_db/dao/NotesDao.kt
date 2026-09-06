@@ -25,8 +25,8 @@ interface NotesDao : BaseDao<NoteDB> {
     @Query("SELECT * FROM $TABLE WHERE title LIKE '%' || :query || '%' OR body LIKE '%' || :query || '%' ORDER BY created_at DESC")
     suspend fun searchAllByCreatedAtDesc(query: String): List<NoteDB>
 
-    @Query("UPDATE $TABLE SET title = :title, body = :body WHERE note_id = :noteId")
-    suspend fun updateNote(noteId: String, title: String?, body: String?)
+    @Query("UPDATE $TABLE SET title = :title, body = :body, color = :color WHERE note_id = :noteId")
+    suspend fun updateNote(noteId: String, title: String?, body: String?, color: Long?)
 
     @Query("DELETE FROM $TABLE WHERE note_id = :noteId")
     suspend fun delete(noteId: String)

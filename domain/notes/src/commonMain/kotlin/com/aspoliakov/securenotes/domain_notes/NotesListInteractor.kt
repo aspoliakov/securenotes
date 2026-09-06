@@ -3,6 +3,7 @@ package com.aspoliakov.securenotes.domain_notes
 import com.aspoliakov.securenotes.core_base.util.IOScope
 import com.aspoliakov.securenotes.core_db.dao.NotesDao
 import com.aspoliakov.securenotes.core_db.model.NoteDB
+import com.aspoliakov.securenotes.domain_notes.model.NoteColor
 import com.aspoliakov.securenotes.domain_notes.model.NotesListItem
 import com.aspoliakov.securenotes.domain_notes.network.NotesApiProvider
 import com.aspoliakov.securenotes.domain_user_state.UserStateInteractor
@@ -39,6 +40,7 @@ class NotesListInteractor(
                 createdAt = noteDB.createdAt,
                 title = noteDB.title,
                 body = noteDB.body,
+                color = NoteColor.fromArgb(noteDB.color).argb,
         )
     }
 
@@ -55,6 +57,7 @@ class NotesListInteractor(
                                 createdAt = 1, // TODO
                                 title = notePayload.title,
                                 body = notePayload.body,
+                                color = NoteColor.fromArgb(notePayload.color).argb,
                         )
                     }
             notesDao.insertOrReplace(notes)

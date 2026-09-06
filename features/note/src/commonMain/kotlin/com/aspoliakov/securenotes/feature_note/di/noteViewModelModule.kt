@@ -1,6 +1,7 @@
 package com.aspoliakov.securenotes.feature_note.di
 
 import com.aspoliakov.securenotes.domain_notes.NoteInteractor
+import com.aspoliakov.securenotes.domain_notes.model.NoteColor
 import com.aspoliakov.securenotes.feature_note.presentation.NoteState
 import com.aspoliakov.securenotes.feature_note.presentation.NoteViewModel
 import kotlinx.coroutines.runBlocking
@@ -22,6 +23,7 @@ val noteViewModelModule = module {
                         newNote = noteId == null,
                         title = noteData?.title ?: "",
                         body = noteData?.body ?: "",
+                        color = noteData?.color ?: NoteColor.DEFAULT,
                 ),
                 noteInteractor = noteInteractor,
         )

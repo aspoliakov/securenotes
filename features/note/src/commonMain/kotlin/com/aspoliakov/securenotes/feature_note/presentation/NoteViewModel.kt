@@ -35,6 +35,7 @@ class NoteViewModel(
             is NoteIntent.OnDeleteClick -> onNoteDelete()
             is NoteIntent.OnTitleChanged -> onTitleChanged(intent)
             is NoteIntent.OnBodyChanged -> onBodyChanged(intent)
+            is NoteIntent.OnColorSelected -> onColorSelected(intent)
         }
     }
 
@@ -58,6 +59,12 @@ class NoteViewModel(
         saveChanges()
     }
 
+    private fun onColorSelected(intent: NoteIntent.OnColorSelected) {
+        if (currentState.color == intent.color) return
+        reduceState { copy(color = intent.color) }
+        saveChanges()
+    }
+
     private fun saveChanges() {
         val noteId = currentState.noteId
         if (noteId != null) {
@@ -65,6 +72,7 @@ class NoteViewModel(
                     noteId = noteId,
                     title = currentState.title,
                     body = currentState.body,
+                    color = currentState.color,
             )
         }
     }

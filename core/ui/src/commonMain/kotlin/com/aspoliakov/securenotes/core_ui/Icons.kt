@@ -5,9 +5,11 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.FormatColorReset
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Key
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PersonOff
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Visibility
@@ -29,5 +31,7 @@ object Icons {
     val VisibilityOff = Icons.Default.VisibilityOff
     val Checked = Icons.Default.CheckCircle
     val Unchecked = Icons.Outlined.Circle
+    val ColorPalette = Icons.Default.Palette
+    val NoColor = Icons.Default.FormatColorReset
 }
 
