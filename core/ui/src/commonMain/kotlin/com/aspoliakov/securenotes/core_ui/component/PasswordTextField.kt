@@ -29,6 +29,7 @@ fun PasswordTextField(
         modifier: Modifier = Modifier,
         password: String,
         onValueChanged: (String) -> Unit,
+        labelStringRes: StringResource? = null,
         errorStringRes: StringResource? = null,
 ) {
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
@@ -39,6 +40,11 @@ fun PasswordTextField(
             textStyle = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Normal,
             ),
+            label = if (labelStringRes != null) {
+                { Text(text = stringResource(labelStringRes)) }
+            } else {
+                null
+            },
             supportingText = if (errorStringRes != null) {
                 {
                     Text(
