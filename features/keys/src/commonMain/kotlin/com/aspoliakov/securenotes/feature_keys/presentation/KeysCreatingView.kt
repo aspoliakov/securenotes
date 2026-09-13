@@ -1,18 +1,17 @@
 package com.aspoliakov.securenotes.feature_keys.presentation
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -22,6 +21,7 @@ import com.aspoliakov.securenotes.core_ui.component.PasswordTextField
 import com.aspoliakov.securenotes.core_ui.resources.Res
 import com.aspoliakov.securenotes.core_ui.resources.app_name
 import com.aspoliakov.securenotes.core_ui.resources.common_apply
+import com.aspoliakov.securenotes.core_ui.resources.feature_auth_password_hint
 import com.aspoliakov.securenotes.core_ui.resources.feature_keys_password_requirement_capital_letter
 import com.aspoliakov.securenotes.core_ui.resources.feature_keys_password_requirement_digit
 import com.aspoliakov.securenotes.core_ui.resources.feature_keys_password_requirement_length
@@ -43,67 +43,43 @@ internal fun KeysCreatingView(
 ) {
     Column(
             modifier = modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 24.dp),
+                .fillMaxSize()
+                .imePadding()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp, vertical = 32.dp),
+            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        KeysHeader(
+                titleRes = Res.string.feature_keys_title,
+                titleArg = stringResource(Res.string.app_name),
+                subtitleRes = Res.string.feature_keys_subtitle,
+        )
+        Spacer(modifier = Modifier.height(32.dp))
         Column(
                 modifier = Modifier
-                        .padding(vertical = 24.dp),
-                verticalArrangement = Arrangement.Bottom,
-                horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Icon(
-                    modifier = Modifier
-                            .padding(top = 40.dp)
-                            .size(40.dp),
-                    imageVector = Icons.Security,
-                    contentDescription = stringResource(Res.string.feature_keys_title),
-                    tint = MaterialTheme.colorScheme.secondary,
-            )
-            Text(
-                    modifier = Modifier
-                            .padding(top = 40.dp),
-                    text = stringResource(
-                            Res.string.feature_keys_title,
-                            stringResource(Res.string.app_name),
-                    ),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Medium,
-            )
-            Text(
-                    modifier = Modifier
-                            .padding(top = 40.dp),
-                    text = stringResource(Res.string.feature_keys_subtitle),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Normal,
-            )
-        }
-        Column(
-                modifier = Modifier
-                        .padding(top = 40.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainerLow)
+                    .padding(24.dp),
         ) {
             PasswordTextField(
-                    modifier = Modifier
-                            .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     password = state.password,
                     onValueChanged = { intentHandler(KeysIntent.OnPasswordChanged(it)) },
+                    labelStringRes = Res.string.feature_auth_password_hint,
                     errorStringRes = (state.actionState as? KeysActionState.Error)?.error?.res,
             )
-            PasswordRequirementsView(state)
-        }
-        Column(
-                modifier = Modifier
-                        .fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
+            PasswordRequirementsView(
+                    modifier = Modifier.padding(top = 16.dp),
+                    state = state,
+            )
             if (state.actionState !is KeysActionState.Completed) {
+                Spacer(modifier = Modifier.height(24.dp))
                 ButtonWithLoader(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
                         onClick = { intentHandler.invoke(KeysIntent.OnApplyClick) },
                         isLoading = state.actionState is KeysActionState.Loading,
                         stringResource = Res.string.common_apply,
@@ -114,37 +90,30 @@ internal fun KeysCreatingView(
 }
 
 @Composable
-internal fun PasswordRequirementsView(state: KeysState.Creating) {
+internal fun PasswordRequirementsView(
+        modifier: Modifier = Modifier,
+        state: KeysState.Creating,
+) {
     Column(
-            modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                            horizontal = 4.dp,
-                            vertical = 12.dp,
-                    ),
+            modifier = modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.Start,
     ) {
         PasswordRequirementItem(
-                modifier = Modifier
-                        .padding(top = 12.dp),
                 text = Res.string.feature_keys_password_requirement_length,
                 success = state.passwordRequirements.maxLength,
         )
+        Spacer(modifier = Modifier.height(10.dp))
         PasswordRequirementItem(
-                modifier = Modifier
-                        .padding(top = 16.dp),
                 text = Res.string.feature_keys_password_requirement_digit,
                 success = state.passwordRequirements.oneDigit,
         )
+        Spacer(modifier = Modifier.height(10.dp))
         PasswordRequirementItem(
-                modifier = Modifier
-                        .padding(top = 16.dp),
                 text = Res.string.feature_keys_password_requirement_letter,
                 success = state.passwordRequirements.oneLetter,
         )
+        Spacer(modifier = Modifier.height(10.dp))
         PasswordRequirementItem(
-                modifier = Modifier
-                        .padding(top = 16.dp),
                 text = Res.string.feature_keys_password_requirement_capital_letter,
                 success = state.passwordRequirements.oneCapitalLetter,
         )
@@ -157,25 +126,28 @@ internal fun PasswordRequirementItem(
         text: StringResource,
         success: Boolean,
 ) {
+    val contentColor = if (success) {
+        MaterialTheme.colorScheme.onSurface
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    }
     Row(
             modifier = modifier,
             verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
-                modifier = Modifier
-                        .size(16.dp),
+                modifier = Modifier.size(16.dp),
                 imageVector = if (success) Icons.Checked else Icons.Unchecked,
                 contentDescription = stringResource(text),
-                tint = MaterialTheme.colorScheme.secondary,
+                tint = if (success) MaterialTheme.colorScheme.primary else contentColor,
         )
         Text(
-                modifier = Modifier
-                        .padding(start = 6.dp),
+                modifier = Modifier.padding(start = 8.dp),
                 text = stringResource(text),
-                color = MaterialTheme.colorScheme.secondary,
+                color = contentColor,
                 textAlign = TextAlign.Start,
                 style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Light,
+                fontWeight = FontWeight.Normal,
         )
     }
 }

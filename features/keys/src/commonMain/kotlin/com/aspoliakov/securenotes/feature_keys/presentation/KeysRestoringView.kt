@@ -1,22 +1,27 @@
 package com.aspoliakov.securenotes.feature_keys.presentation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.aspoliakov.securenotes.core_ui.Icons
 import com.aspoliakov.securenotes.core_ui.component.ButtonWithLoader
 import com.aspoliakov.securenotes.core_ui.component.PasswordTextField
+import com.aspoliakov.securenotes.core_ui.component.TopAppBar
 import com.aspoliakov.securenotes.core_ui.resources.*
 import org.jetbrains.compose.resources.stringResource
 
@@ -25,18 +30,20 @@ import org.jetbrains.compose.resources.stringResource
  */
 
 @Composable
-internal fun KeysRestoring(
+internal fun KeysRestoringView(
         modifier: Modifier,
         state: KeysState.Restoring,
         intentHandler: (KeysIntent) -> Unit = {},
 ) {
     Scaffold(
+            modifier = modifier,
+            containerColor = MaterialTheme.colorScheme.background,
             topBar = {
-                KeysRestoringToolbar(
+                TopAppBar(
                         onBackClick = { intentHandler.invoke(KeysIntent.OnBackClick) },
                 )
-            }
-    ) {
+            },
+    ) { paddings ->
         var openResetKeysDialog by remember { mutableStateOf(false) }
         if (openResetKeysDialog) {
             ResetPasswordDialog(
@@ -48,112 +55,56 @@ internal fun KeysRestoring(
             )
         }
         Column(
-                modifier = modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 24.dp),
+                modifier = Modifier
+                    .padding(paddings)
+                    .fillMaxSize()
+                    .imePadding()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            KeysHeader(
+                    titleRes = Res.string.feature_keys_restore_title,
+            )
+            Spacer(modifier = Modifier.height(32.dp))
             Column(
                     modifier = Modifier
-                            .weight(3F),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Icon(
-                        modifier = Modifier
-                                .padding(top = 40.dp)
-                                .size(40.dp),
-                        imageVector = Icons.Security,
-                        contentDescription = stringResource(Res.string.feature_keys_title),
-                        tint = MaterialTheme.colorScheme.secondary,
-                )
-                Text(
-                        modifier = Modifier
-                                .padding(top = 40.dp),
-                        text = stringResource(Res.string.feature_keys_restore_title),
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Medium,
-                )
-            }
-            Column(
-                    modifier = Modifier
-                            .weight(1F),
-                    verticalArrangement = Arrangement.Top,
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(24.dp))
+                        .background(MaterialTheme.colorScheme.surfaceContainerLow)
+                        .padding(24.dp),
             ) {
                 PasswordTextField(
-                        modifier = Modifier
-                                .fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         password = state.password,
                         onValueChanged = { intentHandler(KeysIntent.OnPasswordChanged(it)) },
+                        labelStringRes = Res.string.feature_auth_password_hint,
                         errorStringRes = (state.actionState as? KeysActionState.Error)?.error?.res,
                 )
-            }
-            Column(
-                    modifier = Modifier
-                            .weight(0.3F),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                TextButton(
-                        contentPadding = PaddingValues(),
-                        onClick = { openResetKeysDialog = true },
-                ) {
-                    Text(
-                            text = stringResource(Res.string.feature_keys_restore_forgot_password),
-                            color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Normal,
-                    )
-                }
-            }
-            Column(
-                    modifier = Modifier
-                            .weight(3F),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
                 if (state.actionState !is KeysActionState.Completed) {
+                    Spacer(modifier = Modifier.height(24.dp))
                     ButtonWithLoader(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(52.dp),
                             onClick = { intentHandler.invoke(KeysIntent.OnApplyClick) },
                             isLoading = state.actionState is KeysActionState.Loading,
                             stringResource = Res.string.common_apply,
                     )
                 }
             }
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                    modifier = Modifier.clickable { openResetKeysDialog = true },
+                    text = stringResource(Res.string.feature_keys_restore_forgot_password),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+            )
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun KeysRestoringToolbar(
-        modifier: Modifier = Modifier,
-        onBackClick: () -> Unit,
-) {
-    TopAppBar(
-            modifier = modifier,
-            navigationIcon = {
-                IconButton(
-                        onClick = { onBackClick() },
-                ) {
-                    Icon(
-                            imageVector = Icons.ArrowBack,
-                            contentDescription = stringResource(Res.string.common_back),
-                            tint = MaterialTheme.colorScheme.primary,
-                    )
-                }
-            },
-            title = {
-                Text(
-                        text = "",
-                        fontWeight = FontWeight.Normal,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1,
-                )
-            },
-    )
 }
 
 @Composable
@@ -175,7 +126,7 @@ internal fun ResetPasswordDialog(
             text = {
                 Column(
                         modifier = Modifier
-                                .fillMaxWidth(),
+                            .fillMaxWidth(),
                 ) {
                     Text(
                             text = buildAnnotatedString {
@@ -192,8 +143,8 @@ internal fun ResetPasswordDialog(
                     )
                     Row(
                             modifier = Modifier
-                                    .padding(top = 12.dp)
-                                    .clickable { confirmEnabled = !confirmEnabled },
+                                .padding(top = 12.dp)
+                                .clickable { confirmEnabled = !confirmEnabled },
 
                             horizontalArrangement = Arrangement.Start,
                             verticalAlignment = Alignment.CenterVertically,
@@ -206,7 +157,7 @@ internal fun ResetPasswordDialog(
                         }
                         Text(
                                 modifier = Modifier
-                                        .padding(start = 12.dp),
+                                    .padding(start = 12.dp),
                                 text = stringResource(Res.string.feature_keys_restore_reset_keys_confirm),
                         )
                     }
