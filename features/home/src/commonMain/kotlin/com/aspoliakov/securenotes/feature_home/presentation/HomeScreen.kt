@@ -6,16 +6,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.aspoliakov.securenotes.core_ui.AppTheme
 import com.aspoliakov.securenotes.feature_home.HomeNavItem
 import com.aspoliakov.securenotes.feature_home.notesItem
@@ -43,25 +40,25 @@ internal fun HomeScreen(
         modifier: Modifier = Modifier,
         navItems: List<HomeNavItem>,
 ) {
-    val navController = rememberNavController()
+    var selectedIndex by rememberSaveable { mutableStateOf(0) }
+    val saveableStateHolder = rememberSaveableStateHolder()
     Scaffold(
             bottomBar = {
                 BottomNavigationMenu(
-                        navController = navController,
                         navItems = navItems,
+                        selectedIndex = selectedIndex,
+                        onSelect = { selectedIndex = it },
                 )
             },
     ) { innerPadding ->
         Box(
-                modifier = modifier.padding(innerPadding),
+                modifier = modifier
+                    .padding(innerPadding)
+                    .fillMaxSize(),
         ) {
-            NavHost(
-                    startDestination = navItems.first().route,
-                    navController = navController,
-                    modifier = modifier.fillMaxSize(),
-            ) {
-                navItems.forEach { navItem ->
-                    composable(route = navItem.route::class) {
+            navItems.forEachIndexed { index, navItem ->
+                if (index == selectedIndex) {
+                    saveableStateHolder.SaveableStateProvider(key = index) {
                         navItem.content()
                     }
                 }
@@ -72,18 +69,17 @@ internal fun HomeScreen(
 
 @Composable
 fun BottomNavigationMenu(
-        navController: NavController,
         navItems: List<HomeNavItem>,
+        selectedIndex: Int,
+        onSelect: (Int) -> Unit,
 ) {
-    val currentBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = currentBackStackEntry?.destination
     NavigationBar(
             containerColor = MaterialTheme.colorScheme.background,
             contentColor = MaterialTheme.colorScheme.background,
             tonalElevation = 8.dp,
     ) {
-        navItems.forEach { navItem ->
-            val isSelected = currentDestination?.hasRoute(navItem.route::class) == true
+        navItems.forEachIndexed { index, navItem ->
+            val isSelected = index == selectedIndex
             NavigationBarItem(
                     label = {
                         Text(text = stringResource(navItem.titleRes))
@@ -101,17 +97,7 @@ fun BottomNavigationMenu(
                                 contentDescription = stringResource(navItem.titleRes),
                         )
                     },
-                    onClick = {
-                        if (!isSelected) {
-                            navController.navigate(navItem.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        }
-                    },
+                    onClick = { onSelect(index) },
             )
         }
     }

@@ -5,6 +5,7 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -45,27 +46,30 @@ internal fun MainScreen() {
             },
     ) {
         composable<Screen.Home> {
+            val navItems = remember(navController) {
+                listOf(
+                        notesItem {
+                            NotesBrowserScreenRoute(
+                                    onNavigateToNote = { noteId ->
+                                        navController.navigate(Screen.Note(noteId = noteId))
+                                    },
+                                    onNavigateToCreateNote = {
+                                        navController.navigate(Screen.Note())
+                                    },
+                            )
+                        },
+                        profileItem {
+                            ProfileScreenRoute(
+                                    onNavigateToAbout = {
+                                        navController.navigate(Screen.About)
+                                    }
+                            )
+                        },
+                )
+            }
             HomeScreenRoute(
                     modifier = Modifier,
-                    navItems = listOf(
-                            notesItem {
-                                NotesBrowserScreenRoute(
-                                        onNavigateToNote = { noteId ->
-                                            navController.navigate(Screen.Note(noteId = noteId))
-                                        },
-                                        onNavigateToCreateNote = {
-                                            navController.navigate(Screen.Note())
-                                        },
-                                )
-                            },
-                            profileItem {
-                                ProfileScreenRoute(
-                                        onNavigateToAbout = {
-                                            navController.navigate(Screen.About)
-                                        }
-                                )
-                            },
-                    ),
+                    navItems = navItems,
             )
         }
         composable<Screen.Note> { entry ->
