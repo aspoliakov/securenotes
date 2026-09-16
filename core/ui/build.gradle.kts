@@ -17,6 +17,8 @@ kotlin {
             api(libs.jetbrainsComposeMaterial3)
             api(libs.jetbrainsComposeMaterialIconsExtended)
             api(libs.jetbrainsComposeUi)
+            api(libs.jetbrainsComposeUiBackhandler)
+            api(libs.jetbrains.navigationevent.compose)
             api(libs.jetbrainsComposeUiToolingPreview)
             api(libs.jetbrainsComposeComponentsResources)
             api(libs.coil.compose)

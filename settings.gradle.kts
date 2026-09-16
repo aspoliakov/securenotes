@@ -19,10 +19,12 @@ include(":features:auth", "features/auth")
 include(":features:keys", "features/keys")
 include(":features:home", "features/home")
 include(":features:note", "features/note")
+include(":features:folder", "features/folder")
 include(":features:notes_browser", "features/notes_browser")
 include(":features:profile", "features/profile")
 
 include(":domain:notes", "domain/notes")
+include(":domain:folders", "domain/folders")
 include(":domain:user_state", "domain/user_state")
 include(":domain:crypto", "domain/crypto")
 

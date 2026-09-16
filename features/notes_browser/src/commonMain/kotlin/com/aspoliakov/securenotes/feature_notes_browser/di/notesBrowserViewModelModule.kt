@@ -20,6 +20,8 @@ val notesBrowserViewModelModule = module {
                         notesViewMode = notesViewMode,
                 ),
                 notesListInteractor = get(),
+                folderInteractor = get(),
+                noteInteractor = get(),
                 userPrefsInteractor = userPrefsInteractor,
         )
     }

@@ -7,12 +7,16 @@ import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.aspoliakov.securenotes.core_presentation.navigation.Screen
 import com.aspoliakov.securenotes.feature_about.presentation.AboutScreenRoute
+import com.aspoliakov.securenotes.feature_folder.presentation.FolderMode
+import com.aspoliakov.securenotes.feature_folder.presentation.FolderScreenRoute
 import com.aspoliakov.securenotes.feature_home.notesItem
 import com.aspoliakov.securenotes.feature_home.presentation.HomeScreenRoute
 import com.aspoliakov.securenotes.feature_home.profileItem
@@ -53,8 +57,14 @@ internal fun MainScreen() {
                                     onNavigateToNote = { noteId ->
                                         navController.navigate(Screen.Note(noteId = noteId))
                                     },
-                                    onNavigateToCreateNote = {
-                                        navController.navigate(Screen.Note())
+                                    onNavigateToCreateNote = { folderId ->
+                                        navController.navigate(Screen.Note(folderId = folderId))
+                                    },
+                                    onNavigateToCreateFolder = { parentId ->
+                                        navController.navigate(Screen.Folder(parentId = parentId))
+                                    },
+                                    onNavigateToEditFolder = { folderId ->
+                                        navController.navigate(Screen.Folder(folderId = folderId))
                                     },
                             )
                         },
@@ -76,7 +86,23 @@ internal fun MainScreen() {
             val route: Screen.Note = entry.toRoute()
             NoteScreenRoute(
                     noteId = route.noteId,
+                    folderId = route.folderId,
                     onNavigationBack = { navController.popBackStack() },
+            )
+        }
+        dialog<Screen.Folder>(
+                dialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+        ) { entry ->
+            val route: Screen.Folder = entry.toRoute()
+            val folderId = route.folderId
+            val mode = if (folderId != null) {
+                FolderMode.Edit(folderId)
+            } else {
+                FolderMode.Create(route.parentId)
+            }
+            FolderScreenRoute(
+                    mode = mode,
+                    onDismiss = { navController.popBackStack() },
             )
         }
         composable<Screen.About> {

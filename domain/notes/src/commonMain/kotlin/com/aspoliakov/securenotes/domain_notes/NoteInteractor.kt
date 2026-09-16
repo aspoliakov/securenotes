@@ -41,10 +41,11 @@ class NoteInteractor(
     private val saveChangesJobs: MutableMap<String, Job> = mutableMapOf()
 
     @OptIn(ExperimentalTime::class)
-    suspend fun createNew(): String {
+    suspend fun createNew(folderId: String? = null): String {
         val newNoteDB = NoteDB(
                 noteId = randomUUIDString(),
                 createdAt = Clock.System.now().toEpochMilliseconds(),
+                folderId = folderId,
         )
         notesDao.insertOrReplace(newNoteDB)
         return newNoteDB.noteId
@@ -53,10 +54,12 @@ class NoteInteractor(
     suspend fun getById(noteId: String): NoteVO? {
         return notesDao.selectById(noteId)?.let {
             NoteVO(
+                    id = noteId,
                     createdAt = it.createdAt,
                     title = it.title ?: "",
                     body = it.body ?: "",
                     color = NoteColor.fromArgb(it.color),
+                    folderId = it.folderId,
             )
         }
     }
@@ -119,6 +122,7 @@ class NoteInteractor(
                     token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
                     request = PostNoteRequest(
                             noteId = noteId,
+                            folderId = noteDB.folderId,
                             keyId = encryptedPayload.keyId,
                             payload = encryptedPayload.payload,
                     )

@@ -28,5 +28,6 @@ data class SyncStackDB(
 ) {
     enum class ItemType {
         NOTE,
+        FOLDER,
     }
 }

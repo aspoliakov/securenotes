@@ -35,8 +35,9 @@ fun NoteScreenRoute(
         modifier: Modifier = Modifier,
         onNavigationBack: () -> Unit,
         noteId: String?,
+        folderId: String? = null,
 ) {
-    val viewModel = koinMviViewModel<NoteViewModel>(parameters = { parametersOf(noteId) })
+    val viewModel = koinMviViewModel<NoteViewModel>(parameters = { parametersOf(noteId, folderId) })
     val state by viewModel.state.collectAsState()
     NoteScreen(
             modifier = modifier,

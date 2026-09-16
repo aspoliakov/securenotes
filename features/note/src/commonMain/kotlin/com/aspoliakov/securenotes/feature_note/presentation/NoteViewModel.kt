@@ -11,12 +11,13 @@ import com.aspoliakov.securenotes.domain_notes.NoteInteractor
 class NoteViewModel(
         initialState: NoteState,
         private val noteInteractor: NoteInteractor,
+        private val folderId: String? = null,
 ) : MviViewModel<NoteState, NoteEffect, NoteIntent>(initialState) {
 
     init {
         if (currentState.noteId == null) {
             launchOnIO {
-                val newNoteId = noteInteractor.createNew()
+                val newNoteId = noteInteractor.createNew(folderId = folderId)
                 reduceState { copy(noteId = newNoteId) }
             }
         }

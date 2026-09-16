@@ -13,8 +13,7 @@ import org.koin.dsl.module
  */
 
 val noteViewModelModule = module {
-    viewModel { params ->
-        val noteId = params.getOrNull<String>()
+    viewModel { (noteId: String?, folderId: String?) ->
         val noteInteractor: NoteInteractor = get()
         val noteData = runBlocking { if (noteId != null) noteInteractor.getById(noteId) else null }
         NoteViewModel(
@@ -26,6 +25,7 @@ val noteViewModelModule = module {
                         color = noteData?.color ?: NoteColor.DEFAULT,
                 ),
                 noteInteractor = noteInteractor,
+                folderId = folderId,
         )
     }
 }

@@ -5,8 +5,10 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import com.aspoliakov.securenotes.core_db.dao.FolderDao
 import com.aspoliakov.securenotes.core_db.dao.NotesDao
 import com.aspoliakov.securenotes.core_db.dao.SyncStackDao
+import com.aspoliakov.securenotes.core_db.model.FolderDB
 import com.aspoliakov.securenotes.core_db.model.NoteDB
 import com.aspoliakov.securenotes.core_db.model.SyncStackDB
 import kotlinx.coroutines.Dispatchers
@@ -20,8 +22,9 @@ import kotlinx.coroutines.IO
         entities = [
             NoteDB::class,
             SyncStackDB::class,
+            FolderDB::class,
         ],
-        version = 1,
+        version = 2,
         exportSchema = false,
 )
 @ConstructedBy(AppDatabaseConstructor::class)
@@ -30,6 +33,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun notesDao(): NotesDao
 
     abstract fun syncStackDao(): SyncStackDao
+
+    abstract fun folderDao(): FolderDao
 }
 
 @Suppress("NO_ACTUAL_FOR_EXPECT", "EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
@@ -55,5 +60,6 @@ class DatabaseManager(
     suspend fun clearAll() {
         appDatabase.notesDao().deleteAll()
         appDatabase.syncStackDao().deleteAll()
+        appDatabase.folderDao().deleteAll()
     }
 }

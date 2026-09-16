@@ -1,8 +1,7 @@
 package com.aspoliakov.securenotes.feature_notes_browser.presentation
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.animation.*
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,6 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ViewList
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Search
@@ -22,11 +22,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigationevent.NavigationEventInfo
+import androidx.navigationevent.compose.NavigationBackHandler
+import androidx.navigationevent.compose.rememberNavigationEventState
 import com.aspoliakov.securenotes.core_presentation.mvi.Effect
 import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
 import com.aspoliakov.securenotes.core_presentation.utils.CollectEffects
@@ -35,25 +39,31 @@ import com.aspoliakov.securenotes.core_ui.component.Spacer12dp
 import com.aspoliakov.securenotes.core_ui.component.Spacer16dp
 import com.aspoliakov.securenotes.core_ui.component.Spacer4dp
 import com.aspoliakov.securenotes.core_ui.resources.*
-import com.aspoliakov.securenotes.domain_notes.model.NotesListItem
 import com.aspoliakov.securenotes.domain_user_state.model.NotesViewMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import com.aspoliakov.securenotes.core_ui.Icons as AppIcons
 
 /**
  * Project SecureNotes
  */
 
 private val NoteCardShape = RoundedCornerShape(20.dp)
+private val FolderRowShape = RoundedCornerShape(16.dp)
+private val SelectionBorderWidth = 3.dp
+private val FolderBorderWidth = 1.dp
+private const val NOTE_COLOR_TINT_ALPHA = 0.35f
 
 @Composable
 fun NotesBrowserScreenRoute(
         modifier: Modifier = Modifier,
         onNavigateToNote: (noteId: String) -> Unit,
-        onNavigateToCreateNote: () -> Unit,
+        onNavigateToCreateNote: (folderId: String?) -> Unit,
+        onNavigateToCreateFolder: (parentId: String?) -> Unit,
+        onNavigateToEditFolder: (folderId: String) -> Unit,
 ) {
     val viewModel = koinMviViewModel<NotesBrowserViewModel>()
     val state by viewModel.state.collectAsState()
@@ -61,8 +71,10 @@ fun NotesBrowserScreenRoute(
             modifier = modifier,
             state = state,
             effects = viewModel.effects,
-            onNavigateToCreateNote = onNavigateToCreateNote,
             onNavigateToNote = onNavigateToNote,
+            onNavigateToCreateNote = onNavigateToCreateNote,
+            onNavigateToCreateFolder = onNavigateToCreateFolder,
+            onNavigateToEditFolder = onNavigateToEditFolder,
             intentHandler = viewModel::emitIntent,
     )
 }
@@ -72,15 +84,29 @@ internal fun NotesBrowserScreen(
         modifier: Modifier = Modifier,
         state: NotesBrowserState = NotesBrowserState(),
         effects: Flow<Effect> = emptyFlow(),
-        onNavigateToCreateNote: () -> Unit,
-        onNavigateToNote: (noteId: String) -> Unit,
+        onNavigateToNote: (noteId: String) -> Unit = {},
+        onNavigateToCreateNote: (folderId: String?) -> Unit,
+        onNavigateToCreateFolder: (parentId: String?) -> Unit = {},
+        onNavigateToEditFolder: (folderId: String) -> Unit = {},
         intentHandler: (NotesBrowserIntent) -> Unit = {},
 ) {
     CollectEffects<NotesBrowserEffect>(effects) { effect ->
         when (effect) {
             is NotesBrowserEffect.ShowSnackbar -> {}
+            is NotesBrowserEffect.NavigateToNote -> onNavigateToNote(effect.noteId)
+            is NotesBrowserEffect.NavigateToEditFolder -> onNavigateToEditFolder(effect.folderId)
         }
     }
+    val navigationEventState = rememberNavigationEventState(currentInfo = NavigationEventInfo.None)
+    NavigationBackHandler(
+            state = navigationEventState,
+            isBackEnabled = state.canNavigateBack,
+            onBackCompleted = { intentHandler(NotesBrowserIntent.OnNavigateBack) },
+    )
+    NotesBrowserDialogs(
+            state = state,
+            intentHandler = intentHandler,
+    )
     Box(
             modifier = modifier.fillMaxSize(),
     ) {
@@ -90,19 +116,16 @@ internal fun NotesBrowserScreen(
                     .padding(horizontal = 16.dp),
         ) {
             Spacer(modifier = Modifier.height(24.dp))
-            Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-            ) {
-                NotesSearchView(
-                        modifier = Modifier.weight(1f),
-                        searchState = state.searchState,
-                        intentHandler = intentHandler,
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                NotesViewModeToggleButton(
-                        viewMode = state.notesViewMode,
-                        onToggle = { intentHandler(NotesBrowserIntent.OnToggleViewMode) },
+            NotesBrowserToolbar(
+                    state = state,
+                    intentHandler = intentHandler,
+            )
+            if (state.selection is SelectionState.Idle && state.breadcrumb.isNotEmpty()) {
+                Spacer12dp()
+                FolderPathRow(
+                        breadcrumb = state.breadcrumb,
+                        onRootClick = { intentHandler(NotesBrowserIntent.OnBreadcrumbClick(null)) },
+                        onBreadcrumbClick = { intentHandler(NotesBrowserIntent.OnBreadcrumbClick(it)) },
                 )
             }
             Spacer16dp()
@@ -110,27 +133,198 @@ internal fun NotesBrowserScreen(
                     modifier = Modifier.weight(1f),
             ) {
                 when (val searchState = state.searchState) {
-                    is SearchState.Idle -> NotesListView(
+                    is SearchState.Idle -> BrowserListView(
                             modifier = Modifier.fillMaxSize(),
-                            notesListState = state.notesListState,
+                            browserListState = state.browserListState,
                             viewMode = state.notesViewMode,
-                            onNavigateToNote = onNavigateToNote,
+                            selection = state.selection,
+                            intentHandler = intentHandler,
                     )
-                    is SearchState.Active -> NotesListActiveSearchView(
+                    is SearchState.Active -> BrowserListActiveSearchView(
                             modifier = Modifier.fillMaxSize(),
                             searchState = searchState,
-                            viewMode = state.notesViewMode,
-                            onNavigateToNote = onNavigateToNote,
+                            selection = state.selection,
+                            intentHandler = intentHandler,
                     )
                 }
             }
         }
-        AddNoteButton(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(24.dp),
-                onNavigateToCreateNote = onNavigateToCreateNote,
+        if (state.selection is SelectionState.Idle) {
+            BrowserFabMenu(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(24.dp),
+                    onCreateFolderClick = { onNavigateToCreateFolder(state.currentFolderId) },
+                    onAddNoteClick = { onNavigateToCreateNote(state.currentFolderId) },
+            )
+        }
+    }
+}
+
+@Composable
+internal fun NotesBrowserToolbar(
+        modifier: Modifier = Modifier,
+        state: NotesBrowserState,
+        intentHandler: (NotesBrowserIntent) -> Unit,
+) {
+    val selection = state.selection
+    if (selection is SelectionState.Active) {
+        SelectionTopBar(
+                modifier = modifier,
+                selectedCount = selection.selectedIds.size,
+                availableActions = selection.availableActions,
+                onActionClick = { intentHandler(NotesBrowserIntent.OnSelectionActionClick(it)) },
+                onExitClick = { intentHandler(NotesBrowserIntent.OnExitSelection) },
         )
+    } else {
+        Row(
+                modifier = modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+        ) {
+            NotesSearchView(
+                    modifier = Modifier.weight(1f),
+                    searchState = state.searchState,
+                    intentHandler = intentHandler,
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            NotesViewModeToggleButton(
+                    viewMode = state.notesViewMode,
+                    onToggle = { intentHandler(NotesBrowserIntent.OnToggleViewMode) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun NotesBrowserDialogs(
+        state: NotesBrowserState,
+        intentHandler: (NotesBrowserIntent) -> Unit,
+) {
+    if (state.pendingBulkDelete) {
+        val count = (state.selection as? SelectionState.Active)?.selectedIds?.size ?: 0
+        AlertDialog(
+                icon = { Icon(imageVector = AppIcons.Delete, contentDescription = null) },
+                title = { Text(text = stringResource(Res.string.feature_notes_delete_selected_title)) },
+                text = {
+                    Text(text = stringResource(Res.string.feature_notes_delete_selected_message, count))
+                },
+                onDismissRequest = { intentHandler(NotesBrowserIntent.OnDeleteSelectedDismissed) },
+                confirmButton = {
+                    TextButton(onClick = { intentHandler(NotesBrowserIntent.OnDeleteSelectedConfirmed) }) {
+                        Text(text = stringResource(Res.string.common_confirm), fontWeight = FontWeight.Medium)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { intentHandler(NotesBrowserIntent.OnDeleteSelectedDismissed) }) {
+                        Text(text = stringResource(Res.string.common_cancel))
+                    }
+                },
+        )
+    }
+}
+
+@Composable
+internal fun FolderPathRow(
+        modifier: Modifier = Modifier,
+        breadcrumb: List<FolderBreadcrumbItem>,
+        onRootClick: () -> Unit,
+        onBreadcrumbClick: (String?) -> Unit,
+) {
+    Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState()),
+            verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Surface(
+                onClick = onRootClick,
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.secondaryContainer,
+        ) {
+            Text(
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                    text = stringResource(Res.string.feature_notes_root_folder),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+            )
+        }
+        Text(
+                modifier = Modifier.padding(start = 4.dp),
+                text = "/",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.primary,
+        )
+        breadcrumb.forEach { item ->
+            Text(
+                    modifier = Modifier
+                        .padding(start = 4.dp)
+                        .clickable { onBreadcrumbClick(item.id) },
+                    text = "${item.name}/",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 1,
+            )
+        }
+    }
+}
+
+@Composable
+internal fun SelectionTopBar(
+        modifier: Modifier = Modifier,
+        selectedCount: Int,
+        availableActions: Set<SelectionAction>,
+        onActionClick: (SelectionAction) -> Unit,
+        onExitClick: () -> Unit,
+) {
+    Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            verticalAlignment = Alignment.CenterVertically,
+    ) {
+        IconButton(onClick = onExitClick) {
+            Icon(
+                    imageVector = AppIcons.Close,
+                    contentDescription = stringResource(Res.string.feature_notes_exit_selection),
+            )
+        }
+        Text(
+                modifier = Modifier.weight(1f),
+                text = stringResource(Res.string.feature_notes_selected_count, selectedCount),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Medium,
+        )
+        SelectionAction.entries.forEach { action ->
+            if (action in availableActions) {
+                SelectionActionButton(
+                        action = action,
+                        onClick = { onActionClick(action) },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SelectionActionButton(
+        action: SelectionAction,
+        onClick: () -> Unit,
+) {
+    IconButton(onClick = onClick) {
+        when (action) {
+            SelectionAction.RENAME -> Icon(
+                    imageVector = AppIcons.Rename,
+                    contentDescription = stringResource(Res.string.common_rename),
+            )
+            SelectionAction.DELETE -> Icon(
+                    imageVector = AppIcons.Delete,
+                    contentDescription = stringResource(Res.string.common_delete),
+                    tint = MaterialTheme.colorScheme.error,
+            )
+        }
     }
 }
 
@@ -236,23 +430,22 @@ internal fun NotesViewModeToggleButton(
 }
 
 @Composable
-internal fun NotesListView(
+internal fun BrowserListView(
         modifier: Modifier = Modifier,
-        notesListState: NotesListState,
+        browserListState: BrowserListState,
         viewMode: NotesViewMode,
-        onNavigateToNote: (noteId: String) -> Unit,
+        selection: SelectionState,
+        intentHandler: (NotesBrowserIntent) -> Unit,
 ) {
-    when (notesListState) {
-        is NotesListState.Idle,
-        is NotesListState.Loading -> NotesListLoadingView(
-                modifier = modifier,
-        )
-        is NotesListState.Loaded -> if (notesListState.notesList.isNotEmpty()) {
-            NotesListContentView(
+    when (browserListState) {
+        is BrowserListState.Idle -> NotesListLoadingView(modifier = modifier)
+        is BrowserListState.Loaded -> if (browserListState.items.isNotEmpty()) {
+            BrowserListContentView(
                     modifier = modifier,
+                    items = browserListState.items,
                     viewMode = viewMode,
-                    notesList = notesListState.notesList,
-                    onNavigateToNote = onNavigateToNote,
+                    selection = selection,
+                    intentHandler = intentHandler,
             )
         } else {
             NotesListPlaceholderView(
@@ -266,22 +459,20 @@ internal fun NotesListView(
 }
 
 @Composable
-internal fun NotesListActiveSearchView(
+internal fun BrowserListActiveSearchView(
         modifier: Modifier = Modifier,
         searchState: SearchState.Active,
-        viewMode: NotesViewMode,
-        onNavigateToNote: (noteId: String) -> Unit,
+        selection: SelectionState,
+        intentHandler: (NotesBrowserIntent) -> Unit,
 ) {
     when {
-        searchState.results.isNotEmpty() -> NotesListContentView(
+        searchState.results.isNotEmpty() -> BrowserFlatListView(
                 modifier = modifier,
-                viewMode = viewMode,
-                notesList = searchState.results,
-                onNavigateToNote = onNavigateToNote,
+                items = searchState.results,
+                selection = selection,
+                intentHandler = intentHandler,
         )
-        searchState.inProgress -> NotesListLoadingView(
-                modifier = modifier,
-        )
+        searchState.inProgress -> NotesListLoadingView(modifier = modifier)
         else -> NotesListPlaceholderView(
                 modifier = modifier,
                 title = stringResource(Res.string.feature_notes_no_results_title),
@@ -304,27 +495,6 @@ internal fun NotesListLoadingView(
                 modifier = Modifier.size(32.dp),
                 color = MaterialTheme.colorScheme.secondary,
                 trackColor = MaterialTheme.colorScheme.surfaceVariant,
-        )
-    }
-}
-
-@Composable
-internal fun NotesListContentView(
-        modifier: Modifier = Modifier,
-        viewMode: NotesViewMode,
-        notesList: List<NotesListItem>,
-        onNavigateToNote: (noteId: String) -> Unit,
-) {
-    when (viewMode) {
-        NotesViewMode.LIST -> NotesListContentListView(
-                modifier = modifier,
-                notesList = notesList,
-                onNavigateToNote = onNavigateToNote,
-        )
-        NotesViewMode.GRID -> NotesListContentGridView(
-                modifier = modifier,
-                notesList = notesList,
-                onNavigateToNote = onNavigateToNote,
         )
     }
 }
@@ -374,30 +544,57 @@ private fun NotesListPlaceholderView(
 }
 
 @Composable
-internal fun NotesListContentListView(
+internal fun BrowserListContentView(
         modifier: Modifier = Modifier,
-        notesList: List<NotesListItem>,
-        onNavigateToNote: (noteId: String) -> Unit,
+        items: List<BrowserListItem>,
+        viewMode: NotesViewMode,
+        selection: SelectionState,
+        intentHandler: (NotesBrowserIntent) -> Unit,
+) {
+    when (viewMode) {
+        NotesViewMode.LIST -> BrowserFlatListView(
+                modifier = modifier,
+                items = items,
+                selection = selection,
+                intentHandler = intentHandler,
+        )
+        NotesViewMode.GRID -> BrowserGridView(
+                modifier = modifier,
+                items = items,
+                selection = selection,
+                intentHandler = intentHandler,
+        )
+    }
+}
+
+@Composable
+internal fun BrowserFlatListView(
+        modifier: Modifier = Modifier,
+        items: List<BrowserListItem>,
+        selection: SelectionState,
+        intentHandler: (NotesBrowserIntent) -> Unit,
 ) {
     LazyColumn(
             modifier = modifier,
             verticalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(bottom = 96.dp),
     ) {
-        items(notesList) { item ->
-            NoteListItemView(
-                    onNavigateToNote = onNavigateToNote,
-                    notesListItem = item,
+        items(items, key = { it.id }) { item ->
+            BrowserListItemContent(
+                    item = item,
+                    selection = selection,
+                    intentHandler = intentHandler,
             )
         }
     }
 }
 
 @Composable
-internal fun NotesListContentGridView(
+internal fun BrowserGridView(
         modifier: Modifier = Modifier,
-        notesList: List<NotesListItem>,
-        onNavigateToNote: (noteId: String) -> Unit,
+        items: List<BrowserListItem>,
+        selection: SelectionState,
+        intentHandler: (NotesBrowserIntent) -> Unit,
 ) {
     LazyVerticalStaggeredGrid(
             modifier = modifier,
@@ -406,31 +603,106 @@ internal fun NotesListContentGridView(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(bottom = 96.dp),
     ) {
-        items(notesList) { item ->
-            NoteListItemView(
-                    onNavigateToNote = onNavigateToNote,
-                    notesListItem = item,
+        items(items, key = { it.id }) { item ->
+            BrowserListItemContent(
+                    item = item,
+                    selection = selection,
+                    intentHandler = intentHandler,
             )
         }
     }
 }
 
 @Composable
+private fun BrowserListItemContent(
+        item: BrowserListItem,
+        selection: SelectionState,
+        intentHandler: (NotesBrowserIntent) -> Unit,
+) {
+    when (item) {
+        is BrowserListItem.FolderRow -> FolderListItemView(
+                folder = item.folder,
+                selection = selection,
+                onClick = { intentHandler(NotesBrowserIntent.OnItemClick(item.id)) },
+                onLongClick = { intentHandler(NotesBrowserIntent.OnItemLongClick(item.id)) },
+        )
+        is BrowserListItem.NoteRow -> NoteListItemView(
+                note = item.note,
+                selection = selection,
+                onClick = { intentHandler(NotesBrowserIntent.OnItemClick(item.id)) },
+                onLongClick = { intentHandler(NotesBrowserIntent.OnItemLongClick(item.id)) },
+        )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+internal fun FolderListItemView(
+        modifier: Modifier = Modifier,
+        folder: NotesBrowserFolderItem,
+        selection: SelectionState,
+        onClick: () -> Unit,
+        onLongClick: () -> Unit,
+) {
+    val isSelected = selection is SelectionState.Active && selection.selectedIds.contains(folder.id)
+    val borderWidth = if (isSelected) SelectionBorderWidth else FolderBorderWidth
+    val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+    Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .clip(FolderRowShape)
+                .border(width = borderWidth, color = borderColor, shape = FolderRowShape)
+                .combinedClickable(
+                        onClick = onClick,
+                        onLongClick = onLongClick,
+                )
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+                imageVector = AppIcons.Folder,
+                contentDescription = stringResource(Res.string.feature_notes_folder_icon_description),
+                tint = MaterialTheme.colorScheme.primary,
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Text(
+                modifier = Modifier.weight(1f),
+                text = folder.name.orEmpty(),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
 internal fun NoteListItemView(
         modifier: Modifier = Modifier,
-        notesListItem: NotesListItem,
-        onNavigateToNote: (noteId: String) -> Unit,
+        note: NotesBrowserNoteItem,
+        selection: SelectionState = SelectionState.Idle,
+        onClick: () -> Unit = {},
+        onLongClick: () -> Unit = {},
 ) {
-    val color = notesListItem.color
+    val isSelected = selection is SelectionState.Active && selection.selectedIds.contains(note.id)
+    val noteColor = note.color
+    val containerColor = if (noteColor == null) {
+        MaterialTheme.colorScheme.surfaceContainerLow
+    } else {
+        Color(noteColor)
+            .copy(alpha = NOTE_COLOR_TINT_ALPHA)
+            .compositeOver(MaterialTheme.colorScheme.surfaceContainerLow)
+    }
     val cardModifier = modifier
         .fillMaxWidth()
         .clip(NoteCardShape)
-        .background(MaterialTheme.colorScheme.surfaceContainerLow)
+        .background(containerColor)
         .then(
-                if (color != null) {
+                if (isSelected) {
                     Modifier.border(
-                            width = 2.dp,
-                            color = Color(color),
+                            width = SelectionBorderWidth,
+                            color = MaterialTheme.colorScheme.primary,
                             shape = NoteCardShape,
                     )
                 } else {
@@ -439,10 +711,13 @@ internal fun NoteListItemView(
         )
     Column(
             modifier = cardModifier
-                .clickable { onNavigateToNote(notesListItem.id) }
+                .combinedClickable(
+                        onClick = onClick,
+                        onLongClick = onLongClick,
+                )
                 .padding(16.dp),
     ) {
-        val title = notesListItem.title
+        val title = note.title
         if (!title.isNullOrBlank()) {
             Text(
                     text = title,
@@ -453,11 +728,9 @@ internal fun NoteListItemView(
                     overflow = TextOverflow.Ellipsis,
             )
         }
-        val body = notesListItem.body
+        val body = note.body
         if (!body.isNullOrBlank()) {
-            if (!title.isNullOrBlank()) {
-                Spacer12dp()
-            }
+            Spacer12dp()
             Text(
                     text = body,
                     style = MaterialTheme.typography.bodyMedium,
@@ -470,25 +743,94 @@ internal fun NoteListItemView(
 }
 
 @Composable
-internal fun AddNoteButton(
+internal fun BrowserFabMenu(
         modifier: Modifier = Modifier,
-        onNavigateToCreateNote: () -> Unit,
+        onCreateFolderClick: () -> Unit,
+        onAddNoteClick: () -> Unit,
 ) {
-    ExtendedFloatingActionButton(
+    var expanded by remember { mutableStateOf(false) }
+    Column(
             modifier = modifier,
-            onClick = { onNavigateToCreateNote() },
-            icon = {
-                Icon(
-                        painter = painterResource(Res.drawable.notes),
-                        contentDescription = stringResource(Res.string.feature_notes_add_note),
+            horizontalAlignment = Alignment.End,
+    ) {
+        AnimatedVisibility(
+                visible = expanded,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically(),
+        ) {
+            Column(horizontalAlignment = Alignment.End) {
+                FabMenuAction(
+                        label = stringResource(Res.string.feature_notes_new_folder),
+                        icon = {
+                            Icon(
+                                    imageVector = AppIcons.CreateFolder,
+                                    contentDescription = null,
+                            )
+                        },
+                        onClick = {
+                            expanded = false
+                            onCreateFolderClick()
+                        },
                 )
-            },
-            text = {
-                Text(
-                        text = stringResource(Res.string.feature_notes_add_note)
+                Spacer12dp()
+                FabMenuAction(
+                        label = stringResource(Res.string.feature_notes_add_note),
+                        icon = {
+                            Icon(
+                                    painter = painterResource(Res.drawable.notes),
+                                    contentDescription = null,
+                            )
+                        },
+                        onClick = {
+                            expanded = false
+                            onAddNoteClick()
+                        },
                 )
-            },
-    )
+                Spacer12dp()
+            }
+        }
+        FloatingActionButton(onClick = { expanded = !expanded }) {
+            Icon(
+                    imageVector = if (expanded) Icons.Default.Close else Icons.Default.Add,
+                    contentDescription = if (expanded) {
+                        stringResource(Res.string.feature_notes_add_menu_close)
+                    } else {
+                        stringResource(Res.string.feature_notes_add_menu_open)
+                    },
+            )
+        }
+    }
+}
+
+@Composable
+private fun FabMenuAction(
+        label: String,
+        icon: @Composable () -> Unit,
+        onClick: () -> Unit,
+) {
+    Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Surface(
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.surfaceContainerLow,
+        ) {
+            Text(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                    text = label,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+        SmallFloatingActionButton(
+                onClick = onClick,
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        ) {
+            icon()
+        }
+    }
 }
 
 @Preview
@@ -498,7 +840,6 @@ private fun NotesBrowserScreenLoadingPreview() {
         NotesBrowserScreen(
                 state = NotesBrowserState(),
                 onNavigateToCreateNote = {},
-                onNavigateToNote = {},
         )
     }
 }
@@ -509,12 +850,11 @@ private fun NotesBrowserScreenEmptyPreview() {
     AppTheme {
         NotesBrowserScreen(
                 state = NotesBrowserState(
-                        notesListState = NotesListState.Loaded(
-                                notesList = emptyList(),
+                        browserListState = BrowserListState.Loaded(
+                                items = emptyList(),
                         ),
                 ),
                 onNavigateToCreateNote = {},
-                onNavigateToNote = {},
         )
     }
 }
@@ -525,33 +865,49 @@ private fun NotesBrowserScreenListPreview() {
     AppTheme {
         NotesBrowserScreen(
                 state = NotesBrowserState(
-                        notesListState = NotesListState.Loaded(
-                                notesList = listOf(
-                                        NotesListItem(
-                                                id = "1",
-                                                createdAt = 0L,
-                                                title = "Title 1",
-                                                body = "Body 1",
+                        breadcrumb = listOf(
+                                FolderBreadcrumbItem(
+                                        id = "1",
+                                        name = "ideas",
+                                )
+                        ),
+                        currentFolderId = "1",
+                        canNavigateBack = true,
+                        browserListState = BrowserListState.Loaded(
+                                items = listOf(
+                                        BrowserListItem.FolderRow(
+                                                NotesBrowserFolderItem(
+                                                        id = "f1",
+                                                        parentId = "1",
+                                                        createdAt = 0L,
+                                                        name = "Subfolder",
+                                                ),
                                         ),
-                                        NotesListItem(
-                                                id = "2",
-                                                createdAt = 0L,
-                                                title = "Title 2",
-                                                body = "Body 2 with more text to show card wrapping.",
-                                                color = 0xFFE91E63L,
+                                        BrowserListItem.NoteRow(
+                                                NotesBrowserNoteItem(
+                                                        id = "1",
+                                                        createdAt = 0L,
+                                                        title = "Title 1",
+                                                        body = "Body 1",
+                                                        color = null,
+                                                        folderId = "1",
+                                                ),
                                         ),
-                                        NotesListItem(
-                                                id = "3",
-                                                createdAt = 0L,
-                                                title = null,
-                                                body = "Body 3",
+                                        BrowserListItem.NoteRow(
+                                                NotesBrowserNoteItem(
+                                                        id = "2",
+                                                        createdAt = 0L,
+                                                        title = "Title 2",
+                                                        body = "Body 2 with more text to show card wrapping.",
+                                                        color = 0xFFE91E63L,
+                                                        folderId = "1",
+                                                ),
                                         ),
                                 ),
                         ),
                         notesViewMode = NotesViewMode.GRID,
                 ),
                 onNavigateToCreateNote = {},
-                onNavigateToNote = {},
         )
     }
 }
@@ -562,8 +918,8 @@ private fun NotesBrowserScreenSearchPreview() {
     AppTheme {
         NotesBrowserScreen(
                 state = NotesBrowserState(
-                        notesListState = NotesListState.Loaded(
-                                notesList = emptyList(),
+                        browserListState = BrowserListState.Loaded(
+                                items = emptyList(),
                         ),
                         searchState = SearchState.Active(
                                 query = "Title 2",
@@ -572,7 +928,6 @@ private fun NotesBrowserScreenSearchPreview() {
                         )
                 ),
                 onNavigateToCreateNote = {},
-                onNavigateToNote = {},
         )
     }
 }

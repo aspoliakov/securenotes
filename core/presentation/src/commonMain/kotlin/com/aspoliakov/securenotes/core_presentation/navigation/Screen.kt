@@ -12,7 +12,16 @@ sealed class Screen {
     data object Home : Screen()
 
     @Serializable
-    data class Note(val noteId: String? = null) : Screen()
+    data class Note(
+            val noteId: String? = null,
+            val folderId: String? = null,
+    ) : Screen()
+
+    @Serializable
+    data class Folder(
+            val parentId: String? = null,
+            val folderId: String? = null,
+    ) : Screen()
 
     @Serializable
     data object About : Screen()
