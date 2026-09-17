@@ -620,14 +620,14 @@ private fun BrowserListItemContent(
         intentHandler: (NotesBrowserIntent) -> Unit,
 ) {
     when (item) {
-        is BrowserListItem.FolderRow -> FolderListItemView(
-                folder = item.folder,
+        is BrowserListItem.NotesBrowserFolderItem -> FolderListItemView(
+                folder = item,
                 selection = selection,
                 onClick = { intentHandler(NotesBrowserIntent.OnItemClick(item.id)) },
                 onLongClick = { intentHandler(NotesBrowserIntent.OnItemLongClick(item.id)) },
         )
-        is BrowserListItem.NoteRow -> NoteListItemView(
-                note = item.note,
+        is BrowserListItem.NotesBrowserNoteItem -> NoteListItemView(
+                note = item,
                 selection = selection,
                 onClick = { intentHandler(NotesBrowserIntent.OnItemClick(item.id)) },
                 onLongClick = { intentHandler(NotesBrowserIntent.OnItemLongClick(item.id)) },
@@ -639,7 +639,7 @@ private fun BrowserListItemContent(
 @Composable
 internal fun FolderListItemView(
         modifier: Modifier = Modifier,
-        folder: NotesBrowserFolderItem,
+        folder: BrowserListItem.NotesBrowserFolderItem,
         selection: SelectionState,
         onClick: () -> Unit,
         onLongClick: () -> Unit,
@@ -680,7 +680,7 @@ internal fun FolderListItemView(
 @Composable
 internal fun NoteListItemView(
         modifier: Modifier = Modifier,
-        note: NotesBrowserNoteItem,
+        note: BrowserListItem.NotesBrowserNoteItem,
         selection: SelectionState = SelectionState.Idle,
         onClick: () -> Unit = {},
         onLongClick: () -> Unit = {},
@@ -875,33 +875,27 @@ private fun NotesBrowserScreenListPreview() {
                         canNavigateBack = true,
                         browserListState = BrowserListState.Loaded(
                                 items = listOf(
-                                        BrowserListItem.FolderRow(
-                                                NotesBrowserFolderItem(
-                                                        id = "f1",
-                                                        parentId = "1",
-                                                        createdAt = 0L,
-                                                        name = "Subfolder",
-                                                ),
+                                        BrowserListItem.NotesBrowserFolderItem(
+                                                id = "f1",
+                                                parentId = "1",
+                                                createdAt = 0L,
+                                                name = "Subfolder",
                                         ),
-                                        BrowserListItem.NoteRow(
-                                                NotesBrowserNoteItem(
-                                                        id = "1",
-                                                        createdAt = 0L,
-                                                        title = "Title 1",
-                                                        body = "Body 1",
-                                                        color = null,
-                                                        folderId = "1",
-                                                ),
+                                        BrowserListItem.NotesBrowserNoteItem(
+                                                id = "1",
+                                                createdAt = 0L,
+                                                title = "Title 1",
+                                                body = "Body 1",
+                                                color = null,
+                                                folderId = "1",
                                         ),
-                                        BrowserListItem.NoteRow(
-                                                NotesBrowserNoteItem(
-                                                        id = "2",
-                                                        createdAt = 0L,
-                                                        title = "Title 2",
-                                                        body = "Body 2 with more text to show card wrapping.",
-                                                        color = 0xFFE91E63L,
-                                                        folderId = "1",
-                                                ),
+                                        BrowserListItem.NotesBrowserNoteItem(
+                                                id = "2",
+                                                createdAt = 0L,
+                                                title = "Title 2",
+                                                body = "Body 2 with more text to show card wrapping.",
+                                                color = 0xFFE91E63L,
+                                                folderId = "1",
                                         ),
                                 ),
                         ),

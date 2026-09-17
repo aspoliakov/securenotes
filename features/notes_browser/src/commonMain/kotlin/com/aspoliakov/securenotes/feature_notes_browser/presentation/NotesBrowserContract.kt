@@ -20,41 +20,29 @@ internal data class NotesBrowserState(
         val pendingBulkDelete: Boolean = false,
 ) : State()
 
-internal interface BrowsableItem {
-    val id: String
-    val createdAt: Long
+internal sealed class BrowserListItem(
+        open val id: String,
+        open val createdAt: Long,
+) {
+
+    data class NotesBrowserFolderItem(
+            override val id: String,
+            override val createdAt: Long,
+            val parentId: String?,
+            val name: String?,
+    ) : BrowserListItem(id, createdAt)
+
+    data class NotesBrowserNoteItem(
+            override val id: String,
+            override val createdAt: Long,
+            val title: String?,
+            val body: String?,
+            val color: Long?,
+            val folderId: String?,
+    ) : BrowserListItem(id, createdAt)
 }
 
-internal data class NotesBrowserFolderItem(
-        override val id: String,
-        val parentId: String?,
-        override val createdAt: Long,
-        val name: String?,
-) : BrowsableItem
-
-internal data class NotesBrowserNoteItem(
-        override val id: String,
-        override val createdAt: Long,
-        val title: String?,
-        val body: String?,
-        val color: Long?,
-        val folderId: String?,
-) : BrowsableItem
-
-internal sealed class BrowserListItem : BrowsableItem {
-
-    data class FolderRow(val folder: NotesBrowserFolderItem) : BrowserListItem() {
-        override val id: String = folder.id
-        override val createdAt: Long = folder.createdAt
-    }
-
-    data class NoteRow(val note: NotesBrowserNoteItem) : BrowserListItem() {
-        override val id: String = note.id
-        override val createdAt: Long = note.createdAt
-    }
-}
-
-internal val browserChronologicalComparator: Comparator<BrowsableItem> = compareByDescending { it.createdAt }
+internal val browserChronologicalComparator: Comparator<BrowserListItem> = compareByDescending { it.createdAt }
 
 internal sealed class BrowserListState {
     data object Idle : BrowserListState()
