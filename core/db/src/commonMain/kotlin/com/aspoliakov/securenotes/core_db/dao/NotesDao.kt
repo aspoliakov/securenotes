@@ -25,6 +25,9 @@ interface NotesDao : BaseDao<NoteDB> {
     @Query("SELECT * FROM $TABLE WHERE note_id = :noteId")
     suspend fun selectById(noteId: String): NoteDB?
 
+    @Query("SELECT note_id FROM $TABLE WHERE folder_id = :folderId")
+    suspend fun selectIdsByFolderId(folderId: String): List<String>
+
     @Query("SELECT * FROM $TABLE WHERE title LIKE '%' || :query || '%' OR body LIKE '%' || :query || '%' ORDER BY created_at DESC")
     suspend fun searchAllByCreatedAtDesc(query: String): List<NoteDB>
 

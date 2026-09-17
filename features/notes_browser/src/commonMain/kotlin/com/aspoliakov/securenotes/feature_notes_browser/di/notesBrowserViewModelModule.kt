@@ -21,6 +21,7 @@ val notesBrowserViewModelModule = module {
                 ),
                 notesListInteractor = get(),
                 folderInteractor = get(),
+                foldersListInteractor = get(),
                 noteInteractor = get(),
                 userPrefsInteractor = userPrefsInteractor,
         )

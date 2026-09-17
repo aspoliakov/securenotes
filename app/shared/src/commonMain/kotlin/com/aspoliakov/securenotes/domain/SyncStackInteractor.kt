@@ -52,7 +52,7 @@ class SyncStackInteractor(
         syncStackJobs[itemId] = IOScope().launch {
             when (syncStackDB.itemType) {
                 SyncStackDB.ItemType.NOTE -> runCatching {
-                    noteInteractor.syncChanges(itemId)
+                    noteInteractor.syncChanges(itemId, syncStackDB.action)
                 }
                     .onSuccess {
                         Napier.d("Note [$itemId] changes successfully synced")
@@ -62,7 +62,7 @@ class SyncStackInteractor(
                         Napier.e("Error syncing note [$itemId]: $it")
                     }
                 SyncStackDB.ItemType.FOLDER -> runCatching {
-                    folderInteractor.syncChanges(itemId)
+                    folderInteractor.syncChanges(itemId, syncStackDB.action)
                 }
                     .onSuccess {
                         Napier.d("Folder [$itemId] changes successfully synced")

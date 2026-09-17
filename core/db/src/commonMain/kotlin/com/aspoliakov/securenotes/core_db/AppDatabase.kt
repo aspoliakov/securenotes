@@ -24,7 +24,7 @@ import kotlinx.coroutines.IO
             SyncStackDB::class,
             FolderDB::class,
         ],
-        version = 2,
+        version = 1,
         exportSchema = false,
 )
 @ConstructedBy(AppDatabaseConstructor::class)

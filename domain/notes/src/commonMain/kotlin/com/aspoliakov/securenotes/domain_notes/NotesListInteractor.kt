@@ -3,8 +3,10 @@ package com.aspoliakov.securenotes.domain_notes
 import com.aspoliakov.securenotes.core_base.util.IOScope
 import com.aspoliakov.securenotes.core_db.dao.FolderDao
 import com.aspoliakov.securenotes.core_db.dao.NotesDao
+import com.aspoliakov.securenotes.core_db.dao.SyncStackDao
 import com.aspoliakov.securenotes.core_db.model.NoteDB
-import com.aspoliakov.securenotes.domain_folders.FolderInteractor
+import com.aspoliakov.securenotes.core_db.model.SyncStackDB
+import com.aspoliakov.securenotes.domain_folders.FoldersListInteractor
 import com.aspoliakov.securenotes.domain_notes.model.NoteColor
 import com.aspoliakov.securenotes.domain_notes.model.NoteVO
 import com.aspoliakov.securenotes.domain_notes.network.NotesApiProvider
@@ -21,19 +23,20 @@ import kotlinx.coroutines.launch
 class NotesListInteractor(
         private val notesDao: NotesDao,
         private val folderDao: FolderDao,
+        private val syncStackDao: SyncStackDao,
         private val notesApiProvider: NotesApiProvider,
         private val userStateInteractor: UserStateInteractor,
         private val noteCryptoInteractor: NoteCryptoInteractor,
-        private val folderInteractor: FolderInteractor,
+        private val foldersListInteractor: FoldersListInteractor,
 ) {
 
-    fun getNotesList(folderId: String?): Flow<List<NoteVO>> {
+    fun getNotes(folderId: String?): Flow<List<NoteVO>> {
         return notesDao.selectByFolderIdOrderByCreatedAtDesc(folderId)
                 .map { notesList -> notesList.map(this::mapNoteDBToNoteVO) }
                 .also { sync() }
     }
 
-    suspend fun searchNotesList(query: String): List<NoteVO> {
+    suspend fun searchNotes(query: String): List<NoteVO> {
         return notesDao.searchAllByCreatedAtDesc(query)
                 .map(this::mapNoteDBToNoteVO)
     }
@@ -53,11 +56,17 @@ class NotesListInteractor(
         runCatching {
             // folders must be synced first so that folder_id resolution below reflects
             // the freshest known folder set (orphaned folder_id falls back to root)
-            folderInteractor.syncFolders()
+            foldersListInteractor.syncFolders()
+            // notes with a pending sync-stack entry are not yet reflected on the server (or are
+            // queued for local deletion); overwriting them here with stale server data would
+            // resurrect a locally deleted note or silently discard an unsynced local edit, so
+            // they are left untouched until their own pending sync completes
+            val pendingIds = syncStackDao.selectIdsByItemType(SyncStackDB.ItemType.NOTE).toSet()
             val notes = notesApiProvider.provideApi().getAllNotes(
                     token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
             )
                     .notes
+                    .filterNot { it.noteId in pendingIds }
                     .map {
                         val notePayload = noteCryptoInteractor.decrypt(it.payload)
                         val resolvedFolderId = it.folderId?.takeIf { folderId ->

@@ -16,9 +16,7 @@ import com.aspoliakov.securenotes.domain_user_state.UserStateInteractor
 import io.github.aakira.napier.Napier
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 /**
@@ -44,83 +42,33 @@ class FolderInteractor(
                 name = name,
         )
         folderDao.insertOrReplace(newFolderDB)
-        addChangesToSyncStack(newFolderDB.folderId)
+        addChangesToSyncStack(newFolderDB.folderId, SyncStackDB.Action.SAVE)
         return newFolderDB.folderId
     }
 
     fun rename(folderId: String, name: String) = IOScope().launch {
         folderDao.updateName(folderId, name)
-        addChangesToSyncStack(folderId)
+        addChangesToSyncStack(folderId, SyncStackDB.Action.SAVE)
     }
 
     suspend fun delete(folderId: String) {
-        val affectedIds = collectDescendantIds(folderId) + folderId
-        affectedIds.forEach { id ->
+        val descendantFolderIds = collectDescendantIds(folderId)
+        val affectedFolderIds = descendantFolderIds + folderId
+        affectedFolderIds.forEach { id ->
+            notesDao.selectIdsByFolderId(id).forEach { noteId ->
+                syncStackDao.delete(noteId)
+            }
             notesDao.deleteByFolderId(id)
+        }
+        descendantFolderIds.forEach { id ->
             folderDao.delete(id)
             syncStackDao.delete(id)
         }
-        runCatching {
-            foldersApiProvider.provideApi().deleteFolder(
-                    token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
-                    folderId = folderId,
-            )
-        }
-            .onFailure {
-                Napier.e("Error deleting folder [$folderId] on server: $it")
-            }
-    }
-
-    suspend fun syncChanges(folderId: String) {
-        val folderDB = folderDao.selectById(folderId)
-        if (folderDB != null) {
-            Napier.d("upload updated folder to server")
-            val encryptedPayload = folderCryptoInteractor.encrypt(
-                    FolderPayload(name = folderDB.name)
-            )
-            foldersApiProvider.provideApi().saveFolder(
-                    token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
-                    request = PostFolderRequest(
-                            folderId = folderId,
-                            parentId = folderDB.parentId,
-                            keyId = encryptedPayload.keyId,
-                            payload = encryptedPayload.payload,
-                    )
-            )
-        }
-    }
-
-    suspend fun syncFolders() {
-        runCatching {
-            val folders = foldersApiProvider.provideApi().getAllFolders(
-                    token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
-            )
-                .folders
-                .map {
-                    val folderPayload = folderCryptoInteractor.decrypt(it.payload)
-                    FolderDB(
-                            folderId = it.folderId,
-                            parentId = it.parentId,
-                            createdAt = 1, // TODO
-                            name = folderPayload.name,
-                    )
-                }
-            folderDao.insertOrReplace(folders)
-        }
-            .onFailure {
-                Napier.e("Error syncing folders: $it")
-            }
-    }
-
-    fun getChildFolders(parentId: String?): Flow<List<FolderVO>> {
-        return folderDao.selectChildrenByParentId(parentId)
-            .map { folders -> folders.map(this::mapFolderDBToFolderVO) }
-            .also { IOScope().launch { syncFolders() } }
-    }
-
-    suspend fun searchFolders(query: String): List<FolderVO> {
-        return folderDao.searchByName(query)
-            .map(this::mapFolderDBToFolderVO)
+        folderDao.delete(folderId)
+        // the server cascades folder deletion to descendant folders and their notes within
+        // delete_existing_folder, so only the top-level folderId needs to be synced to the
+        // server
+        addChangesToSyncStack(folderId, SyncStackDB.Action.DELETE)
     }
 
     suspend fun getFolder(folderId: String): FolderVO? {
@@ -137,6 +85,37 @@ class FolderInteractor(
             currentId = folderDB.parentId
         }
         return path
+    }
+
+    suspend fun syncChanges(
+            folderId: String,
+            action: SyncStackDB.Action,
+    ) {
+        when (action) {
+            SyncStackDB.Action.SAVE -> {
+                val folderDB = folderDao.selectById(folderId) ?: return
+                Napier.d("upload updated folder to server")
+                val encryptedPayload = folderCryptoInteractor.encrypt(
+                        FolderPayload(name = folderDB.name)
+                )
+                foldersApiProvider.provideApi().saveFolder(
+                        token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
+                        request = PostFolderRequest(
+                                folderId = folderId,
+                                parentId = folderDB.parentId,
+                                keyId = encryptedPayload.keyId,
+                                payload = encryptedPayload.payload,
+                        )
+                )
+            }
+            SyncStackDB.Action.DELETE -> {
+                Napier.d("remove folder from server")
+                foldersApiProvider.provideApi().deleteFolder(
+                        token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
+                        folderId = folderId,
+                )
+            }
+        }
     }
 
     private suspend fun collectDescendantIds(folderId: String): List<String> {
@@ -161,10 +140,14 @@ class FolderInteractor(
         )
     }
 
-    private fun addChangesToSyncStack(folderId: String) = IOScope().launch {
+    private fun addChangesToSyncStack(
+            folderId: String,
+            action: SyncStackDB.Action,
+    ) = IOScope().launch {
         val syncStackDB = SyncStackDB(
                 itemId = folderId,
                 itemType = SyncStackDB.ItemType.FOLDER,
+                action = action,
         )
         syncStackDao.insertOrReplace(syncStackDB)
         syncStackEventBus.post(folderId)

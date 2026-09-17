@@ -14,5 +14,5 @@ val notesDomainModule = module {
     single<NotesApiProvider> { NotesApiProvider() }
     single { NoteCryptoInteractor(get()) }
     single { NoteInteractor(get(), get(), get(), get(), get(), get()) }
-    single { NotesListInteractor(get(), get(), get(), get(), get(), get()) }
+    single { NotesListInteractor(get(), get(), get(), get(), get(), get(), get()) }
 }

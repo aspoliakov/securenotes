@@ -101,38 +101,9 @@ class NoteInteractor(
                             body = notePayload.body,
                             color = notePayload.color,
                     )
-                    addChangesToSyncStack(noteId)
+                    addChangesToSyncStack(noteId, SyncStackDB.Action.SAVE)
                 }
             }
-        }
-    }
-
-    suspend fun syncChanges(noteId: String) {
-        val noteDB = notesDao.selectById(noteId)
-        if (noteDB != null) {
-            Napier.d("upload updated note to server")
-            val encryptedPayload = noteCryptoInteractor.encrypt(
-                    NotePayload(
-                            title = noteDB.title,
-                            body = noteDB.body,
-                            color = NoteColor.fromArgb(noteDB.color).argb,
-                    )
-            )
-            notesApiProvider.provideApi().saveNote(
-                    token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
-                    request = PostNoteRequest(
-                            noteId = noteId,
-                            folderId = noteDB.folderId,
-                            keyId = encryptedPayload.keyId,
-                            payload = encryptedPayload.payload,
-                    )
-            )
-        } else {
-            Napier.d("remove note from server")
-            notesApiProvider.provideApi().deleteNote(
-                    token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
-                    noteId = noteId,
-            )
         }
     }
 
@@ -143,7 +114,42 @@ class NoteInteractor(
         saveChangesJobs[noteId]?.cancel()
         notesDao.delete(noteId)
         if (sync) {
-            addChangesToSyncStack(noteId)
+            addChangesToSyncStack(noteId, SyncStackDB.Action.DELETE)
+        }
+    }
+
+    suspend fun syncChanges(
+            noteId: String,
+            action: SyncStackDB.Action,
+    ) {
+        when (action) {
+            SyncStackDB.Action.SAVE -> {
+                val noteDB = notesDao.selectById(noteId) ?: return
+                Napier.d("upload updated note to server")
+                val encryptedPayload = noteCryptoInteractor.encrypt(
+                        NotePayload(
+                                title = noteDB.title,
+                                body = noteDB.body,
+                                color = NoteColor.fromArgb(noteDB.color).argb,
+                        )
+                )
+                notesApiProvider.provideApi().saveNote(
+                        token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
+                        request = PostNoteRequest(
+                                noteId = noteId,
+                                folderId = noteDB.folderId,
+                                keyId = encryptedPayload.keyId,
+                                payload = encryptedPayload.payload,
+                        )
+                )
+            }
+            SyncStackDB.Action.DELETE -> {
+                Napier.d("remove note from server")
+                notesApiProvider.provideApi().deleteNote(
+                        token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
+                        noteId = noteId,
+                )
+            }
         }
     }
 
@@ -165,10 +171,14 @@ class NoteInteractor(
         }
     }
 
-    private fun addChangesToSyncStack(noteId: String) = IOScope().launch {
+    private fun addChangesToSyncStack(
+            noteId: String,
+            action: SyncStackDB.Action,
+    ) = IOScope().launch {
         val syncStackDB = SyncStackDB(
                 itemId = noteId,
                 itemType = SyncStackDB.ItemType.NOTE,
+                action = action,
         )
         syncStackDao.insertOrReplace(syncStackDB)
         syncStackEventBus.post(noteId)

@@ -5,6 +5,7 @@ import com.aspoliakov.securenotes.core_base.util.flowOnIO
 import com.aspoliakov.securenotes.core_presentation.mvi.MviViewModel
 import com.aspoliakov.securenotes.core_presentation.utils.launchOnIO
 import com.aspoliakov.securenotes.domain_folders.FolderInteractor
+import com.aspoliakov.securenotes.domain_folders.FoldersListInteractor
 import com.aspoliakov.securenotes.domain_folders.model.FolderVO
 import com.aspoliakov.securenotes.domain_notes.NoteInteractor
 import com.aspoliakov.securenotes.domain_notes.NotesListInteractor
@@ -24,6 +25,7 @@ internal class NotesBrowserViewModel(
         initialState: NotesBrowserState,
         private val notesListInteractor: NotesListInteractor,
         private val folderInteractor: FolderInteractor,
+        private val foldersListInteractor: FoldersListInteractor,
         private val noteInteractor: NoteInteractor,
         private val userPrefsInteractor: UserPrefsInteractor,
 ) : MviViewModel<NotesBrowserState, NotesBrowserEffect, NotesBrowserIntent>(initialState) {
@@ -69,8 +71,8 @@ internal class NotesBrowserViewModel(
                         )
                 )
             }
-            val foundFolders = folderInteractor.searchFolders(query)
-            val foundNotes = notesListInteractor.searchNotesList(query)
+            val foundFolders = foldersListInteractor.searchFolders(query)
+            val foundNotes = notesListInteractor.searchNotes(query)
             val foundFoldersBrowserItems: List<BrowserListItem> = foundFolders.map { it.toBrowserItem() }
             val foundNotesBrowserItems: List<BrowserListItem> = foundNotes.map { it.toBrowserItem() }
             val sortedResults = (foundFoldersBrowserItems + foundNotesBrowserItems)
@@ -166,8 +168,8 @@ internal class NotesBrowserViewModel(
         browseJob?.cancel()
         val folderId = currentState.currentFolderId
         browseJob = combine(
-                folderInteractor.getChildFolders(folderId),
-                notesListInteractor.getNotesList(folderId),
+                foldersListInteractor.getChildFolders(folderId),
+                notesListInteractor.getNotes(folderId),
         ) { folders, notes ->
             val foldersBrowserItems: List<BrowserListItem> = folders.map { it.toBrowserItem() }
             val notesBrowserItems: List<BrowserListItem> = notes.map { it.toBrowserItem() }
