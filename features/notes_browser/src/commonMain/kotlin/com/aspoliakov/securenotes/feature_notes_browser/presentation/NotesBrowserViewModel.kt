@@ -11,6 +11,7 @@ import com.aspoliakov.securenotes.domain_notes.NoteInteractor
 import com.aspoliakov.securenotes.domain_notes.NotesListInteractor
 import com.aspoliakov.securenotes.domain_notes.model.NoteVO
 import com.aspoliakov.securenotes.domain_user_state.UserPrefsInteractor
+import com.aspoliakov.securenotes.domain_user_state.model.NotesSortOrder
 import com.aspoliakov.securenotes.domain_user_state.model.NotesViewMode
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
@@ -36,20 +37,23 @@ internal class NotesBrowserViewModel(
     private val backStack = ArrayDeque<String?>()
 
     init {
-        subscribeToCurrentFolder()
+        loadCurrentFolder()
     }
 
     override fun handleIntent(intent: NotesBrowserIntent) {
         when (intent) {
             is NotesBrowserIntent.OnSearch -> onSearch(intent.query)
             is NotesBrowserIntent.OnToggleViewMode -> onToggleViewMode()
+            is NotesBrowserIntent.OnSortButtonClick -> onSortButtonClick()
+            is NotesBrowserIntent.OnSortOrderSelected -> onSortOrderSelected(intent.sortOrder)
+            is NotesBrowserIntent.OnSortSheetDismissed -> onSortSheetDismissed()
             is NotesBrowserIntent.OnItemClick -> onItemClick(intent.itemId)
             is NotesBrowserIntent.OnItemLongClick -> onItemLongClick(intent.itemId)
             is NotesBrowserIntent.OnBreadcrumbClick -> navigateToFolder(intent.folderId)
             is NotesBrowserIntent.OnNavigateBack -> onNavigateBack()
-            is NotesBrowserIntent.OnExitSelection -> reduceState { copy(selection = SelectionState.Idle) }
+            is NotesBrowserIntent.OnExitSelection -> onExitSelection()
             is NotesBrowserIntent.OnSelectionActionClick -> onSelectionActionClick(intent.action)
-            is NotesBrowserIntent.OnDeleteSelectedDismissed -> reduceState { copy(pendingBulkDelete = false) }
+            is NotesBrowserIntent.OnDeleteSelectedDismissed -> onDeleteSelectedDismissed()
             is NotesBrowserIntent.OnDeleteSelectedConfirmed -> onDeleteSelectedConfirmed()
         }
     }
@@ -76,7 +80,7 @@ internal class NotesBrowserViewModel(
             val foundFoldersBrowserItems: List<BrowserListItem> = foundFolders.map { it.toBrowserItem() }
             val foundNotesBrowserItems: List<BrowserListItem> = foundNotes.map { it.toBrowserItem() }
             val sortedResults = (foundFoldersBrowserItems + foundNotesBrowserItems)
-                .sortedWith(browserChronologicalComparator)
+                .sortedByDescending { it.createdAt }
             reduceState {
                 copy(
                         searchState = SearchState.Active(
@@ -98,6 +102,25 @@ internal class NotesBrowserViewModel(
         launchOnIO {
             userPrefsInteractor.setNotesViewMode(nextViewMode)
         }
+    }
+
+    private fun onSortButtonClick() {
+        reduceState { copy(isSortSheetVisible = true) }
+    }
+
+    private fun onSortOrderSelected(sortOrder: NotesSortOrder) {
+        reduceState {
+            copy(
+                    sortOrder = sortOrder,
+                    isSortSheetVisible = false,
+            )
+        }
+        launchOnIO { userPrefsInteractor.setNotesSortOrder(sortOrder) }
+        loadCurrentFolder()
+    }
+
+    private fun onSortSheetDismissed() {
+        reduceState { copy(isSortSheetVisible = false) }
     }
 
     private fun onItemClick(itemId: String) {
@@ -141,11 +164,19 @@ internal class NotesBrowserViewModel(
         moveToFolder(previousFolderId)
     }
 
+    private fun onExitSelection() {
+        reduceState { copy(selection = SelectionState.Idle) }
+    }
+
     private fun onSelectionActionClick(action: SelectionAction) {
         when (action) {
             SelectionAction.RENAME -> onRenameSelectedClick()
             SelectionAction.DELETE -> reduceState { copy(pendingBulkDelete = true) }
         }
+    }
+
+    private fun onDeleteSelectedDismissed() {
+        reduceState { copy(pendingBulkDelete = false) }
     }
 
     private fun onDeleteSelectedConfirmed() {
@@ -164,16 +195,17 @@ internal class NotesBrowserViewModel(
         }
     }
 
-    private fun subscribeToCurrentFolder() {
+    private fun loadCurrentFolder() {
         browseJob?.cancel()
         val folderId = currentState.currentFolderId
+        val sortOrder = currentState.sortOrder
         browseJob = combine(
-                foldersListInteractor.getChildFolders(folderId),
-                notesListInteractor.getNotes(folderId),
+                foldersListInteractor.getChildFolders(folderId, sortOrder),
+                notesListInteractor.getNotes(folderId, sortOrder),
         ) { folders, notes ->
             val foldersBrowserItems: List<BrowserListItem> = folders.map { it.toBrowserItem() }
             val notesBrowserItems: List<BrowserListItem> = notes.map { it.toBrowserItem() }
-            (foldersBrowserItems + notesBrowserItems).sortedWith(browserChronologicalComparator)
+            (foldersBrowserItems + notesBrowserItems).sortedWith(browserComparator(sortOrder))
         }
             .onEach { items ->
                 reduceState { copy(browserListState = BrowserListState.Loaded(items)) }
@@ -257,7 +289,7 @@ internal class NotesBrowserViewModel(
                         canNavigateBack = backStack.isNotEmpty(),
                 )
             }
-            subscribeToCurrentFolder()
+            loadCurrentFolder()
         }
     }
 
@@ -274,6 +306,13 @@ internal class NotesBrowserViewModel(
         if (folder != null) {
             reduceState { copy(selection = SelectionState.Idle) }
             sendEffect { NotesBrowserEffect.NavigateToEditFolder(folder.id) }
+        }
+    }
+
+    private fun browserComparator(sortOrder: NotesSortOrder): Comparator<BrowserListItem> {
+        return when (sortOrder) {
+            NotesSortOrder.NEWEST_FIRST -> compareByDescending { it.createdAt }
+            NotesSortOrder.OLDEST_FIRST -> compareBy { it.createdAt }
         }
     }
 }

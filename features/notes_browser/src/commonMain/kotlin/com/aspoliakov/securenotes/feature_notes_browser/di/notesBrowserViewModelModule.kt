@@ -15,9 +15,11 @@ val notesBrowserViewModelModule = module {
     viewModel {
         val userPrefsInteractor: UserPrefsInteractor = get()
         val notesViewMode = runBlocking { userPrefsInteractor.getNotesViewMode() }
+        val sortOrder = runBlocking { userPrefsInteractor.getNotesSortOrder() }
         NotesBrowserViewModel(
                 initialState = NotesBrowserState(
                         notesViewMode = notesViewMode,
+                        sortOrder = sortOrder,
                 ),
                 notesListInteractor = get(),
                 folderInteractor = get(),

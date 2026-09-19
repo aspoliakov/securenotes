@@ -11,10 +11,14 @@ import com.aspoliakov.securenotes.domain_notes.model.NoteColor
 import com.aspoliakov.securenotes.domain_notes.model.NoteVO
 import com.aspoliakov.securenotes.domain_notes.network.NotesApiProvider
 import com.aspoliakov.securenotes.domain_user_state.UserStateInteractor
+import com.aspoliakov.securenotes.domain_user_state.model.NotesSortOrder
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 
 /**
  * Project SecureNotes
@@ -30,8 +34,12 @@ class NotesListInteractor(
         private val foldersListInteractor: FoldersListInteractor,
 ) {
 
-    fun getNotes(folderId: String?): Flow<List<NoteVO>> {
-        return notesDao.selectByFolderIdOrderByCreatedAtDesc(folderId)
+    fun getNotes(folderId: String?, sortOrder: NotesSortOrder): Flow<List<NoteVO>> {
+        val notesFlow = when (sortOrder) {
+            NotesSortOrder.NEWEST_FIRST -> notesDao.selectByFolderIdOrderByCreatedAtDesc(folderId)
+            NotesSortOrder.OLDEST_FIRST -> notesDao.selectByFolderIdOrderByCreatedAtAsc(folderId)
+        }
+        return notesFlow
                 .map { notesList -> notesList.map(this::mapNoteDBToNoteVO) }
                 .also { sync() }
     }
@@ -75,7 +83,7 @@ class NotesListInteractor(
                         NoteDB(
                                 noteId = it.noteId,
                                 folderId = resolvedFolderId,
-                                createdAt = 1, // TODO
+                                createdAt = it.createdAt.toEpochMillis(),
                                 title = notePayload.title,
                                 body = notePayload.body,
                                 color = NoteColor.fromArgb(notePayload.color).argb,
@@ -87,4 +95,8 @@ class NotesListInteractor(
                     Napier.e("Error syncing notes: $it")
                 }
     }
+}
+
+private fun String.toEpochMillis(): Long {
+    return LocalDateTime.parse(this).toInstant(TimeZone.UTC).toEpochMilliseconds()
 }

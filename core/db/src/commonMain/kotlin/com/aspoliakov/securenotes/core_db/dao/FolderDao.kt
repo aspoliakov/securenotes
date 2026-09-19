@@ -17,7 +17,10 @@ interface FolderDao : BaseDao<FolderDB> {
     }
 
     @Query("SELECT * FROM $TABLE WHERE parent_id IS :parentId ORDER BY created_at DESC")
-    fun selectChildrenByParentId(parentId: String?): Flow<List<FolderDB>>
+    fun selectChildrenByParentIdOrderByCreatedAtDesc(parentId: String?): Flow<List<FolderDB>>
+
+    @Query("SELECT * FROM $TABLE WHERE parent_id IS :parentId ORDER BY created_at ASC")
+    fun selectChildrenByParentIdOrderByCreatedAtAsc(parentId: String?): Flow<List<FolderDB>>
 
     @Query("SELECT * FROM $TABLE ORDER BY created_at DESC")
     fun selectAll(): Flow<List<FolderDB>>

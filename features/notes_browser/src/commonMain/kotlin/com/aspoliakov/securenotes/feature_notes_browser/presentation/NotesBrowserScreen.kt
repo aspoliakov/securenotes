@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.automirrored.filled.ViewList
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
@@ -39,6 +40,7 @@ import com.aspoliakov.securenotes.core_ui.component.Spacer12dp
 import com.aspoliakov.securenotes.core_ui.component.Spacer16dp
 import com.aspoliakov.securenotes.core_ui.component.Spacer4dp
 import com.aspoliakov.securenotes.core_ui.resources.*
+import com.aspoliakov.securenotes.domain_user_state.model.NotesSortOrder
 import com.aspoliakov.securenotes.domain_user_state.model.NotesViewMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
@@ -107,6 +109,13 @@ internal fun NotesBrowserScreen(
             state = state,
             intentHandler = intentHandler,
     )
+    if (state.isSortSheetVisible) {
+        NotesSortBottomSheet(
+                sortOrder = state.sortOrder,
+                onDismiss = { intentHandler(NotesBrowserIntent.OnSortSheetDismissed) },
+                onSortOrderSelected = { intentHandler(NotesBrowserIntent.OnSortOrderSelected(it)) },
+        )
+    }
     Box(
             modifier = modifier.fillMaxSize(),
     ) {
@@ -190,6 +199,10 @@ internal fun NotesBrowserToolbar(
             NotesViewModeToggleButton(
                     viewMode = state.notesViewMode,
                     onToggle = { intentHandler(NotesBrowserIntent.OnToggleViewMode) },
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            NotesSortButton(
+                    onClick = { intentHandler(NotesBrowserIntent.OnSortButtonClick) },
             )
         }
     }
@@ -425,6 +438,89 @@ internal fun NotesViewModeToggleButton(
                 imageVector = icon,
                 contentDescription = contentDescription,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+internal fun NotesSortButton(
+        modifier: Modifier = Modifier,
+        onClick: () -> Unit = {},
+) {
+    Box(
+            modifier = modifier
+                .size(56.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.surfaceContainerLow)
+                .clickable { onClick() },
+            contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+                imageVector = Icons.AutoMirrored.Filled.Sort,
+                contentDescription = stringResource(Res.string.feature_notes_sort_title),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun NotesSortBottomSheet(
+        sortOrder: NotesSortOrder,
+        onDismiss: () -> Unit = {},
+        onSortOrderSelected: (NotesSortOrder) -> Unit = {},
+) {
+    ModalBottomSheet(
+            onDismissRequest = onDismiss,
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+    ) {
+        Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+                    .padding(bottom = 32.dp),
+        ) {
+            Text(
+                    text = stringResource(Res.string.feature_notes_sort_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface,
+            )
+            Spacer16dp()
+            SortOrderOptionRow(
+                    label = stringResource(Res.string.feature_notes_sort_newest_first),
+                    selected = sortOrder == NotesSortOrder.NEWEST_FIRST,
+                    onClick = { onSortOrderSelected(NotesSortOrder.NEWEST_FIRST) },
+            )
+            SortOrderOptionRow(
+                    label = stringResource(Res.string.feature_notes_sort_oldest_first),
+                    selected = sortOrder == NotesSortOrder.OLDEST_FIRST,
+                    onClick = { onSortOrderSelected(NotesSortOrder.OLDEST_FIRST) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun SortOrderOptionRow(
+        label: String,
+        selected: Boolean,
+        onClick: () -> Unit,
+) {
+    Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .clickable(onClick = onClick)
+                .padding(vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RadioButton(selected = selected, onClick = onClick)
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+                text = label,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }

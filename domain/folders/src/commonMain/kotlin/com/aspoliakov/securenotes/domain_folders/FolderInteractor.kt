@@ -123,7 +123,7 @@ class FolderInteractor(
         var currentLevelIds = listOf(folderId)
         while (currentLevelIds.isNotEmpty()) {
             val nextLevelIds = currentLevelIds.flatMap { id ->
-                folderDao.selectChildrenByParentId(id).first().map { it.folderId }
+                folderDao.selectChildrenByParentIdOrderByCreatedAtDesc(id).first().map { it.folderId }
             }
             result += nextLevelIds
             currentLevelIds = nextLevelIds

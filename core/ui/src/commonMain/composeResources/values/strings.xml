@@ -61,6 +61,9 @@
     <string name="feature_notes_no_results_subtitle">Try a different search term.</string>
     <string name="feature_notes_view_list">List view</string>
     <string name="feature_notes_view_grid">Grid view</string>
+    <string name="feature_notes_sort_title">Sort by</string>
+    <string name="feature_notes_sort_newest_first">Newest first</string>
+    <string name="feature_notes_sort_oldest_first">Oldest first</string>
     <string name="feature_notes_new_folder">New folder</string>
     <string name="feature_notes_folder_name_hint">Folder name</string>
     <string name="feature_notes_rename_folder_title">Rename folder</string>

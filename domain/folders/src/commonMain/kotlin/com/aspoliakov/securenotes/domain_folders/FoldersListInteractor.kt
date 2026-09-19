@@ -8,10 +8,14 @@ import com.aspoliakov.securenotes.core_db.model.SyncStackDB
 import com.aspoliakov.securenotes.domain_folders.model.FolderVO
 import com.aspoliakov.securenotes.domain_folders.network.FoldersApiProvider
 import com.aspoliakov.securenotes.domain_user_state.UserStateInteractor
+import com.aspoliakov.securenotes.domain_user_state.model.NotesSortOrder
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 
 /**
  * Project SecureNotes
@@ -25,8 +29,12 @@ class FoldersListInteractor(
         private val folderCryptoInteractor: FolderCryptoInteractor,
 ) {
 
-    fun getChildFolders(parentId: String?): Flow<List<FolderVO>> {
-        return folderDao.selectChildrenByParentId(parentId)
+    fun getChildFolders(parentId: String?, sortOrder: NotesSortOrder): Flow<List<FolderVO>> {
+        val foldersFlow = when (sortOrder) {
+            NotesSortOrder.NEWEST_FIRST -> folderDao.selectChildrenByParentIdOrderByCreatedAtDesc(parentId)
+            NotesSortOrder.OLDEST_FIRST -> folderDao.selectChildrenByParentIdOrderByCreatedAtAsc(parentId)
+        }
+        return foldersFlow
             .map { folders -> folders.map(this::mapFolderDBToFolderVO) }
             .also { IOScope().launch { syncFolders() } }
     }
@@ -53,7 +61,7 @@ class FoldersListInteractor(
                     FolderDB(
                             folderId = it.folderId,
                             parentId = it.parentId,
-                            createdAt = 1, // TODO
+                            createdAt = it.createdAt.toEpochMillis(),
                             name = folderPayload.name,
                     )
                 }
@@ -72,4 +80,8 @@ class FoldersListInteractor(
                 name = folderDB.name ?: "",
         )
     }
+}
+
+private fun String.toEpochMillis(): Long {
+    return LocalDateTime.parse(this).toInstant(TimeZone.UTC).toEpochMilliseconds()
 }

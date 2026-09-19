@@ -3,6 +3,7 @@ package com.aspoliakov.securenotes.feature_notes_browser.presentation
 import com.aspoliakov.securenotes.core_presentation.mvi.Effect
 import com.aspoliakov.securenotes.core_presentation.mvi.Intent
 import com.aspoliakov.securenotes.core_presentation.mvi.State
+import com.aspoliakov.securenotes.domain_user_state.model.NotesSortOrder
 import com.aspoliakov.securenotes.domain_user_state.model.NotesViewMode
 
 /**
@@ -15,6 +16,8 @@ internal data class NotesBrowserState(
         val canNavigateBack: Boolean = false,
         val browserListState: BrowserListState = BrowserListState.Idle,
         val notesViewMode: NotesViewMode = NotesViewMode.LIST,
+        val sortOrder: NotesSortOrder = NotesSortOrder.NEWEST_FIRST,
+        val isSortSheetVisible: Boolean = false,
         val searchState: SearchState = SearchState.Idle,
         val selection: SelectionState = SelectionState.Idle,
         val pendingBulkDelete: Boolean = false,
@@ -41,8 +44,6 @@ internal sealed class BrowserListItem(
             val folderId: String?,
     ) : BrowserListItem(id, createdAt)
 }
-
-internal val browserChronologicalComparator: Comparator<BrowserListItem> = compareByDescending { it.createdAt }
 
 internal sealed class BrowserListState {
     data object Idle : BrowserListState()
@@ -82,6 +83,9 @@ sealed class NotesBrowserEffect : Effect() {
 sealed class NotesBrowserIntent : Intent() {
     data class OnSearch(val query: String) : NotesBrowserIntent()
     data object OnToggleViewMode : NotesBrowserIntent()
+    data object OnSortButtonClick : NotesBrowserIntent()
+    data class OnSortOrderSelected(val sortOrder: NotesSortOrder) : NotesBrowserIntent()
+    data object OnSortSheetDismissed : NotesBrowserIntent()
     data class OnItemClick(val itemId: String) : NotesBrowserIntent()
     data class OnItemLongClick(val itemId: String) : NotesBrowserIntent()
     data class OnBreadcrumbClick(val folderId: String?) : NotesBrowserIntent()

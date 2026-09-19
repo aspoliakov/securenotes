@@ -22,6 +22,9 @@ interface NotesDao : BaseDao<NoteDB> {
     @Query("SELECT * FROM $TABLE WHERE folder_id IS :folderId ORDER BY created_at DESC")
     fun selectByFolderIdOrderByCreatedAtDesc(folderId: String?): Flow<List<NoteDB>>
 
+    @Query("SELECT * FROM $TABLE WHERE folder_id IS :folderId ORDER BY created_at ASC")
+    fun selectByFolderIdOrderByCreatedAtAsc(folderId: String?): Flow<List<NoteDB>>
+
     @Query("SELECT * FROM $TABLE WHERE note_id = :noteId")
     suspend fun selectById(noteId: String): NoteDB?
 
