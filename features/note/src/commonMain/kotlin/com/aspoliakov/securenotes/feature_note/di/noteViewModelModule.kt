@@ -1,6 +1,7 @@
 package com.aspoliakov.securenotes.feature_note.di
 
 import com.aspoliakov.securenotes.domain_notes.NoteInteractor
+import com.aspoliakov.securenotes.domain_notes.model.NoteColor
 import com.aspoliakov.securenotes.feature_note.presentation.NoteState
 import com.aspoliakov.securenotes.feature_note.presentation.NoteViewModel
 import kotlinx.coroutines.runBlocking
@@ -12,8 +13,7 @@ import org.koin.dsl.module
  */
 
 val noteViewModelModule = module {
-    viewModel { params ->
-        val noteId = params.getOrNull<String>()
+    viewModel { (noteId: String?, folderId: String?) ->
         val noteInteractor: NoteInteractor = get()
         val noteData = runBlocking { if (noteId != null) noteInteractor.getById(noteId) else null }
         NoteViewModel(
@@ -22,8 +22,10 @@ val noteViewModelModule = module {
                         newNote = noteId == null,
                         title = noteData?.title ?: "",
                         body = noteData?.body ?: "",
+                        color = noteData?.color ?: NoteColor.DEFAULT,
                 ),
                 noteInteractor = noteInteractor,
+                folderId = folderId,
         )
     }
 }

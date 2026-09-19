@@ -31,4 +31,10 @@ data class NoteDB(
 
         @ColumnInfo(name = "body")
         var body: String? = null,
+
+        @ColumnInfo(name = "color")
+        var color: Long? = null,
+
+        @ColumnInfo(name = "folder_id")
+        var folderId: String? = null,
 )

@@ -2,6 +2,7 @@ package com.aspoliakov.securenotes.core_db.di
 
 import com.aspoliakov.securenotes.core_db.AppDatabase
 import com.aspoliakov.securenotes.core_db.DatabaseManager
+import com.aspoliakov.securenotes.core_db.dao.FolderDao
 import com.aspoliakov.securenotes.core_db.dao.NotesDao
 import com.aspoliakov.securenotes.core_db.dao.SyncStackDao
 import com.aspoliakov.securenotes.core_db.event_bus.SyncStackEventBus
@@ -18,6 +19,7 @@ val databaseModule = module {
     single<DatabaseManager> { DatabaseManager(get()) }
     single<NotesDao> { get<AppDatabase>().notesDao() }
     single<SyncStackDao> { get<AppDatabase>().syncStackDao() }
+    single<FolderDao> { get<AppDatabase>().folderDao() }
     single<SyncStackEventBus> { SyncStackEventBus() }
     includes(platformDatabaseModule)
 }

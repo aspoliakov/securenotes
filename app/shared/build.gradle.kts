@@ -27,10 +27,12 @@ kotlin {
             implementation(projects.features.keys)
             implementation(projects.features.home)
             implementation(projects.features.note)
+            implementation(projects.features.folder)
             implementation(projects.features.notesBrowser)
             implementation(projects.features.profile)
 
             implementation(projects.domain.notes)
+            implementation(projects.domain.folders)
             implementation(projects.domain.userState)
             implementation(projects.domain.crypto)
 

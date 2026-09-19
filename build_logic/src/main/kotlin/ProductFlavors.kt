@@ -77,7 +77,6 @@ sealed class EnvironmentFlavor(
     }
 
     private fun setupBetaConfig(flavor: ProductFlavor) {
-        flavor.resourceConfigurations.addAll(listOf("en", "xxhdpi"))
         (flavor as ExtensionAware).extra["alwaysUpdateBuildId"] = false
         (flavor as ExtensionAware).extra["enableCrashlytics"] = false
     }

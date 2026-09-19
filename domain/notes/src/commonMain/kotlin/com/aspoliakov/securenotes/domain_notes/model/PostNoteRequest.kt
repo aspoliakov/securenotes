@@ -10,6 +10,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class PostNoteRequest(
         @SerialName("note_id") val noteId: String,
+        @SerialName("folder_id") val folderId: String?,
         @SerialName("key_id") val keyId: String,
         @SerialName("payload") val payload: String,
 )

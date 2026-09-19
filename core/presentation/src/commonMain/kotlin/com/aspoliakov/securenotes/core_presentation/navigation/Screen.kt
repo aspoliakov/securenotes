@@ -1,14 +1,28 @@
 package com.aspoliakov.securenotes.core_presentation.navigation
 
+import kotlinx.serialization.Serializable
+
 /**
  * Project SecureNotes
  */
 
+@Serializable
 sealed class Screen {
+    @Serializable
     data object Home : Screen()
-    data object Note : Screen() {
-        const val ARG_NOTE_ID = "note_id"
-    }
 
+    @Serializable
+    data class Note(
+            val noteId: String? = null,
+            val folderId: String? = null,
+    ) : Screen()
+
+    @Serializable
+    data class Folder(
+            val parentId: String? = null,
+            val folderId: String? = null,
+    ) : Screen()
+
+    @Serializable
     data object About : Screen()
 }

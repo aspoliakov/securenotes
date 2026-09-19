@@ -25,8 +25,17 @@ data class SyncStackDB(
 
         @ColumnInfo(name = "item_type")
         var itemType: ItemType,
+
+        @ColumnInfo(name = "action")
+        var action: Action,
 ) {
     enum class ItemType {
         NOTE,
+        FOLDER,
+    }
+
+    enum class Action {
+        SAVE,
+        DELETE,
     }
 }

@@ -15,15 +15,22 @@
     <string name="common_cancel">Cancel</string>
     <string name="common_password_hide">Hide password</string>
     <string name="common_password_show">Show password</string>
+    <string name="common_create">Create</string>
+    <string name="common_rename">Rename</string>
 
     <string name="feature_about_app_version">App version: %1$s</string>
+    <string name="feature_about_tagline">Your notes, encrypted end-to-end. Only you can read them.</string>
+    <string name="feature_about_highlight_encryption_title">End-to-end encryption</string>
+    <string name="feature_about_highlight_encryption_subtitle">Notes are encrypted on your device before they ever leave it.</string>
+    <string name="feature_about_highlight_cross_platform_title">Cross-platform</string>
+    <string name="feature_about_highlight_cross_platform_subtitle">One codebase for Android and iOS.</string>
 
     <string name="feature_auth_sign_in">Sign in</string>
     <string name="feature_auth_sign_up">Sign up</string>
     <string name="feature_auth_sign_up_suggest">Don't have an account? Sign up.</string>
     <string name="feature_auth_sign_up_back_to_sign_in">Back to Sign in</string>
-    <string name="feature_auth_email_hint">email</string>
-    <string name="feature_auth_password_hint">password</string>
+    <string name="feature_auth_email_hint">Email</string>
+    <string name="feature_auth_password_hint">Password</string>
     <string name="feature_auth_error_wrong_email">Wrong email</string>
     <string name="feature_auth_error_empty_password">Password cannot be empty</string>
     <string name="feature_auth_error_wrong_credentials">Wrong email or password</string>
@@ -48,9 +55,28 @@
 
     <string name="feature_notes_search_notes">Search notes</string>
     <string name="feature_notes_add_note">Add note</string>
+    <string name="feature_notes_empty_title">No notes yet</string>
+    <string name="feature_notes_empty_subtitle">Tap the button below to create your first encrypted note.</string>
+    <string name="feature_notes_no_results_title">No matches found</string>
+    <string name="feature_notes_no_results_subtitle">Try a different search term.</string>
+    <string name="feature_notes_view_list">List view</string>
+    <string name="feature_notes_view_grid">Grid view</string>
+    <string name="feature_notes_new_folder">New folder</string>
+    <string name="feature_notes_folder_name_hint">Folder name</string>
+    <string name="feature_notes_rename_folder_title">Rename folder</string>
+    <string name="feature_notes_delete_selected_title">Delete selected items?</string>
+    <string name="feature_notes_delete_selected_message">%1$d item(s) will be permanently deleted. Deleting a folder also deletes everything inside it.</string>
+    <string name="feature_notes_selected_count">%1$d selected</string>
+    <string name="feature_notes_exit_selection">Exit selection</string>
+    <string name="feature_notes_folder_icon_description">Folder</string>
+    <string name="feature_notes_root_folder">All notes</string>
+    <string name="feature_notes_add_menu_open">Add</string>
+    <string name="feature_notes_add_menu_close">Close</string>
 
     <string name="feature_note_text_field_title_hint">Title</string>
     <string name="feature_note_text_field_body_hint">Note</string>
+    <string name="feature_note_color_picker">Note color</string>
+    <string name="feature_note_color_none">No color</string>
 
     <string name="feature_profile_about">About</string>
     <string name="feature_profile_logout">Logout</string>

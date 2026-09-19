@@ -7,6 +7,7 @@ import com.aspoliakov.securenotes.core_db.dao.SyncStackDao
 import com.aspoliakov.securenotes.core_db.event_bus.SyncStackEventBus
 import com.aspoliakov.securenotes.core_db.model.NoteDB
 import com.aspoliakov.securenotes.core_db.model.SyncStackDB
+import com.aspoliakov.securenotes.domain_notes.model.NoteColor
 import com.aspoliakov.securenotes.domain_notes.model.NotePayload
 import com.aspoliakov.securenotes.domain_notes.model.NoteVO
 import com.aspoliakov.securenotes.domain_notes.model.PostNoteRequest
@@ -14,6 +15,7 @@ import com.aspoliakov.securenotes.domain_notes.network.NotesApiProvider
 import com.aspoliakov.securenotes.domain_user_state.UserStateInteractor
 import io.github.aakira.napier.Napier
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -39,10 +41,11 @@ class NoteInteractor(
     private val saveChangesJobs: MutableMap<String, Job> = mutableMapOf()
 
     @OptIn(ExperimentalTime::class)
-    suspend fun createNew(): String {
+    suspend fun createNew(folderId: String? = null): String {
         val newNoteDB = NoteDB(
                 noteId = randomUUIDString(),
                 createdAt = Clock.System.now().toEpochMilliseconds(),
+                folderId = folderId,
         )
         notesDao.insertOrReplace(newNoteDB)
         return newNoteDB.noteId
@@ -51,17 +54,20 @@ class NoteInteractor(
     suspend fun getById(noteId: String): NoteVO? {
         return notesDao.selectById(noteId)?.let {
             NoteVO(
+                    id = noteId,
                     createdAt = it.createdAt,
                     title = it.title ?: "",
                     body = it.body ?: "",
+                    color = NoteColor.fromArgb(it.color),
+                    folderId = it.folderId,
             )
         }
     }
 
     fun undoCreation(noteId: String) = IOScope().launch {
-        delay(HANDLE_CHANGES_DELAY)
+        delay(HANDLE_CHANGES_DELAY.milliseconds)
         val noteDB = notesDao.selectById(noteId)
-        val notePayload = createNotePayload(noteDB?.title, noteDB?.body)
+        val notePayload = createNotePayload(noteDB?.title, noteDB?.body, noteDB?.color)
         if (notePayload is NotePayload.Empty) {
             delete(
                     noteId = noteId,
@@ -75,14 +81,16 @@ class NoteInteractor(
             noteId: String,
             title: String,
             body: String,
+            color: NoteColor,
     ) {
         val currentJob = saveChangesJobs[noteId]
         currentJob?.cancel()
         saveChangesJobs[noteId] = IOScope().launch {
-            delay(HANDLE_CHANGES_DELAY)
+            delay(HANDLE_CHANGES_DELAY.milliseconds)
             val notePayload = createNotePayload(
                     title = title,
                     body = body,
+                    color = color.argb,
             )
             when (notePayload) {
                 is NotePayload.Empty -> return@launch
@@ -91,37 +99,11 @@ class NoteInteractor(
                             noteId = noteId,
                             title = notePayload.title,
                             body = notePayload.body,
+                            color = notePayload.color,
                     )
-                    addChangesToSyncStack(noteId)
+                    addChangesToSyncStack(noteId, SyncStackDB.Action.SAVE)
                 }
             }
-        }
-    }
-
-    suspend fun syncChanges(noteId: String) {
-        val noteDB = notesDao.selectById(noteId)
-        if (noteDB != null) {
-            Napier.d("upload updated note to server")
-            val encryptedPayload = noteCryptoInteractor.encrypt(
-                    NotePayload(
-                            title = noteDB.title,
-                            body = noteDB.body,
-                    )
-            )
-            notesApiProvider.provideApi().saveNote(
-                    token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
-                    request = PostNoteRequest(
-                            noteId = noteId,
-                            keyId = encryptedPayload.keyId,
-                            payload = encryptedPayload.payload,
-                    )
-            )
-        } else {
-            Napier.d("remove note from server")
-            notesApiProvider.provideApi().deleteNote(
-                    token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
-                    noteId = noteId,
-            )
         }
     }
 
@@ -132,13 +114,49 @@ class NoteInteractor(
         saveChangesJobs[noteId]?.cancel()
         notesDao.delete(noteId)
         if (sync) {
-            addChangesToSyncStack(noteId)
+            addChangesToSyncStack(noteId, SyncStackDB.Action.DELETE)
+        }
+    }
+
+    suspend fun syncChanges(
+            noteId: String,
+            action: SyncStackDB.Action,
+    ) {
+        when (action) {
+            SyncStackDB.Action.SAVE -> {
+                val noteDB = notesDao.selectById(noteId) ?: return
+                Napier.d("upload updated note to server")
+                val encryptedPayload = noteCryptoInteractor.encrypt(
+                        NotePayload(
+                                title = noteDB.title,
+                                body = noteDB.body,
+                                color = NoteColor.fromArgb(noteDB.color).argb,
+                        )
+                )
+                notesApiProvider.provideApi().saveNote(
+                        token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
+                        request = PostNoteRequest(
+                                noteId = noteId,
+                                folderId = noteDB.folderId,
+                                keyId = encryptedPayload.keyId,
+                                payload = encryptedPayload.payload,
+                        )
+                )
+            }
+            SyncStackDB.Action.DELETE -> {
+                Napier.d("remove note from server")
+                notesApiProvider.provideApi().deleteNote(
+                        token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
+                        noteId = noteId,
+                )
+            }
         }
     }
 
     private fun createNotePayload(
             title: String?,
             body: String?,
+            color: Long?,
     ): NotePayload {
         val processedTitleValue = title?.trim().takeIf { !it.isNullOrBlank() }
         val processedBodyValue = body?.trim().takeIf { !it.isNullOrBlank() }
@@ -148,14 +166,19 @@ class NoteInteractor(
             NotePayload.Payload(
                     title = processedTitleValue,
                     body = processedBodyValue,
+                    color = NoteColor.fromArgb(color).argb,
             )
         }
     }
 
-    private fun addChangesToSyncStack(noteId: String) = IOScope().launch {
+    private fun addChangesToSyncStack(
+            noteId: String,
+            action: SyncStackDB.Action,
+    ) = IOScope().launch {
         val syncStackDB = SyncStackDB(
                 itemId = noteId,
                 itemType = SyncStackDB.ItemType.NOTE,
+                action = action,
         )
         syncStackDao.insertOrReplace(syncStackDB)
         syncStackEventBus.post(noteId)
@@ -166,6 +189,7 @@ class NoteInteractor(
         data class Payload(
                 val title: String?,
                 val body: String?,
+                val color: Long?,
         ) : NotePayload()
     }
 }

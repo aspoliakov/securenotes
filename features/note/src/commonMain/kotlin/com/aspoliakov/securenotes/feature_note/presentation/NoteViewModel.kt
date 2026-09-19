@@ -11,12 +11,13 @@ import com.aspoliakov.securenotes.domain_notes.NoteInteractor
 class NoteViewModel(
         initialState: NoteState,
         private val noteInteractor: NoteInteractor,
+        private val folderId: String? = null,
 ) : MviViewModel<NoteState, NoteEffect, NoteIntent>(initialState) {
 
     init {
         if (currentState.noteId == null) {
             launchOnIO {
-                val newNoteId = noteInteractor.createNew()
+                val newNoteId = noteInteractor.createNew(folderId = folderId)
                 reduceState { copy(noteId = newNoteId) }
             }
         }
@@ -35,6 +36,7 @@ class NoteViewModel(
             is NoteIntent.OnDeleteClick -> onNoteDelete()
             is NoteIntent.OnTitleChanged -> onTitleChanged(intent)
             is NoteIntent.OnBodyChanged -> onBodyChanged(intent)
+            is NoteIntent.OnColorSelected -> onColorSelected(intent)
         }
     }
 
@@ -58,6 +60,12 @@ class NoteViewModel(
         saveChanges()
     }
 
+    private fun onColorSelected(intent: NoteIntent.OnColorSelected) {
+        if (currentState.color == intent.color) return
+        reduceState { copy(color = intent.color) }
+        saveChanges()
+    }
+
     private fun saveChanges() {
         val noteId = currentState.noteId
         if (noteId != null) {
@@ -65,6 +73,7 @@ class NoteViewModel(
                     noteId = noteId,
                     title = currentState.title,
                     body = currentState.body,
+                    color = currentState.color,
             )
         }
     }

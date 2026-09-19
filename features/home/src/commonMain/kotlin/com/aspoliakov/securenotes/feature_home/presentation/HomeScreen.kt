@@ -3,22 +3,20 @@ package com.aspoliakov.securenotes.feature_home.presentation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
+import com.aspoliakov.securenotes.core_ui.AppTheme
 import com.aspoliakov.securenotes.feature_home.HomeNavItem
+import com.aspoliakov.securenotes.feature_home.notesItem
+import com.aspoliakov.securenotes.feature_home.profileItem
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -42,25 +40,25 @@ internal fun HomeScreen(
         modifier: Modifier = Modifier,
         navItems: List<HomeNavItem>,
 ) {
-    val navController = rememberNavController()
+    var selectedIndex by rememberSaveable { mutableStateOf(0) }
+    val saveableStateHolder = rememberSaveableStateHolder()
     Scaffold(
             bottomBar = {
                 BottomNavigationMenu(
-                        navController = navController,
                         navItems = navItems,
+                        selectedIndex = selectedIndex,
+                        onSelect = { selectedIndex = it },
                 )
             },
     ) { innerPadding ->
         Box(
-                modifier = modifier.padding(innerPadding),
+                modifier = modifier
+                    .padding(innerPadding)
+                    .fillMaxSize(),
         ) {
-            NavHost(
-                    startDestination = navItems.first().destinationName,
-                    navController = navController,
-                    modifier = modifier.fillMaxSize(),
-            ) {
-                navItems.forEach { navItem ->
-                    composable(route = navItem.destinationName) {
+            navItems.forEachIndexed { index, navItem ->
+                if (index == selectedIndex) {
+                    saveableStateHolder.SaveableStateProvider(key = index) {
                         navItem.content()
                     }
                 }
@@ -71,26 +69,26 @@ internal fun HomeScreen(
 
 @Composable
 fun BottomNavigationMenu(
-        navController: NavController,
         navItems: List<HomeNavItem>,
+        selectedIndex: Int,
+        onSelect: (Int) -> Unit,
 ) {
-    val currentBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = currentBackStackEntry?.destination?.route
     NavigationBar(
             containerColor = MaterialTheme.colorScheme.background,
             contentColor = MaterialTheme.colorScheme.background,
             tonalElevation = 8.dp,
     ) {
-        navItems.forEach { navItem ->
+        navItems.forEachIndexed { index, navItem ->
+            val isSelected = index == selectedIndex
             NavigationBarItem(
                     label = {
                         Text(text = stringResource(navItem.titleRes))
                     },
-                    selected = navItem.destinationName == currentRoute,
+                    selected = isSelected,
                     icon = {
                         Icon(
                                 painter = painterResource(
-                                        if (navItem.destinationName == currentRoute) {
+                                        if (isSelected) {
                                             navItem.iconSelected
                                         } else {
                                             navItem.iconUnselected
@@ -99,20 +97,21 @@ fun BottomNavigationMenu(
                                 contentDescription = stringResource(navItem.titleRes),
                         )
                     },
-                    onClick = {
-                        if (navItem.destinationName != currentRoute) {
-                            navController.navigate(navItem.destinationName) {
-                                navController.graph.startDestinationRoute?.let { route ->
-                                    popUpTo(route) {
-                                        saveState = true
-                                    }
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        }
-                    },
+                    onClick = { onSelect(index) },
             )
         }
+    }
+}
+
+@Preview
+@Composable
+private fun HomeScreenPreview() {
+    AppTheme {
+        HomeScreen(
+                navItems = listOf(
+                        notesItem { Text(text = "Notes") },
+                        profileItem { Text(text = "Profile") },
+                ),
+        )
     }
 }
