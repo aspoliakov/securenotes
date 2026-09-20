@@ -22,6 +22,15 @@ interface FolderDao : BaseDao<FolderDB> {
     @Query("SELECT * FROM $TABLE WHERE parent_id IS :parentId ORDER BY created_at ASC")
     fun selectChildrenByParentIdOrderByCreatedAtAsc(parentId: String?): Flow<List<FolderDB>>
 
+    @Query("SELECT * FROM $TABLE WHERE parent_id IS :parentId ORDER BY order_index ASC, created_at DESC")
+    fun selectChildrenByParentIdOrderByOrderAsc(parentId: String?): Flow<List<FolderDB>>
+
+    @Query("SELECT MAX(order_index) FROM $TABLE WHERE parent_id IS :parentId")
+    suspend fun selectMaxOrderByParentId(parentId: String?): Double?
+
+    @Query("UPDATE $TABLE SET order_index = :order WHERE folder_id = :folderId")
+    suspend fun updateOrder(folderId: String, order: Double)
+
     @Query("SELECT * FROM $TABLE ORDER BY created_at DESC")
     fun selectAll(): Flow<List<FolderDB>>
 

@@ -32,4 +32,7 @@ data class FolderDB(
 
         @ColumnInfo(name = "name")
         var name: String? = null,
+
+        @ColumnInfo(name = "order_index")
+        var order: Double = 0.0,
 )

@@ -7,7 +7,8 @@ package com.aspoliakov.securenotes.domain_user_state.model
 enum class NotesSortOrder {
 
     NEWEST_FIRST,
-    OLDEST_FIRST;
+    OLDEST_FIRST,
+    CUSTOM;
 
     companion object {
 

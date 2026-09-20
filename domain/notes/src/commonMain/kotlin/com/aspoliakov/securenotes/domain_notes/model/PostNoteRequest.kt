@@ -13,4 +13,5 @@ data class PostNoteRequest(
         @SerialName("folder_id") val folderId: String?,
         @SerialName("key_id") val keyId: String,
         @SerialName("payload") val payload: String,
+        @SerialName("order") val order: Double,
 )

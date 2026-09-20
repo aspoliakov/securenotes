@@ -15,7 +15,10 @@ import com.aspoliakov.securenotes.domain_folders.network.FoldersApiProvider
 import com.aspoliakov.securenotes.domain_user_state.UserStateInteractor
 import io.github.aakira.napier.Napier
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.ExperimentalTime
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -33,13 +36,25 @@ class FolderInteractor(
         private val folderCryptoInteractor: FolderCryptoInteractor,
 ) {
 
+    companion object {
+        private const val HANDLE_CHANGES_DELAY = 2000L
+        private const val ORDER_STEP = 1000.0
+    }
+
+    private val syncJobs: MutableMap<String, Job> = mutableMapOf()
+
     @OptIn(ExperimentalTime::class)
     suspend fun createNew(parentId: String?, name: String): String {
+        val maxOrder = maxOf(
+                notesDao.selectMaxOrderByFolderId(parentId) ?: 0.0,
+                folderDao.selectMaxOrderByParentId(parentId) ?: 0.0,
+        )
         val newFolderDB = FolderDB(
                 folderId = randomUUIDString(),
                 parentId = parentId,
                 createdAt = Clock.System.now().toEpochMilliseconds(),
                 name = name,
+                order = maxOrder + ORDER_STEP,
         )
         folderDao.insertOrReplace(newFolderDB)
         addChangesToSyncStack(newFolderDB.folderId, SyncStackDB.Action.SAVE)
@@ -51,7 +66,13 @@ class FolderInteractor(
         addChangesToSyncStack(folderId, SyncStackDB.Action.SAVE)
     }
 
+    suspend fun reorder(folderId: String, order: Double) {
+        folderDao.updateOrder(folderId, order)
+        scheduleSync(folderId)
+    }
+
     suspend fun delete(folderId: String) {
+        syncJobs[folderId]?.cancel()
         val descendantFolderIds = collectDescendantIds(folderId)
         val affectedFolderIds = descendantFolderIds + folderId
         affectedFolderIds.forEach { id ->
@@ -105,6 +126,7 @@ class FolderInteractor(
                                 parentId = folderDB.parentId,
                                 keyId = encryptedPayload.keyId,
                                 payload = encryptedPayload.payload,
+                                order = folderDB.order,
                         )
                 )
             }
@@ -137,7 +159,16 @@ class FolderInteractor(
                 parentId = folderDB.parentId,
                 createdAt = folderDB.createdAt,
                 name = folderDB.name ?: "",
+                order = folderDB.order,
         )
+    }
+
+    private fun scheduleSync(folderId: String) {
+        syncJobs[folderId]?.cancel()
+        syncJobs[folderId] = IOScope().launch {
+            delay(HANDLE_CHANGES_DELAY.milliseconds)
+            addChangesToSyncStack(folderId, SyncStackDB.Action.SAVE)
+        }
     }
 
     private fun addChangesToSyncStack(

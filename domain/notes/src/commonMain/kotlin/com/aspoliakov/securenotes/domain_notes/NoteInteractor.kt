@@ -2,6 +2,7 @@ package com.aspoliakov.securenotes.domain_notes
 
 import com.aspoliakov.securenotes.core_base.util.IOScope
 import com.aspoliakov.securenotes.core_base.util.randomUUIDString
+import com.aspoliakov.securenotes.core_db.dao.FolderDao
 import com.aspoliakov.securenotes.core_db.dao.NotesDao
 import com.aspoliakov.securenotes.core_db.dao.SyncStackDao
 import com.aspoliakov.securenotes.core_db.event_bus.SyncStackEventBus
@@ -27,6 +28,7 @@ import kotlinx.coroutines.launch
 
 class NoteInteractor(
         private val notesDao: NotesDao,
+        private val folderDao: FolderDao,
         private val syncStackDao: SyncStackDao,
         private val syncStackEventBus: SyncStackEventBus,
         private val notesApiProvider: NotesApiProvider,
@@ -36,19 +38,30 @@ class NoteInteractor(
 
     companion object {
         private const val HANDLE_CHANGES_DELAY = 2000L
+        private const val ORDER_STEP = 1000.0
     }
 
-    private val saveChangesJobs: MutableMap<String, Job> = mutableMapOf()
+    private val syncJobs: MutableMap<String, Job> = mutableMapOf()
 
     @OptIn(ExperimentalTime::class)
     suspend fun createNew(folderId: String? = null): String {
+        val maxOrder = maxOf(
+                notesDao.selectMaxOrderByFolderId(folderId) ?: 0.0,
+                folderDao.selectMaxOrderByParentId(folderId) ?: 0.0,
+        )
         val newNoteDB = NoteDB(
                 noteId = randomUUIDString(),
                 createdAt = Clock.System.now().toEpochMilliseconds(),
                 folderId = folderId,
+                order = maxOrder + ORDER_STEP,
         )
         notesDao.insertOrReplace(newNoteDB)
         return newNoteDB.noteId
+    }
+
+    suspend fun reorder(noteId: String, order: Double) {
+        notesDao.updateOrder(noteId, order)
+        scheduleSync(noteId)
     }
 
     suspend fun getById(noteId: String): NoteVO? {
@@ -65,7 +78,6 @@ class NoteInteractor(
     }
 
     fun undoCreation(noteId: String) = IOScope().launch {
-        delay(HANDLE_CHANGES_DELAY.milliseconds)
         val noteDB = notesDao.selectById(noteId)
         val notePayload = createNotePayload(noteDB?.title, noteDB?.body, noteDB?.color)
         if (notePayload is NotePayload.Empty) {
@@ -77,32 +89,27 @@ class NoteInteractor(
         }
     }
 
-    fun saveChanges(
+    suspend fun saveChanges(
             noteId: String,
             title: String,
             body: String,
             color: NoteColor,
     ) {
-        val currentJob = saveChangesJobs[noteId]
-        currentJob?.cancel()
-        saveChangesJobs[noteId] = IOScope().launch {
-            delay(HANDLE_CHANGES_DELAY.milliseconds)
-            val notePayload = createNotePayload(
-                    title = title,
-                    body = body,
-                    color = color.argb,
-            )
-            when (notePayload) {
-                is NotePayload.Empty -> return@launch
-                is NotePayload.Payload -> {
-                    notesDao.updateNote(
-                            noteId = noteId,
-                            title = notePayload.title,
-                            body = notePayload.body,
-                            color = notePayload.color,
-                    )
-                    addChangesToSyncStack(noteId, SyncStackDB.Action.SAVE)
-                }
+        val notePayload = createNotePayload(
+                title = title,
+                body = body,
+                color = color.argb,
+        )
+        when (notePayload) {
+            is NotePayload.Empty -> return
+            is NotePayload.Payload -> {
+                notesDao.updateNote(
+                        noteId = noteId,
+                        title = notePayload.title,
+                        body = notePayload.body,
+                        color = notePayload.color,
+                )
+                scheduleSync(noteId)
             }
         }
     }
@@ -111,7 +118,7 @@ class NoteInteractor(
             noteId: String,
             sync: Boolean = true,
     ) {
-        saveChangesJobs[noteId]?.cancel()
+        syncJobs[noteId]?.cancel()
         notesDao.delete(noteId)
         if (sync) {
             addChangesToSyncStack(noteId, SyncStackDB.Action.DELETE)
@@ -140,6 +147,7 @@ class NoteInteractor(
                                 folderId = noteDB.folderId,
                                 keyId = encryptedPayload.keyId,
                                 payload = encryptedPayload.payload,
+                                order = noteDB.order,
                         )
                 )
             }
@@ -168,6 +176,14 @@ class NoteInteractor(
                     body = processedBodyValue,
                     color = NoteColor.fromArgb(color).argb,
             )
+        }
+    }
+
+    private fun scheduleSync(noteId: String) {
+        syncJobs[noteId]?.cancel()
+        syncJobs[noteId] = IOScope().launch {
+            delay(HANDLE_CHANGES_DELAY.milliseconds)
+            addChangesToSyncStack(noteId, SyncStackDB.Action.SAVE)
         }
     }
 

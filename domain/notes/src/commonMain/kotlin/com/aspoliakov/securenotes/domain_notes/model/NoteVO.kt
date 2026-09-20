@@ -10,4 +10,5 @@ data class NoteVO(
         var body: String = "",
         var color: NoteColor = NoteColor.DEFAULT,
         var folderId: String? = null,
+        var order: Double = 0.0,
 )

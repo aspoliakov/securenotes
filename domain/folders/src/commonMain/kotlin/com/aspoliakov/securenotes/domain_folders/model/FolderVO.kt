@@ -9,4 +9,5 @@ data class FolderVO(
         val name: String,
         val parentId: String?,
         val createdAt: Long,
+        val order: Double = 0.0,
 )
