@@ -25,6 +25,15 @@ interface NotesDao : BaseDao<NoteDB> {
     @Query("SELECT * FROM $TABLE WHERE folder_id IS :folderId ORDER BY created_at ASC")
     fun selectByFolderIdOrderByCreatedAtAsc(folderId: String?): Flow<List<NoteDB>>
 
+    @Query("SELECT * FROM $TABLE WHERE folder_id IS :folderId ORDER BY order_index ASC, created_at DESC")
+    fun selectByFolderIdOrderByOrderAsc(folderId: String?): Flow<List<NoteDB>>
+
+    @Query("SELECT MAX(order_index) FROM $TABLE WHERE folder_id IS :folderId")
+    suspend fun selectMaxOrderByFolderId(folderId: String?): Double?
+
+    @Query("UPDATE $TABLE SET order_index = :order WHERE note_id = :noteId")
+    suspend fun updateOrder(noteId: String, order: Double)
+
     @Query("SELECT * FROM $TABLE WHERE note_id = :noteId")
     suspend fun selectById(noteId: String): NoteDB?
 

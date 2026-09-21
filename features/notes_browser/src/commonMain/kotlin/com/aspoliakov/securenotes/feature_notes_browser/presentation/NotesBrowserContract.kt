@@ -26,23 +26,26 @@ internal data class NotesBrowserState(
 internal sealed class BrowserListItem(
         open val id: String,
         open val createdAt: Long,
+        open val order: Double,
 ) {
 
     data class NotesBrowserFolderItem(
             override val id: String,
             override val createdAt: Long,
+            override val order: Double,
             val parentId: String?,
             val name: String?,
-    ) : BrowserListItem(id, createdAt)
+    ) : BrowserListItem(id, createdAt, order)
 
     data class NotesBrowserNoteItem(
             override val id: String,
             override val createdAt: Long,
+            override val order: Double,
             val title: String?,
             val body: String?,
             val color: Long?,
             val folderId: String?,
-    ) : BrowserListItem(id, createdAt)
+    ) : BrowserListItem(id, createdAt, order)
 }
 
 internal sealed class BrowserListState {
@@ -86,6 +89,7 @@ sealed class NotesBrowserIntent : Intent() {
     data object OnSortButtonClick : NotesBrowserIntent()
     data class OnSortOrderSelected(val sortOrder: NotesSortOrder) : NotesBrowserIntent()
     data object OnSortSheetDismissed : NotesBrowserIntent()
+    data class OnItemReordered(val itemId: String, val targetIndex: Int) : NotesBrowserIntent()
     data class OnItemClick(val itemId: String) : NotesBrowserIntent()
     data class OnItemLongClick(val itemId: String) : NotesBrowserIntent()
     data class OnBreadcrumbClick(val folderId: String?) : NotesBrowserIntent()

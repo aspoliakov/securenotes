@@ -13,4 +13,5 @@ data class PostFolderRequest(
         @SerialName("parent_id") val parentId: String?,
         @SerialName("key_id") val keyId: String,
         @SerialName("payload") val payload: String,
+        @SerialName("order") val order: Double,
 )

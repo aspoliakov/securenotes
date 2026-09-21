@@ -2,12 +2,16 @@ package com.aspoliakov.securenotes.feature_notes_browser.presentation
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -22,8 +26,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -58,6 +64,9 @@ private val FolderRowShape = RoundedCornerShape(16.dp)
 private val SelectionBorderWidth = 3.dp
 private val FolderBorderWidth = 1.dp
 private const val NOTE_COLOR_TINT_ALPHA = 0.35f
+private val DragThreshold = 8.dp
+private val AutoScrollEdgeThreshold = 64.dp
+private val AutoScrollMaxSpeedPerFrame = 12.dp
 
 @Composable
 fun NotesBrowserScreenRoute(
@@ -147,6 +156,7 @@ internal fun NotesBrowserScreen(
                             browserListState = state.browserListState,
                             viewMode = state.notesViewMode,
                             selection = state.selection,
+                            sortOrder = state.sortOrder,
                             intentHandler = intentHandler,
                     )
                     is SearchState.Active -> BrowserListActiveSearchView(
@@ -497,6 +507,11 @@ internal fun NotesSortBottomSheet(
                     selected = sortOrder == NotesSortOrder.OLDEST_FIRST,
                     onClick = { onSortOrderSelected(NotesSortOrder.OLDEST_FIRST) },
             )
+            SortOrderOptionRow(
+                    label = stringResource(Res.string.feature_notes_sort_custom),
+                    selected = sortOrder == NotesSortOrder.CUSTOM,
+                    onClick = { onSortOrderSelected(NotesSortOrder.CUSTOM) },
+            )
         }
     }
 }
@@ -531,6 +546,7 @@ internal fun BrowserListView(
         browserListState: BrowserListState,
         viewMode: NotesViewMode,
         selection: SelectionState,
+        sortOrder: NotesSortOrder,
         intentHandler: (NotesBrowserIntent) -> Unit,
 ) {
     when (browserListState) {
@@ -541,6 +557,7 @@ internal fun BrowserListView(
                     items = browserListState.items,
                     viewMode = viewMode,
                     selection = selection,
+                    reorderEnabled = sortOrder == NotesSortOrder.CUSTOM,
                     intentHandler = intentHandler,
             )
         } else {
@@ -645,6 +662,7 @@ internal fun BrowserListContentView(
         items: List<BrowserListItem>,
         viewMode: NotesViewMode,
         selection: SelectionState,
+        reorderEnabled: Boolean = false,
         intentHandler: (NotesBrowserIntent) -> Unit,
 ) {
     when (viewMode) {
@@ -652,12 +670,14 @@ internal fun BrowserListContentView(
                 modifier = modifier,
                 items = items,
                 selection = selection,
+                reorderEnabled = reorderEnabled,
                 intentHandler = intentHandler,
         )
         NotesViewMode.GRID -> BrowserGridView(
                 modifier = modifier,
                 items = items,
                 selection = selection,
+                reorderEnabled = reorderEnabled,
                 intentHandler = intentHandler,
         )
     }
@@ -668,17 +688,48 @@ internal fun BrowserFlatListView(
         modifier: Modifier = Modifier,
         items: List<BrowserListItem>,
         selection: SelectionState,
+        reorderEnabled: Boolean = false,
         intentHandler: (NotesBrowserIntent) -> Unit,
 ) {
+    val listState = rememberLazyListState()
+    val dragState = remember { DragReorderState<BrowserListItem> { it.id } }
+    val renderedItems = if (dragState.draggingKey != null) dragState.displayedItems else items
+    val density = LocalDensity.current
+    LaunchedEffect(dragState.draggingKey) {
+        val draggingKey = dragState.draggingKey ?: return@LaunchedEffect
+        runDragAutoScroll(
+                dragState = dragState,
+                draggingKey = draggingKey,
+                density = density,
+                edgeThreshold = AutoScrollEdgeThreshold,
+                maxSpeedPerFrame = AutoScrollMaxSpeedPerFrame,
+                viewportStart = { listState.layoutInfo.viewportStartOffset.toFloat() },
+                viewportEnd = { listState.layoutInfo.viewportEndOffset.toFloat() },
+                draggedItemExtent = {
+                    listState.layoutInfo.visibleItemsInfo.find { it.key == draggingKey }?.size?.toFloat()
+                },
+                scrollBy = { amount -> listState.scrollBy(amount) },
+                recomputeTargetIndex = { findTargetIndexInList(listState, dragState) },
+        )
+    }
     LazyColumn(
+            state = listState,
             modifier = modifier,
+            userScrollEnabled = dragState.draggingKey == null,
             verticalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(bottom = 96.dp),
     ) {
-        items(items, key = { it.id }) { item ->
+        items(renderedItems, key = { it.id }) { item ->
+            val itemPlacementModifier = if (dragState.isDragging(item)) Modifier else Modifier.animateItem()
             BrowserListItemContent(
+                    modifier = itemPlacementModifier,
                     item = item,
                     selection = selection,
+                    reorderEnabled = reorderEnabled,
+                    dragState = dragState,
+                    items = items,
+                    findTargetIndex = { findTargetIndexInList(listState, dragState) },
+                    naturalOffset = { naturalOffsetInList(listState, item.id) },
                     intentHandler = intentHandler,
             )
         }
@@ -690,19 +741,50 @@ internal fun BrowserGridView(
         modifier: Modifier = Modifier,
         items: List<BrowserListItem>,
         selection: SelectionState,
+        reorderEnabled: Boolean = false,
         intentHandler: (NotesBrowserIntent) -> Unit,
 ) {
+    val gridState = rememberLazyStaggeredGridState()
+    val dragState = remember { DragReorderState<BrowserListItem> { it.id } }
+    val renderedItems = if (dragState.draggingKey != null) dragState.displayedItems else items
+    val density = LocalDensity.current
+    LaunchedEffect(dragState.draggingKey) {
+        val draggingKey = dragState.draggingKey ?: return@LaunchedEffect
+        runDragAutoScroll(
+                dragState = dragState,
+                draggingKey = draggingKey,
+                density = density,
+                edgeThreshold = AutoScrollEdgeThreshold,
+                maxSpeedPerFrame = AutoScrollMaxSpeedPerFrame,
+                viewportStart = { gridState.layoutInfo.viewportStartOffset.toFloat() },
+                viewportEnd = { gridState.layoutInfo.viewportEndOffset.toFloat() },
+                draggedItemExtent = {
+                    gridState.layoutInfo.visibleItemsInfo.find { it.key == draggingKey }?.size?.height?.toFloat()
+                },
+                scrollBy = { amount -> gridState.scrollBy(amount) },
+                recomputeTargetIndex = { findTargetIndexInGrid(gridState, dragState) },
+        )
+    }
     LazyVerticalStaggeredGrid(
+            state = gridState,
             modifier = modifier,
+            userScrollEnabled = dragState.draggingKey == null,
             columns = StaggeredGridCells.Fixed(2),
             verticalItemSpacing = 12.dp,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(bottom = 96.dp),
     ) {
-        items(items, key = { it.id }) { item ->
+        items(renderedItems, key = { it.id }) { item ->
+            val itemPlacementModifier = if (dragState.isDragging(item)) Modifier else Modifier.animateItem()
             BrowserListItemContent(
+                    modifier = itemPlacementModifier,
                     item = item,
                     selection = selection,
+                    reorderEnabled = reorderEnabled,
+                    dragState = dragState,
+                    items = items,
+                    findTargetIndex = { findTargetIndexInGrid(gridState, dragState) },
+                    naturalOffset = { naturalOffsetInGrid(gridState, item.id) },
                     intentHandler = intentHandler,
             )
         }
@@ -711,22 +793,72 @@ internal fun BrowserGridView(
 
 @Composable
 private fun BrowserListItemContent(
+        modifier: Modifier = Modifier,
         item: BrowserListItem,
         selection: SelectionState,
+        reorderEnabled: Boolean,
+        dragState: DragReorderState<BrowserListItem>,
+        items: List<BrowserListItem>,
+        findTargetIndex: () -> Int?,
+        naturalOffset: () -> Offset?,
         intentHandler: (NotesBrowserIntent) -> Unit,
 ) {
+    val itemShape = when (item) {
+        is BrowserListItem.NotesBrowserFolderItem -> FolderRowShape
+        is BrowserListItem.NotesBrowserNoteItem -> NoteCardShape
+    }
+    val interactionSource = remember { MutableInteractionSource() }
+    val itemModifier = modifier.then(
+            if (reorderEnabled) {
+                dragReorderModifier(
+                        item = item,
+                        dragState = dragState,
+                        items = items,
+                        shape = itemShape,
+                        dragThreshold = DragThreshold,
+                        interactionSource = interactionSource,
+                        findTargetIndex = findTargetIndex,
+                        naturalOffset = naturalOffset,
+                        canEnterDrag = { selection is SelectionState.Idle },
+                        onClick = { intentHandler(NotesBrowserIntent.OnItemClick(item.id)) },
+                        onLongPress = { intentHandler(NotesBrowserIntent.OnItemLongClick(item.id)) },
+                        onExitSelection = { intentHandler(NotesBrowserIntent.OnExitSelection) },
+                        onReordered = { reorderedItem, targetIndex ->
+                            intentHandler(NotesBrowserIntent.OnItemReordered(reorderedItem.id, targetIndex))
+                        },
+                )
+            } else {
+                Modifier
+            }
+    )
+    val onClick: (() -> Unit)? = if (reorderEnabled) {
+        null
+    } else {
+        { intentHandler(NotesBrowserIntent.OnItemClick(item.id)) }
+    }
+    val onLongClick: (() -> Unit)? = if (reorderEnabled) {
+        null
+    } else {
+        { intentHandler(NotesBrowserIntent.OnItemLongClick(item.id)) }
+    }
+    val rippleInteractionSource = if (reorderEnabled) interactionSource else null
     when (item) {
         is BrowserListItem.NotesBrowserFolderItem -> FolderListItemView(
+                modifier = itemModifier,
                 folder = item,
                 selection = selection,
-                onClick = { intentHandler(NotesBrowserIntent.OnItemClick(item.id)) },
-                onLongClick = { intentHandler(NotesBrowserIntent.OnItemLongClick(item.id)) },
+                isDragging = dragState.isDragging(item),
+                interactionSource = rippleInteractionSource,
+                onClick = onClick,
+                onLongClick = onLongClick,
         )
         is BrowserListItem.NotesBrowserNoteItem -> NoteListItemView(
+                modifier = itemModifier,
                 note = item,
                 selection = selection,
-                onClick = { intentHandler(NotesBrowserIntent.OnItemClick(item.id)) },
-                onLongClick = { intentHandler(NotesBrowserIntent.OnItemLongClick(item.id)) },
+                interactionSource = rippleInteractionSource,
+                onClick = onClick,
+                onLongClick = onLongClick,
         )
     }
 }
@@ -737,20 +869,32 @@ internal fun FolderListItemView(
         modifier: Modifier = Modifier,
         folder: BrowserListItem.NotesBrowserFolderItem,
         selection: SelectionState,
-        onClick: () -> Unit,
-        onLongClick: () -> Unit,
+        isDragging: Boolean = false,
+        interactionSource: MutableInteractionSource? = null,
+        onClick: (() -> Unit)?,
+        onLongClick: (() -> Unit)?,
 ) {
     val isSelected = selection is SelectionState.Active && selection.selectedIds.contains(folder.id)
     val borderWidth = if (isSelected) SelectionBorderWidth else FolderBorderWidth
     val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+    val dragBackgroundColor = if (isDragging) MaterialTheme.colorScheme.surfaceContainerLow else Color.Transparent
     Row(
             modifier = modifier
                 .fillMaxWidth()
                 .clip(FolderRowShape)
+                .background(dragBackgroundColor)
                 .border(width = borderWidth, color = borderColor, shape = FolderRowShape)
-                .combinedClickable(
-                        onClick = onClick,
-                        onLongClick = onLongClick,
+                .then(
+                        if (onClick != null) {
+                            Modifier.combinedClickable(
+                                    onClick = onClick,
+                                    onLongClick = onLongClick,
+                            )
+                        } else if (interactionSource != null) {
+                            Modifier.indication(interactionSource, LocalIndication.current)
+                        } else {
+                            Modifier
+                        }
                 )
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -778,8 +922,9 @@ internal fun NoteListItemView(
         modifier: Modifier = Modifier,
         note: BrowserListItem.NotesBrowserNoteItem,
         selection: SelectionState = SelectionState.Idle,
-        onClick: () -> Unit = {},
-        onLongClick: () -> Unit = {},
+        interactionSource: MutableInteractionSource? = null,
+        onClick: (() -> Unit)? = {},
+        onLongClick: (() -> Unit)? = {},
 ) {
     val isSelected = selection is SelectionState.Active && selection.selectedIds.contains(note.id)
     val noteColor = note.color
@@ -807,9 +952,17 @@ internal fun NoteListItemView(
         )
     Column(
             modifier = cardModifier
-                .combinedClickable(
-                        onClick = onClick,
-                        onLongClick = onLongClick,
+                .then(
+                        if (onClick != null) {
+                            Modifier.combinedClickable(
+                                    onClick = onClick,
+                                    onLongClick = onLongClick,
+                            )
+                        } else if (interactionSource != null) {
+                            Modifier.indication(interactionSource, LocalIndication.current)
+                        } else {
+                            Modifier
+                        }
                 )
                 .padding(16.dp),
     ) {
@@ -975,11 +1128,13 @@ private fun NotesBrowserScreenListPreview() {
                                                 id = "f1",
                                                 parentId = "1",
                                                 createdAt = 0L,
+                                                order = 0.0,
                                                 name = "Subfolder",
                                         ),
                                         BrowserListItem.NotesBrowserNoteItem(
                                                 id = "1",
                                                 createdAt = 0L,
+                                                order = 1000.0,
                                                 title = "Title 1",
                                                 body = "Body 1",
                                                 color = null,
@@ -988,6 +1143,7 @@ private fun NotesBrowserScreenListPreview() {
                                         BrowserListItem.NotesBrowserNoteItem(
                                                 id = "2",
                                                 createdAt = 0L,
+                                                order = 2000.0,
                                                 title = "Title 2",
                                                 body = "Body 2 with more text to show card wrapping.",
                                                 color = 0xFFE91E63L,

@@ -31,8 +31,14 @@ internal class NotesBrowserViewModel(
         private val userPrefsInteractor: UserPrefsInteractor,
 ) : MviViewModel<NotesBrowserState, NotesBrowserEffect, NotesBrowserIntent>(initialState) {
 
+    private companion object {
+        private const val ORDER_STEP = 1000.0
+    }
+
     private var browseJob: Job? = null
     private var searchJob: Job? = null
+
+    private val reorderJobs: MutableMap<String, Job> = mutableMapOf()
 
     private val backStack = ArrayDeque<String?>()
 
@@ -47,6 +53,7 @@ internal class NotesBrowserViewModel(
             is NotesBrowserIntent.OnSortButtonClick -> onSortButtonClick()
             is NotesBrowserIntent.OnSortOrderSelected -> onSortOrderSelected(intent.sortOrder)
             is NotesBrowserIntent.OnSortSheetDismissed -> onSortSheetDismissed()
+            is NotesBrowserIntent.OnItemReordered -> onItemReordered(intent.itemId, intent.targetIndex)
             is NotesBrowserIntent.OnItemClick -> onItemClick(intent.itemId)
             is NotesBrowserIntent.OnItemLongClick -> onItemLongClick(intent.itemId)
             is NotesBrowserIntent.OnBreadcrumbClick -> navigateToFolder(intent.folderId)
@@ -121,6 +128,40 @@ internal class NotesBrowserViewModel(
 
     private fun onSortSheetDismissed() {
         reduceState { copy(isSortSheetVisible = false) }
+    }
+
+    private fun onItemReordered(itemId: String, targetIndex: Int) {
+        val browserListState = currentState.browserListState as? BrowserListState.Loaded
+        if (browserListState == null || currentState.sortOrder != NotesSortOrder.CUSTOM) return
+        val items = browserListState.items.toMutableList()
+        val currentIndex = items.indexOfFirst { it.id == itemId }
+        if (currentIndex == -1) return
+        val draggedItem = items.removeAt(currentIndex)
+        val insertIndex = targetIndex.coerceIn(0, items.size)
+        val previousOrder = items.getOrNull(insertIndex - 1)?.order
+        val nextOrder = items.getOrNull(insertIndex)?.order
+        val newOrder = if (previousOrder != null && nextOrder != null) {
+            (previousOrder + nextOrder) / 2.0
+        } else if (previousOrder != null) {
+            previousOrder + ORDER_STEP
+        } else if (nextOrder != null) {
+            nextOrder - ORDER_STEP
+        } else {
+            ORDER_STEP
+        }
+        val reorderedItem: BrowserListItem = when (draggedItem) {
+            is BrowserListItem.NotesBrowserFolderItem -> draggedItem.copy(order = newOrder)
+            is BrowserListItem.NotesBrowserNoteItem -> draggedItem.copy(order = newOrder)
+        }
+        items.add(insertIndex, reorderedItem)
+        reduceState { copy(browserListState = BrowserListState.Loaded(items)) }
+        reorderJobs[draggedItem.id]?.cancel()
+        reorderJobs[draggedItem.id] = launchOnIO {
+            when (draggedItem) {
+                is BrowserListItem.NotesBrowserFolderItem -> folderInteractor.reorder(draggedItem.id, newOrder)
+                is BrowserListItem.NotesBrowserNoteItem -> noteInteractor.reorder(draggedItem.id, newOrder)
+            }
+        }
     }
 
     private fun onItemClick(itemId: String) {
@@ -219,6 +260,7 @@ internal class NotesBrowserViewModel(
                 id = id,
                 parentId = parentId,
                 createdAt = createdAt,
+                order = order,
                 name = name,
         )
     }
@@ -227,6 +269,7 @@ internal class NotesBrowserViewModel(
         return BrowserListItem.NotesBrowserNoteItem(
                 id = id,
                 createdAt = createdAt,
+                order = order,
                 title = title.takeIf { it.isNotBlank() },
                 body = body.takeIf { it.isNotBlank() },
                 color = color.argb,
@@ -313,6 +356,7 @@ internal class NotesBrowserViewModel(
         return when (sortOrder) {
             NotesSortOrder.NEWEST_FIRST -> compareByDescending { it.createdAt }
             NotesSortOrder.OLDEST_FIRST -> compareBy { it.createdAt }
+            NotesSortOrder.CUSTOM -> compareBy<BrowserListItem> { it.order }.thenByDescending { it.createdAt }
         }
     }
 }

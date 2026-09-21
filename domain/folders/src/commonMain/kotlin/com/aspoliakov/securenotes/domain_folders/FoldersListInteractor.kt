@@ -33,6 +33,7 @@ class FoldersListInteractor(
         val foldersFlow = when (sortOrder) {
             NotesSortOrder.NEWEST_FIRST -> folderDao.selectChildrenByParentIdOrderByCreatedAtDesc(parentId)
             NotesSortOrder.OLDEST_FIRST -> folderDao.selectChildrenByParentIdOrderByCreatedAtAsc(parentId)
+            NotesSortOrder.CUSTOM -> folderDao.selectChildrenByParentIdOrderByOrderAsc(parentId)
         }
         return foldersFlow
             .map { folders -> folders.map(this::mapFolderDBToFolderVO) }
@@ -63,6 +64,7 @@ class FoldersListInteractor(
                             parentId = it.parentId,
                             createdAt = it.createdAt.toEpochMillis(),
                             name = folderPayload.name,
+                            order = it.order,
                     )
                 }
             folderDao.insertOrReplace(folders)
@@ -78,6 +80,7 @@ class FoldersListInteractor(
                 parentId = folderDB.parentId,
                 createdAt = folderDB.createdAt,
                 name = folderDB.name ?: "",
+                order = folderDB.order,
         )
     }
 }

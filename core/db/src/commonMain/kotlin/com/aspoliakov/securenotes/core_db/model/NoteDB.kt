@@ -37,4 +37,7 @@ data class NoteDB(
 
         @ColumnInfo(name = "folder_id")
         var folderId: String? = null,
+
+        @ColumnInfo(name = "order_index")
+        var order: Double = 0.0,
 )

@@ -1,8 +1,11 @@
 package com.aspoliakov.securenotes.feature_note.presentation
 
+import com.aspoliakov.securenotes.core_base.util.IOScope
 import com.aspoliakov.securenotes.core_presentation.mvi.MviViewModel
 import com.aspoliakov.securenotes.core_presentation.utils.launchOnIO
 import com.aspoliakov.securenotes.domain_notes.NoteInteractor
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 /**
  * Project SecureNotes
@@ -13,6 +16,8 @@ class NoteViewModel(
         private val noteInteractor: NoteInteractor,
         private val folderId: String? = null,
 ) : MviViewModel<NoteState, NoteEffect, NoteIntent>(initialState) {
+
+    private var saveChangesJob: Job? = null
 
     init {
         if (currentState.noteId == null) {
@@ -43,6 +48,7 @@ class NoteViewModel(
     private fun onNoteDelete() {
         val noteId = currentState.noteId
         if (noteId != null) {
+            saveChangesJob?.cancel()
             launchOnIO {
                 noteInteractor.delete(noteId)
                 sendEffect { NoteEffect.Close }
@@ -67,8 +73,9 @@ class NoteViewModel(
     }
 
     private fun saveChanges() {
-        val noteId = currentState.noteId
-        if (noteId != null) {
+        val noteId = currentState.noteId ?: return
+        saveChangesJob?.cancel()
+        saveChangesJob = IOScope().launch {
             noteInteractor.saveChanges(
                     noteId = noteId,
                     title = currentState.title,

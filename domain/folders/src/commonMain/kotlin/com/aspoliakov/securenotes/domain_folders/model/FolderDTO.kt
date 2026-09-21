@@ -14,4 +14,5 @@ data class FolderDTO(
         @SerialName("created_at") val createdAt: String,
         @SerialName("updated_at") val updatedAt: String?,
         @SerialName("payload") val payload: String,
+        @SerialName("order") val order: Double,
 )

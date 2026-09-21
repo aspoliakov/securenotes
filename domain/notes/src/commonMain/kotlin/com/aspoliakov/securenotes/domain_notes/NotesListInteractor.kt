@@ -38,6 +38,7 @@ class NotesListInteractor(
         val notesFlow = when (sortOrder) {
             NotesSortOrder.NEWEST_FIRST -> notesDao.selectByFolderIdOrderByCreatedAtDesc(folderId)
             NotesSortOrder.OLDEST_FIRST -> notesDao.selectByFolderIdOrderByCreatedAtAsc(folderId)
+            NotesSortOrder.CUSTOM -> notesDao.selectByFolderIdOrderByOrderAsc(folderId)
         }
         return notesFlow
                 .map { notesList -> notesList.map(this::mapNoteDBToNoteVO) }
@@ -57,6 +58,7 @@ class NotesListInteractor(
                 title = noteDB.title ?: "",
                 body = noteDB.body ?: "",
                 color = NoteColor.fromArgb(noteDB.color),
+                order = noteDB.order,
         )
     }
 
@@ -87,6 +89,7 @@ class NotesListInteractor(
                                 title = notePayload.title,
                                 body = notePayload.body,
                                 color = NoteColor.fromArgb(notePayload.color).argb,
+                                order = it.order,
                         )
                     }
             notesDao.insertOrReplace(notes)
