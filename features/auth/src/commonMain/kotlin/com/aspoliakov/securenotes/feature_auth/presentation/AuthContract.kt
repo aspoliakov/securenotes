@@ -24,7 +24,10 @@ enum class AuthType {
 
 sealed class AuthActionState {
     data object Idle : AuthActionState()
-    data object Loading : AuthActionState()
+    sealed class Active : AuthActionState() {
+        data object Email : Active()
+        data object Google : Active()
+    }
     data class Error(val error: AuthError) : AuthActionState()
     data object Completed : AuthActionState()
 }
@@ -34,6 +37,7 @@ enum class AuthError(val res: StringResource) {
     PASSWORD_IS_EMPTY(Res.string.feature_auth_error_empty_password),
     WRONG_CREDENTIALS(Res.string.feature_auth_error_wrong_credentials),
     USER_ALREADY_REGISTERED(Res.string.feature_auth_error_user_already_registered),
+    GOOGLE_EMAIL_REGISTERED_WITH_PASSWORD(Res.string.feature_auth_error_google_email_registered_with_password),
     NETWORK_ERROR(Res.string.common_error_network),
     UNEXPECTED_ERROR(Res.string.common_unexpected_error),
 }
@@ -47,4 +51,8 @@ sealed class AuthIntent : Intent() {
     data class OnPasswordChanged(val password: String) : AuthIntent()
     data object OnSwitchSignInSignUpClick : AuthIntent()
     data object OnNextClick : AuthIntent()
+    data object OnGoogleSignInClick : AuthIntent()
+    data class OnGoogleIdTokenReceived(val idToken: String) : AuthIntent()
+    data object OnGoogleSignInCancelled : AuthIntent()
+    data object OnGoogleSignInFailed : AuthIntent()
 }

@@ -1,8 +1,10 @@
 package com.aspoliakov.securenotes.core_ui.component
 
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -19,6 +21,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -33,6 +36,7 @@ fun ButtonWithLoader(
         onClick: () -> Unit,
         isLoading: Boolean,
         stringResource: StringResource,
+        icon: (@Composable () -> Unit)? = null,
 ) {
     var buttonSize by key(stringResource) { remember { mutableStateOf(DpSize.Zero) } }
     val density = LocalDensity.current
@@ -64,6 +68,10 @@ fun ButtonWithLoader(
                             .aspectRatio(1f)
             )
         } else {
+            if (icon != null) {
+                icon()
+                Spacer(modifier = Modifier.width(12.dp))
+            }
             Text(
                     text = stringResource(stringResource),
                     textAlign = TextAlign.Center,

@@ -5,7 +5,7 @@ import com.aspoliakov.securenotes.core_presentation.utils.launchOnIO
 import com.aspoliakov.securenotes.domain_crypto.KeysCreateResult
 import com.aspoliakov.securenotes.domain_crypto.KeysRestoreResult
 import com.aspoliakov.securenotes.domain_crypto.UserKeysInteractor
-import com.aspoliakov.securenotes.domain_user_state.UserStateInteractor
+import com.aspoliakov.securenotes.domain_user_state.UserLogoutInteractor
 import io.github.aakira.napier.Napier
 
 /**
@@ -15,7 +15,7 @@ import io.github.aakira.napier.Napier
 class KeysViewModel(
         initialState: KeysState,
         private val userKeysInteractor: UserKeysInteractor,
-        private val userStateInteractor: UserStateInteractor,
+        private val userLogoutInteractor: UserLogoutInteractor,
 ) : MviViewModel<KeysState, KeysEffect, KeysIntent>(initialState) {
 
     companion object {
@@ -38,7 +38,7 @@ class KeysViewModel(
     }
 
     private fun onBackClick() = launchOnIO {
-        userStateInteractor.logout()
+        userLogoutInteractor.logout()
     }
 
     private fun loadKeys() = launchOnIO {

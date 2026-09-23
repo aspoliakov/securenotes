@@ -565,7 +565,7 @@ internal fun BrowserListView(
                     modifier = modifier,
                     title = stringResource(Res.string.feature_notes_empty_title),
                     subtitle = stringResource(Res.string.feature_notes_empty_subtitle),
-                    icon = Res.drawable.notes,
+                    icon = Res.drawable.ic_notes,
             )
         }
     }
@@ -590,7 +590,7 @@ internal fun BrowserListActiveSearchView(
                 modifier = modifier,
                 title = stringResource(Res.string.feature_notes_no_results_title),
                 subtitle = stringResource(Res.string.feature_notes_no_results_subtitle),
-                icon = Res.drawable.search,
+                icon = Res.drawable.ic_search,
         )
     }
 }
@@ -1026,7 +1026,7 @@ internal fun BrowserFabMenu(
                         label = stringResource(Res.string.feature_notes_add_note),
                         icon = {
                             Icon(
-                                    painter = painterResource(Res.drawable.notes),
+                                    painter = painterResource(Res.drawable.ic_notes),
                                     contentDescription = null,
                             )
                         },

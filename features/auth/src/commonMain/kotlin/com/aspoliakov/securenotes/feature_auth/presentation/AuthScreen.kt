@@ -25,10 +25,13 @@ import com.aspoliakov.securenotes.core_presentation.utils.CollectEffects
 import com.aspoliakov.securenotes.core_ui.AppTheme
 import com.aspoliakov.securenotes.core_ui.LocalCustomColorSchemeProvider
 import com.aspoliakov.securenotes.core_ui.component.ButtonWithLoader
+import com.aspoliakov.securenotes.core_ui.component.DividerWithText
 import com.aspoliakov.securenotes.core_ui.component.PasswordTextField
 import com.aspoliakov.securenotes.core_ui.component.Spacer8dp
 import com.aspoliakov.securenotes.core_ui.component.Spacer16dp
 import com.aspoliakov.securenotes.core_ui.resources.*
+import com.aspoliakov.securenotes.feature_auth.presentation.auth_providers.GoogleSignInProvider
+import com.aspoliakov.securenotes.feature_auth.presentation.auth_providers.isGoogleSignInSupported
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
@@ -69,6 +72,15 @@ internal fun AuthScreen(
                 snackbarHostState.showSnackbar("error")
             }
         }
+    }
+
+    if (isGoogleSignInSupported) {
+        GoogleSignInProvider(
+                shouldLaunch = state.authActionState is AuthActionState.Active.Google,
+                onIdTokenReceived = { intentHandler(AuthIntent.OnGoogleIdTokenReceived(it)) },
+                onCancelled = { intentHandler(AuthIntent.OnGoogleSignInCancelled) },
+                onError = { intentHandler(AuthIntent.OnGoogleSignInFailed) },
+        )
     }
 
     Scaffold(
@@ -116,7 +128,7 @@ internal fun AuthHeader(
                     .clip(CircleShape)
                     .background(LocalCustomColorSchemeProvider.current.logoBackground)
                     .padding(22.dp),
-                painter = painterResource(Res.drawable.app_logo_auth),
+                painter = painterResource(Res.drawable.ic_app_logo_auth),
                 contentDescription = stringResource(Res.string.app_name),
         )
         Spacer16dp()
@@ -180,6 +192,26 @@ internal fun AuthFormCard(
                 state = state,
                 intentHandler = intentHandler,
         )
+        if (isGoogleSignInSupported && state.authActionState !is AuthActionState.Completed) {
+            Spacer(modifier = Modifier.height(20.dp))
+            DividerWithText(textRes = Res.string.feature_auth_or_divider)
+            Spacer(modifier = Modifier.height(20.dp))
+            ButtonWithLoader(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    onClick = { intentHandler(AuthIntent.OnGoogleSignInClick) },
+                    isLoading = state.authActionState is AuthActionState.Active,
+                    stringResource = Res.string.feature_auth_sign_in_with_google,
+                    icon = {
+                        Image(
+                                modifier = Modifier.size(20.dp),
+                                painter = painterResource(Res.drawable.ic_google_logo),
+                                contentDescription = null,
+                        )
+                    },
+            )
+        }
     }
 }
 
@@ -218,7 +250,7 @@ internal fun SignInSignOutActionView(
         ButtonWithLoader(
                 modifier = modifier,
                 onClick = { intentHandler.invoke(AuthIntent.OnNextClick) },
-                isLoading = state.authActionState is AuthActionState.Loading,
+                isLoading = state.authActionState is AuthActionState.Active,
                 stringResource = authActionButtonText,
         )
     }

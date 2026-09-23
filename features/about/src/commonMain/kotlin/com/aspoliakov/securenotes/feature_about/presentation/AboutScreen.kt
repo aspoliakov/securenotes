@@ -90,7 +90,7 @@ internal fun AboutScreen(
                         .clip(CircleShape)
                         .background(LocalCustomColorSchemeProvider.current.logoBackground)
                         .padding(22.dp),
-                    painter = painterResource(Res.drawable.app_logo_auth),
+                    painter = painterResource(Res.drawable.ic_app_logo_auth),
                     contentDescription = stringResource(Res.string.app_name),
             )
             Spacer(modifier = Modifier.height(20.dp))

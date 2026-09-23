@@ -3,7 +3,7 @@ package com.aspoliakov.securenotes.feature_auth.presentation
 import com.aspoliakov.securenotes.core_base.util.Patterns
 import com.aspoliakov.securenotes.core_presentation.mvi.MviViewModel
 import com.aspoliakov.securenotes.core_presentation.utils.launchOnIO
-import com.aspoliakov.securenotes.domain_user_state.UserStateInteractor
+import com.aspoliakov.securenotes.domain_user_state.UserAuthInteractor
 import com.aspoliakov.securenotes.domain_user_state.model.AuthResult
 import io.github.aakira.napier.Napier
 
@@ -13,7 +13,7 @@ import io.github.aakira.napier.Napier
 
 class AuthViewModel(
         initialState: AuthState,
-        private val userStateInteractor: UserStateInteractor,
+        private val userAuthInteractor: UserAuthInteractor,
 ) : MviViewModel<AuthState, AuthEffect, AuthIntent>(initialState) {
 
     override fun handleIntent(intent: AuthIntent) {
@@ -32,6 +32,10 @@ class AuthViewModel(
             }
             is AuthIntent.OnSwitchSignInSignUpClick -> onSwitchSignInSignUpClick()
             is AuthIntent.OnNextClick -> onNextClick()
+            is AuthIntent.OnGoogleSignInClick -> onGoogleSignInClick()
+            is AuthIntent.OnGoogleIdTokenReceived -> onGoogleIdTokenReceived(intent.idToken)
+            is AuthIntent.OnGoogleSignInCancelled -> onGoogleSignInCancelled()
+            is AuthIntent.OnGoogleSignInFailed -> onGoogleSignInFailed()
         }
     }
 
@@ -59,21 +63,49 @@ class AuthViewModel(
                 reduceState { currentState.copy(authActionState = AuthActionState.Error(AuthError.PASSWORD_IS_EMPTY)) }
             }
             else -> {
-                reduceState { currentState.copy(authActionState = AuthActionState.Loading) }
+                reduceState { currentState.copy(authActionState = AuthActionState.Active.Email) }
                 val result = when (currentState.authType) {
-                    AuthType.SIGN_IN -> userStateInteractor.signIn(email = email, password = password)
-                    AuthType.SIGN_UP -> userStateInteractor.signUp(email = email, password = password)
+                    AuthType.SIGN_IN -> userAuthInteractor.signIn(email = email, password = password)
+                    AuthType.SIGN_UP -> userAuthInteractor.signUp(email = email, password = password)
                 }
                 Napier.d("Result: $result")
-                val authActionState = when (result) {
-                    AuthResult.OK -> AuthActionState.Completed
-                    AuthResult.SIGN_IN_WRONG_CREDENTIALS -> AuthActionState.Error(AuthError.WRONG_CREDENTIALS)
-                    AuthResult.SIGN_UP_USER_ALREADY_REGISTERERD -> AuthActionState.Error(AuthError.USER_ALREADY_REGISTERED)
-                    AuthResult.NETWORK_ERROR -> AuthActionState.Error(AuthError.NETWORK_ERROR)
-                    AuthResult.UNEXPECTED_ERROR -> AuthActionState.Error(AuthError.UNEXPECTED_ERROR)
-                }
-                reduceState { currentState.copy(authActionState = authActionState) }
+                reduceState { currentState.copy(authActionState = result.toAuthActionState()) }
             }
+        }
+    }
+
+    private fun onGoogleSignInClick() {
+        reduceState { currentState.copy(authActionState = AuthActionState.Active.Google) }
+    }
+
+    private fun onGoogleIdTokenReceived(idToken: String) = launchOnIO {
+        val result = userAuthInteractor.signInWithGoogle(idToken)
+        Napier.d("Google sign-in result: $result")
+        reduceState { currentState.copy(authActionState = result.toAuthActionState()) }
+    }
+
+    private fun onGoogleSignInCancelled() {
+        reduceState { currentState.copy(authActionState = AuthActionState.Idle) }
+    }
+
+    private fun onGoogleSignInFailed() {
+        reduceState { currentState.copy(authActionState = AuthActionState.Error(AuthError.UNEXPECTED_ERROR)) }
+    }
+
+    private fun AuthResult.toAuthActionState(): AuthActionState {
+        return when (this) {
+            AuthResult.OK ->
+                AuthActionState.Completed
+            AuthResult.SIGN_IN_WRONG_CREDENTIALS ->
+                AuthActionState.Error(AuthError.WRONG_CREDENTIALS)
+            AuthResult.SIGN_UP_USER_ALREADY_REGISTERERD ->
+                AuthActionState.Error(AuthError.USER_ALREADY_REGISTERED)
+            AuthResult.SIGN_IN_GOOGLE_EMAIL_REGISTERED_WITH_PASSWORD ->
+                AuthActionState.Error(AuthError.GOOGLE_EMAIL_REGISTERED_WITH_PASSWORD)
+            AuthResult.NETWORK_ERROR ->
+                AuthActionState.Error(AuthError.NETWORK_ERROR)
+            AuthResult.UNEXPECTED_ERROR ->
+                AuthActionState.Error(AuthError.UNEXPECTED_ERROR)
         }
     }
 }

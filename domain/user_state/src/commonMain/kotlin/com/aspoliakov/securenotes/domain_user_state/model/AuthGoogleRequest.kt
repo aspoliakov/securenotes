@@ -8,7 +8,6 @@ import kotlinx.serialization.Serializable
  */
 
 @Serializable
-data class AuthenticateRequest(
-        @SerialName("email") val email: String,
-        @SerialName("password") val password: String,
+data class AuthGoogleRequest(
+        @SerialName("id_token") val idToken: String,
 )

@@ -35,6 +35,9 @@
     <string name="feature_auth_error_empty_password">Password cannot be empty</string>
     <string name="feature_auth_error_wrong_credentials">Wrong email or password</string>
     <string name="feature_auth_error_user_already_registered">User already registered</string>
+    <string name="feature_auth_error_google_email_registered_with_password">This email is already registered with a password. Sign in with your password instead.</string>
+    <string name="feature_auth_sign_in_with_google">Continue with Google</string>
+    <string name="feature_auth_or_divider">or</string>
 
     <string name="feature_keys_title">All data in %1$s are strongly encrypted</string>
     <string name="feature_keys_subtitle">Create a password to protect your encryption keys</string>
