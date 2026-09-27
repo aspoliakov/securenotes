@@ -76,6 +76,8 @@ class UserAuthInteractor(
             when (throwable.detail) {
                 AuthEmailResponse.ERROR_WRONG_CREDENTIALS ->
                     AuthResult.SIGN_IN_WRONG_CREDENTIALS
+                AuthEmailResponse.ERROR_ACCOUNT_USES_GOOGLE ->
+                    AuthResult.SIGN_IN_ACCOUNT_USES_GOOGLE
                 RegisterResponse.ERROR_USER_ALREADY_REGISTERERD ->
                     AuthResult.SIGN_UP_USER_ALREADY_REGISTERERD
                 else -> AuthResult.UNEXPECTED_ERROR

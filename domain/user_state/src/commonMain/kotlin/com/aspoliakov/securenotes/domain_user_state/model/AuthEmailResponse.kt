@@ -15,5 +15,6 @@ data class AuthEmailResponse(
 ) {
     companion object {
         const val ERROR_WRONG_CREDENTIALS = "wrong credentials"
+        const val ERROR_ACCOUNT_USES_GOOGLE = "account uses google sign-in"
     }
 }

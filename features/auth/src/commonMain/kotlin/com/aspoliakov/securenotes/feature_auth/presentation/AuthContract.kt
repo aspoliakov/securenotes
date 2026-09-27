@@ -37,6 +37,7 @@ enum class AuthError(val res: StringResource) {
     PASSWORD_IS_EMPTY(Res.string.feature_auth_error_empty_password),
     WRONG_CREDENTIALS(Res.string.feature_auth_error_wrong_credentials),
     USER_ALREADY_REGISTERED(Res.string.feature_auth_error_user_already_registered),
+    ACCOUNT_USES_GOOGLE(Res.string.feature_auth_error_account_uses_google),
     NETWORK_ERROR(Res.string.common_error_network),
     UNEXPECTED_ERROR(Res.string.common_unexpected_error),
 }

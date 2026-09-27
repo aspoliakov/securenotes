@@ -98,6 +98,8 @@ class AuthViewModel(
                 AuthActionState.Completed
             AuthResult.SIGN_IN_WRONG_CREDENTIALS ->
                 AuthActionState.Error(AuthError.WRONG_CREDENTIALS)
+            AuthResult.SIGN_IN_ACCOUNT_USES_GOOGLE ->
+                AuthActionState.Error(AuthError.ACCOUNT_USES_GOOGLE)
             AuthResult.SIGN_UP_USER_ALREADY_REGISTERERD ->
                 AuthActionState.Error(AuthError.USER_ALREADY_REGISTERED)
             AuthResult.NETWORK_ERROR ->
