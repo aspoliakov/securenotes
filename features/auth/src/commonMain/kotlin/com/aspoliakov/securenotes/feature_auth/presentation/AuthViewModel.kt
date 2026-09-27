@@ -100,8 +100,6 @@ class AuthViewModel(
                 AuthActionState.Error(AuthError.WRONG_CREDENTIALS)
             AuthResult.SIGN_UP_USER_ALREADY_REGISTERERD ->
                 AuthActionState.Error(AuthError.USER_ALREADY_REGISTERED)
-            AuthResult.SIGN_IN_GOOGLE_EMAIL_REGISTERED_WITH_PASSWORD ->
-                AuthActionState.Error(AuthError.GOOGLE_EMAIL_REGISTERED_WITH_PASSWORD)
             AuthResult.NETWORK_ERROR ->
                 AuthActionState.Error(AuthError.NETWORK_ERROR)
             AuthResult.UNEXPECTED_ERROR ->
