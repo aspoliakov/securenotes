@@ -20,6 +20,7 @@ sealed class KeysState : State() {
 
     data class Creating(
             val password: String = "",
+            val confirmPassword: String = "",
             val passwordRequirements: PasswordRequirements = PasswordRequirements(),
             val actionState: KeysActionState = KeysActionState.Idle,
     ) : KeysState() {
@@ -28,9 +29,10 @@ sealed class KeysState : State() {
                 val oneDigit: Boolean = false,
                 val oneLetter: Boolean = false,
                 val oneCapitalLetter: Boolean = false,
+                val passwordsMatch: Boolean = false,
         ) {
             fun isSatisfied(): Boolean {
-                return maxLength && oneDigit && oneLetter && oneCapitalLetter
+                return maxLength && oneDigit && oneLetter && oneCapitalLetter && passwordsMatch
             }
         }
     }
@@ -65,6 +67,7 @@ sealed class KeysIntent : Intent() {
     data object OnBackClick : KeysIntent()
     data object OnReloadKeysClick : KeysIntent()
     data class OnPasswordChanged(val password: String) : KeysIntent()
+    data class OnConfirmPasswordChanged(val confirmPassword: String) : KeysIntent()
     data object OnResetPasswordClick : KeysIntent()
     data object OnApplyClick : KeysIntent()
 }

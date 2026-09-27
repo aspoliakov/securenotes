@@ -52,6 +52,8 @@
     <string name="feature_keys_password_requirement_digit">At least one digit</string>
     <string name="feature_keys_password_requirement_letter">At least one lowercase letter</string>
     <string name="feature_keys_password_requirement_capital_letter">At least one uppercase letter</string>
+    <string name="feature_keys_password_requirement_match">Passwords match</string>
+    <string name="feature_keys_confirm_password_hint">Confirm password</string>
 
     <string name="feature_home_menu_item_notes">Notes</string>
     <string name="feature_home_menu_item_profile">Profile</string>

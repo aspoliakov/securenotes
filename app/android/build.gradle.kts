@@ -7,6 +7,8 @@ plugins {
 
 android {
 
+    val appName = "securenotes"
+
     namespace = "${Config.APPLICATION_ID}.android"
     compileSdk = Config.COMPILE_SDK_VERSION
 
@@ -19,22 +21,18 @@ android {
     }
 
     signingConfigs {
-        create("master") {
-//            keyAlias = getLocalProperty("signing.key.alias")
-//            keyPassword = getLocalProperty("signing.key.password")
-//            storeFile = file(getLocalProperty("signing.store.file"))
-//            storePassword = getLocalProperty("signing.store.password")
-        }
+        SignConfig(appName).create(project, this)
     }
 
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            signingConfig = signingConfigs.getByName(appName)
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), file("proguard-rules.pro"))
         }
         debug {
-
+            signingConfig = signingConfigs.getByName(appName)
         }
     }
 

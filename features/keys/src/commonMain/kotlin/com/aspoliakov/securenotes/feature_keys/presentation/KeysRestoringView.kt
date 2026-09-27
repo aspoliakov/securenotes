@@ -3,14 +3,13 @@ package com.aspoliakov.securenotes.feature_keys.presentation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -20,8 +19,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.aspoliakov.securenotes.core_ui.Icons
 import com.aspoliakov.securenotes.core_ui.component.ButtonWithLoader
+import com.aspoliakov.securenotes.core_ui.component.CenteredKeyboardAwareColumn
 import com.aspoliakov.securenotes.core_ui.component.PasswordTextField
-import com.aspoliakov.securenotes.core_ui.component.TopAppBar
 import com.aspoliakov.securenotes.core_ui.resources.*
 import org.jetbrains.compose.resources.stringResource
 
@@ -35,75 +34,67 @@ internal fun KeysRestoringView(
         state: KeysState.Restoring,
         intentHandler: (KeysIntent) -> Unit = {},
 ) {
-    Scaffold(
+    var openResetKeysDialog by remember { mutableStateOf(false) }
+    if (openResetKeysDialog) {
+        ResetPasswordDialog(
+                onDismiss = { openResetKeysDialog = false },
+                onConfirm = {
+                    openResetKeysDialog = false
+                    intentHandler.invoke(KeysIntent.OnResetPasswordClick)
+                },
+        )
+    }
+    val viewsEnabled = state.actionState !is KeysActionState.Loading
+    val focusManager = LocalFocusManager.current
+    CenteredKeyboardAwareColumn(
             modifier = modifier,
-            containerColor = MaterialTheme.colorScheme.background,
-            topBar = {
-                TopAppBar(
-                        onBackClick = { intentHandler.invoke(KeysIntent.OnBackClick) },
-                )
-            },
-    ) { paddings ->
-        var openResetKeysDialog by remember { mutableStateOf(false) }
-        if (openResetKeysDialog) {
-            ResetPasswordDialog(
-                    onDismiss = { openResetKeysDialog = false },
-                    onConfirm = {
-                        openResetKeysDialog = false
-                        intentHandler.invoke(KeysIntent.OnResetPasswordClick)
-                    },
-            )
-        }
+            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
+    ) {
+        KeysHeader(
+                titleRes = Res.string.feature_keys_restore_title,
+        )
+        Spacer(modifier = Modifier.height(32.dp))
         Column(
                 modifier = Modifier
-                    .padding(paddings)
-                    .fillMaxSize()
-                    .imePadding()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 24.dp, vertical = 16.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainerLow)
+                    .padding(24.dp),
         ) {
-            KeysHeader(
-                    titleRes = Res.string.feature_keys_restore_title,
+            PasswordTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    password = state.password,
+                    onValueChanged = { intentHandler(KeysIntent.OnPasswordChanged(it)) },
+                    labelStringRes = Res.string.feature_auth_password_hint,
+                    errorStringRes = (state.actionState as? KeysActionState.Error)?.error?.res,
+                    enabled = viewsEnabled,
+                    onImeAction = {
+                        focusManager.clearFocus()
+                        intentHandler(KeysIntent.OnApplyClick)
+                    },
             )
-            Spacer(modifier = Modifier.height(32.dp))
-            Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(24.dp))
-                        .background(MaterialTheme.colorScheme.surfaceContainerLow)
-                        .padding(24.dp),
-            ) {
-                PasswordTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        password = state.password,
-                        onValueChanged = { intentHandler(KeysIntent.OnPasswordChanged(it)) },
-                        labelStringRes = Res.string.feature_auth_password_hint,
-                        errorStringRes = (state.actionState as? KeysActionState.Error)?.error?.res,
+            if (state.actionState !is KeysActionState.Completed) {
+                Spacer(modifier = Modifier.height(24.dp))
+                ButtonWithLoader(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
+                        onClick = { intentHandler.invoke(KeysIntent.OnApplyClick) },
+                        isLoading = state.actionState is KeysActionState.Loading,
+                        enabled = viewsEnabled,
+                        stringResource = Res.string.common_apply,
                 )
-                if (state.actionState !is KeysActionState.Completed) {
-                    Spacer(modifier = Modifier.height(24.dp))
-                    ButtonWithLoader(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(52.dp),
-                            onClick = { intentHandler.invoke(KeysIntent.OnApplyClick) },
-                            isLoading = state.actionState is KeysActionState.Loading,
-                            stringResource = Res.string.common_apply,
-                    )
-                }
             }
-            Spacer(modifier = Modifier.height(24.dp))
-            Text(
-                    modifier = Modifier.clickable { openResetKeysDialog = true },
-                    text = stringResource(Res.string.feature_keys_restore_forgot_password),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
-            )
         }
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+                modifier = Modifier.clickable { openResetKeysDialog = true },
+                text = stringResource(Res.string.feature_keys_restore_forgot_password),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+        )
     }
 }
 

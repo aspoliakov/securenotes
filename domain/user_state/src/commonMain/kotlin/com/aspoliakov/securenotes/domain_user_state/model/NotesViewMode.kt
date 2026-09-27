@@ -12,7 +12,7 @@ enum class NotesViewMode {
     companion object {
 
         fun fromName(name: String?): NotesViewMode {
-            return entries.firstOrNull { it.name == name } ?: LIST
+            return entries.firstOrNull { it.name == name } ?: GRID
         }
     }
 }

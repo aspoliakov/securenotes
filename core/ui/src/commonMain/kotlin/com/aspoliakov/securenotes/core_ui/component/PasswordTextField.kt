@@ -1,5 +1,6 @@
 package com.aspoliakov.securenotes.core_ui.component
 
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -9,6 +10,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -31,12 +33,16 @@ fun PasswordTextField(
         onValueChanged: (String) -> Unit,
         labelStringRes: StringResource? = null,
         errorStringRes: StringResource? = null,
+        enabled: Boolean = true,
+        imeAction: ImeAction = ImeAction.Done,
+        onImeAction: () -> Unit = {},
 ) {
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
     OutlinedTextField(
             modifier = modifier,
             value = password,
             onValueChange = onValueChanged,
+            enabled = enabled,
             textStyle = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Normal,
             ),
@@ -85,6 +91,11 @@ fun PasswordTextField(
             },
             keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
+                    imeAction = imeAction,
+            ),
+            keyboardActions = KeyboardActions(
+                    onNext = { onImeAction() },
+                    onDone = { onImeAction() },
             ),
             singleLine = true,
     )

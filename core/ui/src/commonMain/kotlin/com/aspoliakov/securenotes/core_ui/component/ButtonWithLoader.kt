@@ -37,6 +37,7 @@ fun ButtonWithLoader(
         isLoading: Boolean,
         stringResource: StringResource,
         icon: (@Composable () -> Unit)? = null,
+        enabled: Boolean = !isLoading,
 ) {
     var buttonSize by key(stringResource) { remember { mutableStateOf(DpSize.Zero) } }
     val density = LocalDensity.current
@@ -58,7 +59,7 @@ fun ButtonWithLoader(
                             }
                         }
                     },
-            enabled = !isLoading,
+            enabled = enabled,
             onClick = onClick,
     ) {
         if (isLoading) {

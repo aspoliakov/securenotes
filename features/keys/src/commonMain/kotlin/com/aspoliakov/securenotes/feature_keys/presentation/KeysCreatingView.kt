@@ -2,9 +2,7 @@ package com.aspoliakov.securenotes.feature_keys.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -12,22 +10,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.aspoliakov.securenotes.core_ui.Icons
 import com.aspoliakov.securenotes.core_ui.component.ButtonWithLoader
+import com.aspoliakov.securenotes.core_ui.component.CenteredKeyboardAwareColumn
 import com.aspoliakov.securenotes.core_ui.component.PasswordTextField
-import com.aspoliakov.securenotes.core_ui.resources.Res
-import com.aspoliakov.securenotes.core_ui.resources.app_name
-import com.aspoliakov.securenotes.core_ui.resources.common_apply
-import com.aspoliakov.securenotes.core_ui.resources.feature_auth_password_hint
-import com.aspoliakov.securenotes.core_ui.resources.feature_keys_password_requirement_capital_letter
-import com.aspoliakov.securenotes.core_ui.resources.feature_keys_password_requirement_digit
-import com.aspoliakov.securenotes.core_ui.resources.feature_keys_password_requirement_length
-import com.aspoliakov.securenotes.core_ui.resources.feature_keys_password_requirement_letter
-import com.aspoliakov.securenotes.core_ui.resources.feature_keys_subtitle
-import com.aspoliakov.securenotes.core_ui.resources.feature_keys_title
+import com.aspoliakov.securenotes.core_ui.resources.*
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -41,14 +34,10 @@ internal fun KeysCreatingView(
         state: KeysState.Creating,
         intentHandler: (KeysIntent) -> Unit = {},
 ) {
-    Column(
-            modifier = modifier
-                .fillMaxSize()
-                .imePadding()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp, vertical = 32.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
+    val viewsEnabled = state.actionState !is KeysActionState.Loading
+    val focusManager = LocalFocusManager.current
+    CenteredKeyboardAwareColumn(
+            modifier = modifier,
     ) {
         KeysHeader(
                 titleRes = Res.string.feature_keys_title,
@@ -69,6 +58,23 @@ internal fun KeysCreatingView(
                     onValueChanged = { intentHandler(KeysIntent.OnPasswordChanged(it)) },
                     labelStringRes = Res.string.feature_auth_password_hint,
                     errorStringRes = (state.actionState as? KeysActionState.Error)?.error?.res,
+                    enabled = viewsEnabled,
+                    imeAction = ImeAction.Next,
+                    onImeAction = {
+                        focusManager.moveFocus(FocusDirection.Down)
+                    },
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            PasswordTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    password = state.confirmPassword,
+                    onValueChanged = { intentHandler(KeysIntent.OnConfirmPasswordChanged(it)) },
+                    labelStringRes = Res.string.feature_keys_confirm_password_hint,
+                    enabled = viewsEnabled,
+                    onImeAction = {
+                        focusManager.clearFocus()
+                        intentHandler(KeysIntent.OnApplyClick)
+                    },
             )
             PasswordRequirementsView(
                     modifier = Modifier.padding(top = 16.dp),
@@ -82,6 +88,7 @@ internal fun KeysCreatingView(
                             .height(52.dp),
                         onClick = { intentHandler.invoke(KeysIntent.OnApplyClick) },
                         isLoading = state.actionState is KeysActionState.Loading,
+                        enabled = viewsEnabled,
                         stringResource = Res.string.common_apply,
                 )
             }
@@ -116,6 +123,11 @@ internal fun PasswordRequirementsView(
         PasswordRequirementItem(
                 text = Res.string.feature_keys_password_requirement_capital_letter,
                 success = state.passwordRequirements.oneCapitalLetter,
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        PasswordRequirementItem(
+                text = Res.string.feature_keys_password_requirement_match,
+                success = state.passwordRequirements.passwordsMatch,
         )
     }
 }

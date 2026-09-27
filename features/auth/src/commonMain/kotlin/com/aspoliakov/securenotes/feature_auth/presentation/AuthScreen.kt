@@ -4,17 +4,19 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,11 +26,7 @@ import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
 import com.aspoliakov.securenotes.core_presentation.utils.CollectEffects
 import com.aspoliakov.securenotes.core_ui.AppTheme
 import com.aspoliakov.securenotes.core_ui.LocalCustomColorSchemeProvider
-import com.aspoliakov.securenotes.core_ui.component.ButtonWithLoader
-import com.aspoliakov.securenotes.core_ui.component.DividerWithText
-import com.aspoliakov.securenotes.core_ui.component.PasswordTextField
-import com.aspoliakov.securenotes.core_ui.component.Spacer8dp
-import com.aspoliakov.securenotes.core_ui.component.Spacer16dp
+import com.aspoliakov.securenotes.core_ui.component.*
 import com.aspoliakov.securenotes.core_ui.resources.*
 import com.aspoliakov.securenotes.feature_auth.presentation.auth_providers.GoogleSignInProvider
 import com.aspoliakov.securenotes.feature_auth.presentation.auth_providers.isGoogleSignInSupported
@@ -86,17 +84,11 @@ internal fun AuthScreen(
     Scaffold(
             modifier = modifier,
             containerColor = MaterialTheme.colorScheme.background,
+            contentWindowInsets = WindowInsets.systemBars,
             snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { paddingValues ->
-        Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .imePadding()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 24.dp, vertical = 32.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
+        CenteredKeyboardAwareColumn(
+                modifier = Modifier.padding(paddingValues),
         ) {
             AuthHeader()
             Spacer(modifier = Modifier.height(40.dp))
@@ -105,6 +97,17 @@ internal fun AuthScreen(
                     state = state,
                     intentHandler = intentHandler,
             )
+            val error = (state.authActionState as? AuthActionState.Error)?.error
+            if (error != null) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                        text = stringResource(error.res),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
+                )
+            }
             Spacer(modifier = Modifier.height(24.dp))
             SwitchAuthTypeAction(
                     state = state,
@@ -158,6 +161,8 @@ internal fun AuthFormCard(
         AuthType.SIGN_IN -> Res.string.feature_auth_sign_in
         AuthType.SIGN_UP -> Res.string.feature_auth_sign_up
     }
+    val viewsEnabled = state.authActionState !is AuthActionState.Active
+    val focusManager = LocalFocusManager.current
     Column(
             modifier = modifier
                 .clip(RoundedCornerShape(24.dp))
@@ -175,6 +180,10 @@ internal fun AuthFormCard(
                 modifier = Modifier.fillMaxWidth(),
                 value = state.email,
                 onValueChanged = { intentHandler(AuthIntent.OnEmailChanged(it)) },
+                enabled = viewsEnabled,
+                onImeAction = {
+                    focusManager.moveFocus(FocusDirection.Down)
+                },
         )
         Spacer(modifier = Modifier.height(12.dp))
         PasswordTextField(
@@ -182,7 +191,11 @@ internal fun AuthFormCard(
                 password = state.password,
                 onValueChanged = { intentHandler(AuthIntent.OnPasswordChanged(it)) },
                 labelStringRes = Res.string.feature_auth_password_hint,
-                errorStringRes = (state.authActionState as? AuthActionState.Error)?.error?.res,
+                enabled = viewsEnabled,
+                onImeAction = {
+                    focusManager.clearFocus()
+                    intentHandler(AuthIntent.OnNextClick)
+                },
         )
         Spacer(modifier = Modifier.height(24.dp))
         SignInSignOutActionView(
@@ -190,6 +203,7 @@ internal fun AuthFormCard(
                     .fillMaxWidth()
                     .height(52.dp),
                 state = state,
+                enabled = viewsEnabled,
                 intentHandler = intentHandler,
         )
         if (isGoogleSignInSupported && state.authActionState !is AuthActionState.Completed) {
@@ -201,7 +215,8 @@ internal fun AuthFormCard(
                         .fillMaxWidth()
                         .height(52.dp),
                     onClick = { intentHandler(AuthIntent.OnGoogleSignInClick) },
-                    isLoading = state.authActionState is AuthActionState.Active,
+                    isLoading = state.authActionState is AuthActionState.Active.Google,
+                    enabled = viewsEnabled,
                     stringResource = Res.string.feature_auth_sign_in_with_google,
                     icon = {
                         Image(
@@ -220,17 +235,24 @@ internal fun LoginTextField(
         modifier: Modifier = Modifier,
         value: String,
         onValueChanged: (String) -> Unit,
+        enabled: Boolean = true,
+        onImeAction: () -> Unit = {},
 ) {
     OutlinedTextField(
             modifier = modifier,
             value = value,
             onValueChange = onValueChanged,
+            enabled = enabled,
             label = { Text(text = stringResource(Res.string.feature_auth_email_hint)) },
             textStyle = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Normal,
             ),
             keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Next,
+            ),
+            keyboardActions = KeyboardActions(
+                    onNext = { onImeAction() },
             ),
             singleLine = true,
     )
@@ -240,6 +262,7 @@ internal fun LoginTextField(
 internal fun SignInSignOutActionView(
         modifier: Modifier = Modifier,
         state: AuthState,
+        enabled: Boolean,
         intentHandler: (AuthIntent) -> Unit = {},
 ) {
     val authActionButtonText = when (state.authType) {
@@ -250,7 +273,8 @@ internal fun SignInSignOutActionView(
         ButtonWithLoader(
                 modifier = modifier,
                 onClick = { intentHandler.invoke(AuthIntent.OnNextClick) },
-                isLoading = state.authActionState is AuthActionState.Active,
+                isLoading = state.authActionState is AuthActionState.Active.Email,
+                enabled = enabled,
                 stringResource = authActionButtonText,
         )
     }

@@ -32,6 +32,7 @@ class KeysViewModel(
             is KeysIntent.OnBackClick -> onBackClick()
             is KeysIntent.OnReloadKeysClick -> loadKeys()
             is KeysIntent.OnPasswordChanged -> onPasswordChanged(intent.password)
+            is KeysIntent.OnConfirmPasswordChanged -> onConfirmPasswordChanged(intent.confirmPassword)
             is KeysIntent.OnResetPasswordClick -> onResetPasswordClick()
             is KeysIntent.OnApplyClick -> onApplyClick()
         }
@@ -69,7 +70,7 @@ class KeysViewModel(
     private fun onPasswordChanged(password: String) {
         when (val state = currentState) {
             is KeysState.Creating -> {
-                val passwordRequirements = checkPasswordRequirements(password)
+                val passwordRequirements = checkPasswordRequirements(password, state.confirmPassword)
                 reduceState {
                     state.copy(
                             password = password,
@@ -90,16 +91,32 @@ class KeysViewModel(
         }
     }
 
+    private fun onConfirmPasswordChanged(confirmPassword: String) {
+        val state = currentState as? KeysState.Creating ?: return
+        val passwordRequirements = checkPasswordRequirements(state.password, confirmPassword)
+        reduceState {
+            state.copy(
+                    confirmPassword = confirmPassword,
+                    passwordRequirements = passwordRequirements,
+                    actionState = KeysActionState.Idle,
+            )
+        }
+    }
+
     private fun onResetPasswordClick() {
         reduceState { KeysState.Creating() }
     }
 
-    private fun checkPasswordRequirements(password: String): KeysState.Creating.PasswordRequirements {
+    private fun checkPasswordRequirements(
+            password: String,
+            confirmPassword: String,
+    ): KeysState.Creating.PasswordRequirements {
         return KeysState.Creating.PasswordRequirements(
                 maxLength = password.length in MIN_PASSWORD_LENGTH..MAX_PASSWORD_LENGTH,
                 oneDigit = password.matches("^.*\\d+.*$".toRegex()),
                 oneLetter = password.matches("^.*\\p{Ll}.*$".toRegex()),
                 oneCapitalLetter = password.matches("^.*\\p{Lu}.*$".toRegex()),
+                passwordsMatch = confirmPassword.isNotEmpty() && password == confirmPassword,
         )
     }
 
