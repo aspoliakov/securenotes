@@ -9,9 +9,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
@@ -26,13 +30,15 @@ import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
 import com.aspoliakov.securenotes.core_presentation.utils.CollectEffects
 import com.aspoliakov.securenotes.core_ui.AppTheme
 import com.aspoliakov.securenotes.core_ui.LocalCustomColorSchemeProvider
-import com.aspoliakov.securenotes.core_ui.component.*
+import com.aspoliakov.securenotes.core_ui.component.ButtonWithLoader
+import com.aspoliakov.securenotes.core_ui.component.CenteredKeyboardAwareColumn
+import com.aspoliakov.securenotes.core_ui.component.DividerWithText
+import com.aspoliakov.securenotes.core_ui.component.PasswordTextField
 import com.aspoliakov.securenotes.core_ui.resources.*
 import com.aspoliakov.securenotes.feature_auth.presentation.auth_providers.GoogleSignInProvider
 import com.aspoliakov.securenotes.feature_auth.presentation.auth_providers.isGoogleSignInSupported
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -61,14 +67,12 @@ internal fun AuthScreen(
         effects: Flow<Effect> = emptyFlow(),
         intentHandler: (AuthIntent) -> Unit = {},
 ) {
-    val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val viewsEnabled = state.authActionState !is AuthActionState.Active
 
     CollectEffects<AuthEffect>(effects) { effect ->
         when (effect) {
-            is AuthEffect.ShowSnackbar -> scope.launch {
-                snackbarHostState.showSnackbar("error")
-            }
+            is AuthEffect.ShowSnackbar -> {}
         }
     }
 
@@ -89,28 +93,35 @@ internal fun AuthScreen(
     ) { paddingValues ->
         CenteredKeyboardAwareColumn(
                 modifier = Modifier.padding(paddingValues),
+                contentPadding = PaddingValues(
+                        horizontal = 24.dp,
+                        vertical = 20.dp,
+                ),
         ) {
             AuthHeader()
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(24.dp))
             AuthFormCard(
                     modifier = Modifier.fillMaxWidth(),
                     state = state,
+                    viewsEnabled = viewsEnabled,
                     intentHandler = intentHandler,
             )
-            val error = (state.authActionState as? AuthActionState.Error)?.error
-            if (error != null) {
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                        text = stringResource(error.res),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.error,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth(),
-                )
-            }
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 36.dp),
+                    text = (state.authActionState as? AuthActionState.Error)?.error?.let {
+                        stringResource(it.res)
+                    }.orEmpty(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
             SwitchAuthTypeAction(
                     state = state,
+                    enabled = viewsEnabled,
                     intentHandler = intentHandler,
             )
         }
@@ -127,21 +138,21 @@ internal fun AuthHeader(
     ) {
         Image(
                 modifier = Modifier
-                    .size(96.dp)
+                    .size(72.dp)
                     .clip(CircleShape)
                     .background(LocalCustomColorSchemeProvider.current.logoBackground)
-                    .padding(22.dp),
+                    .padding(16.dp),
                 painter = painterResource(Res.drawable.ic_app_logo_auth),
                 contentDescription = stringResource(Res.string.app_name),
         )
-        Spacer16dp()
+        Spacer(modifier = Modifier.height(8.dp))
         Text(
                 text = stringResource(Res.string.app_name),
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
         )
-        Spacer8dp()
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
                 text = stringResource(Res.string.feature_about_tagline),
                 style = MaterialTheme.typography.bodyMedium,
@@ -155,19 +166,19 @@ internal fun AuthHeader(
 internal fun AuthFormCard(
         modifier: Modifier = Modifier,
         state: AuthState,
+        viewsEnabled: Boolean,
         intentHandler: (AuthIntent) -> Unit = {},
 ) {
     val titleRes = when (state.authType) {
         AuthType.SIGN_IN -> Res.string.feature_auth_sign_in
         AuthType.SIGN_UP -> Res.string.feature_auth_sign_up
     }
-    val viewsEnabled = state.authActionState !is AuthActionState.Active
     val focusManager = LocalFocusManager.current
     Column(
             modifier = modifier
                 .clip(RoundedCornerShape(24.dp))
                 .background(MaterialTheme.colorScheme.surfaceContainerLow)
-                .padding(24.dp),
+                .padding(20.dp),
     ) {
         Text(
                 text = stringResource(titleRes),
@@ -175,7 +186,7 @@ internal fun AuthFormCard(
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
         )
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         LoginTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = state.email,
@@ -185,7 +196,7 @@ internal fun AuthFormCard(
                     focusManager.moveFocus(FocusDirection.Down)
                 },
         )
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         PasswordTextField(
                 modifier = Modifier.fillMaxWidth(),
                 password = state.password,
@@ -197,23 +208,23 @@ internal fun AuthFormCard(
                     intentHandler(AuthIntent.OnNextClick)
                 },
         )
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         SignInSignOutActionView(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp),
+                    .height(48.dp),
                 state = state,
                 enabled = viewsEnabled,
                 intentHandler = intentHandler,
         )
         if (isGoogleSignInSupported && state.authActionState !is AuthActionState.Completed) {
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             DividerWithText(textRes = Res.string.feature_auth_or_divider)
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             ButtonWithLoader(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(52.dp),
+                        .height(48.dp),
                     onClick = { intentHandler(AuthIntent.OnGoogleSignInClick) },
                     isLoading = state.authActionState is AuthActionState.Active.Google,
                     enabled = viewsEnabled,
@@ -284,24 +295,25 @@ internal fun SignInSignOutActionView(
 internal fun SwitchAuthTypeAction(
         modifier: Modifier = Modifier,
         state: AuthState,
+        enabled: Boolean,
         intentHandler: (AuthIntent) -> Unit = {},
 ) {
-    if (state.authActionState is AuthActionState.Idle || state.authActionState is AuthActionState.Error) {
-        val switchAuthTypeButtonText = when (state.authType) {
-            AuthType.SIGN_IN -> Res.string.feature_auth_sign_up_suggest
-            AuthType.SIGN_UP -> Res.string.feature_auth_sign_up_back_to_sign_in
-        }
-        Text(
-                modifier = modifier.clickable {
-                    intentHandler.invoke(AuthIntent.OnSwitchSignInSignUpClick)
-                },
-                text = stringResource(switchAuthTypeButtonText),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
-        )
+    val switchAuthTypeButtonText = when (state.authType) {
+        AuthType.SIGN_IN -> Res.string.feature_auth_sign_up_suggest
+        AuthType.SIGN_UP -> Res.string.feature_auth_sign_up_back_to_sign_in
     }
+    Text(
+            modifier = modifier
+                .clickable(enabled = enabled) {
+                    intentHandler.invoke(AuthIntent.OnSwitchSignInSignUpClick)
+                }
+                .alpha(if (enabled) 1f else 0.4f),
+            text = stringResource(switchAuthTypeButtonText),
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+    )
 }
 
 @Preview
