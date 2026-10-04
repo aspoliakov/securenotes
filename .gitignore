@@ -53,3 +53,5 @@ proguard/**
 
 google-services.json
 GoogleService-Info.plist
+GoogleService-beta-Info.plist
+GoogleService-release-Info.plist

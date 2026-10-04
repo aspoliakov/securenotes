@@ -13,7 +13,7 @@ val authViewModelModule = module {
     viewModel {
         AuthViewModel(
                 initialState = AuthState(),
-                userStateInteractor = get(),
+                userAuthInteractor = get(),
         )
     }
 }

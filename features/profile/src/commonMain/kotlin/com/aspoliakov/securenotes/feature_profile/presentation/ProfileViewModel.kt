@@ -2,13 +2,13 @@ package com.aspoliakov.securenotes.feature_profile.presentation
 
 import com.aspoliakov.securenotes.core_presentation.mvi.MviViewModel
 import com.aspoliakov.securenotes.core_presentation.utils.launchOnIO
-import com.aspoliakov.securenotes.domain_user_state.UserStateInteractor
+import com.aspoliakov.securenotes.domain_user_state.UserLogoutInteractor
 import com.aspoliakov.securenotes.domain_user_state.UserStateProvider
 
 class ProfileViewModel(
         initialState: ProfileState,
         private val userStateProvider: UserStateProvider,
-        private val userStateInteractor: UserStateInteractor,
+        private val userLogoutInteractor: UserLogoutInteractor,
 ) : MviViewModel<ProfileState, ProfileEffect, ProfileIntent>(initialState) {
 
     init {
@@ -32,6 +32,6 @@ class ProfileViewModel(
     }
 
     private fun onLogoutClick() = launchOnIO {
-        userStateInteractor.logout()
+        userLogoutInteractor.logout()
     }
 }

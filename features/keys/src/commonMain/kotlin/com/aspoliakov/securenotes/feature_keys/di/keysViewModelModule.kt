@@ -14,7 +14,7 @@ val keysViewModelModule = module {
         KeysViewModel(
                 initialState = KeysState.Loading,
                 userKeysInteractor = get(),
-                userStateInteractor = get(),
+                userLogoutInteractor = get(),
         )
     }
 }

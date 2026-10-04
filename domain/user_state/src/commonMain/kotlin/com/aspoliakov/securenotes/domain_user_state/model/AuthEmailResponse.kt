@@ -8,12 +8,13 @@ import kotlinx.serialization.Serializable
  */
 
 @Serializable
-data class AuthenticateResponse(
+data class AuthEmailResponse(
         @SerialName("message") val message: String,
         @SerialName("user") val user: UserDTO,
         @SerialName("token") val token: String,
 ) {
     companion object {
         const val ERROR_WRONG_CREDENTIALS = "wrong credentials"
+        const val ERROR_ACCOUNT_USES_GOOGLE = "account uses google sign-in"
     }
 }

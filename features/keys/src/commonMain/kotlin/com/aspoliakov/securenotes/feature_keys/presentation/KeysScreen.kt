@@ -20,6 +20,7 @@ import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
 import com.aspoliakov.securenotes.core_presentation.utils.CollectEffects
 import com.aspoliakov.securenotes.core_ui.AppTheme
 import com.aspoliakov.securenotes.core_ui.Icons
+import com.aspoliakov.securenotes.core_ui.component.TopAppBar
 import com.aspoliakov.securenotes.core_ui.resources.Res
 import com.aspoliakov.securenotes.core_ui.resources.common_retry
 import kotlinx.coroutines.flow.Flow
@@ -61,6 +62,12 @@ internal fun KeysScreen(
     Scaffold(
             modifier = modifier,
             containerColor = MaterialTheme.colorScheme.background,
+            contentWindowInsets = WindowInsets.systemBars,
+            topBar = {
+                TopAppBar(
+                        onBackClick = { intentHandler.invoke(KeysIntent.OnBackClick) },
+                )
+            },
             snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { paddings ->
         when (state) {
