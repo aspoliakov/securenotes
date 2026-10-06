@@ -1,5 +1,7 @@
 package com.aspoliakov.securenotes.feature_note.presentation
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -12,17 +14,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.aspoliakov.securenotes.core_presentation.mvi.Effect
 import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
+import com.aspoliakov.securenotes.core_presentation.navigation.passInputThroughWhileExiting
+import com.aspoliakov.securenotes.core_presentation.navigation.screenChromeTransition
+import com.aspoliakov.securenotes.core_presentation.navigation.sharedNoteBounds
 import com.aspoliakov.securenotes.core_presentation.utils.CollectEffects
 import com.aspoliakov.securenotes.core_ui.AppPreview
 import com.aspoliakov.securenotes.core_ui.Icons
+import com.aspoliakov.securenotes.core_ui.component.FloatingButtonGroup
 import com.aspoliakov.securenotes.core_ui.component.NoteShape
 import com.aspoliakov.securenotes.core_ui.component.noteContainerColor
 import com.aspoliakov.securenotes.core_ui.resources.*
@@ -37,6 +44,24 @@ import org.koin.core.parameter.parametersOf
 /**
  * Project SecureNotes
  */
+
+private val ScreenHorizontalPadding = 12.dp
+private val BarVerticalPadding = 8.dp
+
+private const val BAR_ENTER_DURATION_MILLIS = 250
+private const val BAR_EXIT_DURATION_MILLIS = 150
+private const val BAR_CONTENT_FADE_IN_MILLIS = 200
+private const val BAR_CONTENT_FADE_OUT_MILLIS = 120
+private val FloatingButtonsSpacing = 12.dp
+
+private val TopBarEnterTransition = fadeIn(tween(BAR_ENTER_DURATION_MILLIS)) +
+        slideInVertically(tween(BAR_ENTER_DURATION_MILLIS)) { -it / 2 }
+private val TopBarExitTransition = fadeOut(tween(BAR_EXIT_DURATION_MILLIS)) +
+        slideOutVertically(tween(BAR_EXIT_DURATION_MILLIS)) { -it / 2 }
+private val BottomBarEnterTransition = fadeIn(tween(BAR_ENTER_DURATION_MILLIS)) +
+        slideInVertically(tween(BAR_ENTER_DURATION_MILLIS)) { it / 2 }
+private val BottomBarExitTransition = fadeOut(tween(BAR_EXIT_DURATION_MILLIS)) +
+        slideOutVertically(tween(BAR_EXIT_DURATION_MILLIS)) { it / 2 }
 
 @Composable
 fun NoteScreenRoute(
@@ -76,58 +101,52 @@ internal fun NoteScreen(
             .drop(1)
             .collect { intentHandler(NoteIntent.OnBodyChanged(it)) }
     }
-    Scaffold(
-            topBar = {
-                NoteToolbar(
-                        showDelete = state.noteId != null,
-                        onNavigationBack = onNavigationBack,
-                        onDeleteClick = { intentHandler.invoke(NoteIntent.OnDeleteClick) }
-                )
-            }
-    ) { padding ->
-        Column(
-                modifier = modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .imePadding(),
-        ) {
-            BoxWithConstraints(
+    Column(
+            modifier = modifier
+                .passInputThroughWhileExiting()
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .windowInsetsPadding(WindowInsets.safeDrawing)
+                .padding(horizontal = ScreenHorizontalPadding),
+    ) {
+        NoteTopBar(
+                modifier = Modifier
+                    .padding(vertical = BarVerticalPadding)
+                    .screenChromeTransition(enter = TopBarEnterTransition, exit = TopBarExitTransition),
+                showDelete = state.noteId != null,
+                onNavigationBack = onNavigationBack,
+                onDeleteClick = { intentHandler.invoke(NoteIntent.OnDeleteClick) },
+        )
+        NoteCard(
+                modifier = Modifier
+                    .weight(1F)
+                    .fillMaxWidth(),
+                noteId = state.noteId,
+                color = state.color,
+        ) { viewportHeight ->
+            val density = LocalDensity.current
+            var titleHeight by remember { mutableStateOf(0.dp) }
+            NoteTitle(
+                    modifier = Modifier.onSizeChanged { titleHeight = with(density) { it.height.toDp() } },
+                    value = state.title,
+                    onValueChange = { intentHandler(NoteIntent.OnTitleChanged(it)) },
+            )
+            NoteBody(
                     modifier = Modifier
-                        .weight(1F)
                         .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 4.dp)
-                        .clip(NoteShape)
-                        .background(noteContainerColor(state.color.argb)),
-            ) {
-                val viewportHeight = maxHeight
-                val density = LocalDensity.current
-                var titleHeight by remember { mutableStateOf(0.dp) }
-                Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
-                            .padding(horizontal = 4.dp),
-                ) {
-                    NoteTitle(
-                            modifier = Modifier.onSizeChanged { titleHeight = with(density) { it.height.toDp() } },
-                            value = state.title,
-                            onValueChange = { intentHandler(NoteIntent.OnTitleChanged(it)) },
-                    )
-                    NoteBody(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .heightIn(min = (viewportHeight - titleHeight).coerceAtLeast(0.dp))
-                                .padding(horizontal = 16.dp, vertical = 8.dp),
-                            state = bodyState,
-                    )
-                }
-            }
-            NoteBottomBar(
-                    stylesEnabled = bodyState.isFocused,
-                    onStyleClick = bodyState::applyStyle,
-                    onColorPickerClick = { showColorPicker = true },
+                        .heightIn(min = (viewportHeight - titleHeight).coerceAtLeast(0.dp))
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    state = bodyState,
             )
         }
+        NoteBottomBar(
+                modifier = Modifier
+                    .padding(vertical = BarVerticalPadding)
+                    .screenChromeTransition(enter = BottomBarEnterTransition, exit = BottomBarExitTransition),
+                stylesEnabled = bodyState.isFocused,
+                onStyleClick = bodyState::applyStyle,
+                onColorPickerClick = { showColorPicker = true },
+        )
     }
     if (showColorPicker) {
         NoteColorPickerSheet(
@@ -138,47 +157,76 @@ internal fun NoteScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun NoteToolbar(
+private fun NoteCard(
+        modifier: Modifier = Modifier,
+        noteId: String?,
+        color: NoteColor,
+        content: @Composable ColumnScope.(viewportHeight: Dp) -> Unit,
+) {
+    BoxWithConstraints(
+            modifier = modifier
+                .sharedNoteBounds(
+                        noteId = noteId,
+                        resizeMode = SharedTransitionScope.ResizeMode.scaleToBounds(
+                                contentScale = ContentScale.FillWidth,
+                                alignment = Alignment.TopCenter,
+                        ),
+                )
+                .clip(NoteShape)
+                .background(noteContainerColor(color.argb)),
+    ) {
+        val viewportHeight = maxHeight
+        Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 4.dp),
+        ) {
+            content(viewportHeight)
+        }
+    }
+}
+
+@Composable
+internal fun NoteTopBar(
+        modifier: Modifier = Modifier,
         showDelete: Boolean,
         onNavigationBack: () -> Unit,
         onDeleteClick: () -> Unit,
 ) {
-    TopAppBar(
-            navigationIcon = {
+    Row(
+            modifier = modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+    ) {
+        FloatingButtonGroup {
+            IconButton(
+                    onClick = onNavigationBack,
+            ) {
+                Icon(
+                        imageVector = Icons.ArrowBack,
+                        contentDescription = stringResource(Res.string.common_back),
+                )
+            }
+        }
+        Spacer(modifier = Modifier.weight(1F))
+        AnimatedVisibility(
+                visible = showDelete,
+                enter = fadeIn() + scaleIn(),
+                exit = fadeOut() + scaleOut(),
+        ) {
+            FloatingButtonGroup {
                 IconButton(
-                        onClick = { onNavigationBack() },
+                        onClick = onDeleteClick,
                 ) {
                     Icon(
-                            imageVector = Icons.ArrowBack,
-                            contentDescription = stringResource(Res.string.common_back),
-                            tint = MaterialTheme.colorScheme.primary,
+                            imageVector = Icons.Delete,
+                            contentDescription = stringResource(Res.string.common_delete),
                     )
                 }
-            },
-            title = {
-                Text(
-                        text = "",
-                        fontWeight = FontWeight.Normal,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1,
-                )
-            },
-            actions = {
-                if (showDelete) {
-                    IconButton(
-                            onClick = onDeleteClick,
-                    ) {
-                        Icon(
-                                imageVector = Icons.Delete,
-                                contentDescription = stringResource(Res.string.common_delete),
-                                tint = MaterialTheme.colorScheme.primary,
-                        )
-                    }
-                }
             }
-    )
+        }
+    }
 }
 
 @Composable
@@ -233,6 +281,7 @@ internal fun NoteBody(
 
 @Composable
 internal fun NoteBottomBar(
+        modifier: Modifier = Modifier,
         stylesEnabled: Boolean,
         onStyleClick: (TextStyleAction) -> Unit,
         onColorPickerClick: () -> Unit,
@@ -241,42 +290,56 @@ internal fun NoteBottomBar(
     LaunchedEffect(stylesEnabled) {
         if (!stylesEnabled) stylesExpanded = false
     }
-    Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-    ) {
-        if (stylesExpanded) {
-            IconButton(
-                    modifier = Modifier.focusProperties { canFocus = false },
-                    onClick = { stylesExpanded = false },
-            ) {
-                Icon(
-                        imageVector = Icons.Close,
-                        contentDescription = stringResource(Res.string.feature_note_text_styles_close),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+    AnimatedContent(
+            modifier = modifier.fillMaxWidth(),
+            targetState = stylesExpanded,
+            transitionSpec = {
+                fadeIn(tween(BAR_CONTENT_FADE_IN_MILLIS)) togetherWith fadeOut(tween(BAR_CONTENT_FADE_OUT_MILLIS))
+            },
+            contentAlignment = Alignment.CenterStart,
+    ) { expanded ->
+        Row(
+                horizontalArrangement = Arrangement.spacedBy(FloatingButtonsSpacing),
+                verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (expanded) {
+                FloatingButtonGroup {
+                    IconButton(
+                            modifier = Modifier.focusProperties { canFocus = false },
+                            onClick = { stylesExpanded = false },
+                    ) {
+                        Icon(
+                                imageVector = Icons.Close,
+                                contentDescription = stringResource(Res.string.feature_note_text_styles_close),
+                        )
+                    }
+                }
+                FloatingButtonGroup(
+                        modifier = Modifier.weight(1F, fill = false),
+                ) {
+                    TextStylesToolbar(
+                            onStyleClick = onStyleClick,
+                    )
+                }
+            } else {
+                FloatingButtonGroup {
+                    NoteColorPickerButton(
+                            onClick = onColorPickerClick,
+                    )
+                }
+                FloatingButtonGroup {
+                    IconButton(
+                            modifier = Modifier.focusProperties { canFocus = false },
+                            enabled = stylesEnabled,
+                            onClick = { stylesExpanded = true },
+                    ) {
+                        Icon(
+                                imageVector = Icons.TextStyles,
+                                contentDescription = stringResource(Res.string.feature_note_text_styles),
+                        )
+                    }
+                }
             }
-            VerticalDivider(modifier = Modifier.height(24.dp))
-            TextStylesToolbar(
-                    modifier = Modifier.weight(1F),
-                    onStyleClick = onStyleClick,
-            )
-        } else {
-            IconButton(
-                    modifier = Modifier.focusProperties { canFocus = false },
-                    enabled = stylesEnabled,
-                    onClick = { stylesExpanded = true },
-            ) {
-                Icon(
-                        imageVector = Icons.TextStyles,
-                        contentDescription = stringResource(Res.string.feature_note_text_styles),
-                )
-            }
-            NoteColorPickerButton(
-                    onClick = onColorPickerClick,
-            )
         }
     }
 }

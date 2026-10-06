@@ -39,6 +39,7 @@ import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
 import com.aspoliakov.securenotes.core_presentation.mvi.Effect
 import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
+import com.aspoliakov.securenotes.core_presentation.navigation.sharedNoteBounds
 import com.aspoliakov.securenotes.core_presentation.utils.CollectEffects
 import com.aspoliakov.securenotes.core_ui.AppPreview
 import com.aspoliakov.securenotes.core_ui.component.*
@@ -925,6 +926,7 @@ internal fun NoteListItemView(
     val containerColor = noteContainerColor(note.color)
     val cardModifier = modifier
         .fillMaxWidth()
+        .sharedNoteBounds(noteId = note.id)
         .clip(NoteShape)
         .background(containerColor)
         .then(
