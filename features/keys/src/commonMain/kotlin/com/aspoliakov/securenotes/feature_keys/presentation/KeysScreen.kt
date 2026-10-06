@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.aspoliakov.securenotes.core_presentation.mvi.Effect
 import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
 import com.aspoliakov.securenotes.core_presentation.utils.CollectEffects
-import com.aspoliakov.securenotes.core_ui.AppTheme
+import com.aspoliakov.securenotes.core_ui.AppPreview
 import com.aspoliakov.securenotes.core_ui.Icons
 import com.aspoliakov.securenotes.core_ui.component.TopAppBar
 import com.aspoliakov.securenotes.core_ui.resources.Res
@@ -208,7 +208,7 @@ internal fun KeysHeader(
 @Preview
 @Composable
 private fun KeysScreenRestoringPreview() {
-    AppTheme {
+    AppPreview {
         KeysScreen(
                 state = KeysState.Restoring(
                         keyId = "key_id",
@@ -224,7 +224,7 @@ private fun KeysScreenRestoringPreview() {
 @Preview
 @Composable
 private fun KeysScreenCreatingPreview() {
-    AppTheme {
+    AppPreview {
         KeysScreen(
                 state = KeysState.Creating(
                         password = "Password1",

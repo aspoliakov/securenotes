@@ -30,7 +30,7 @@ The project is a multi-module Gradle build (module names are typesafe project ac
 - `app:shared` — the composition root. Wires all feature/domain/core Koin modules together (see `di/` below), hosts `MainScreen.kt` (top-level navigation) and the iOS `MainViewController.kt` entry point.
 - `features:*` (about, auth, keys, home, note, notes_browser, profile) — one Gradle module per screen/feature. **Feature modules must not depend on each other.** Each depends only on the domain/core modules it needs.
 - `domain:*` (notes, user_state, crypto) — business logic, interactors, network DTOs/APIs (Ktorfit) for that domain. Domain modules *can* depend on each other (e.g. `domain:notes` depends on `domain:user_state` and `domain:crypto`).
-- `core:*` (base, db, key_value_storage, network, presentation, ui) — shared infrastructure. Core modules may depend on each other based on how foundational they are (e.g. `core:presentation` and `core:db` both depend on `core:base`).
+- `core:*` (base, db, key_value_storage, markdown, network, presentation, ui) — shared infrastructure. Core modules may depend on each other based on how foundational they are (e.g. `core:presentation` and `core:db` both depend on `core:base`).
 
 Every library module's `build.gradle.kts` applies the `commonModulePlugin` convention plugin (`build_logic/src/main/kotlin/commons/CommonModulePlugin.kt`), which wires up the KMP Android library target, iOS targets (`iosArm64`, `iosSimulatorArm64`), Compose, KSP, and kotlinx-serialization uniformly. `Config.kt` in `build_logic` centralizes SDK versions and the application ID; module `namespace`s follow the pattern `${Config.APPLICATION_ID}.<module_name>` where `<module_name>` is a `private val moduleName` string at the top of each `build.gradle.kts` (e.g. `feature_note`, `domain_notes`, `core_presentation`).
 
@@ -59,3 +59,7 @@ Koin is used throughout. `app/shared/src/commonMain/.../di/AppDI.kt` is the comp
 ### UI
 
 `core:ui` provides the shared Compose Material3 setup (compose runtime/foundation/material3/resources) with generated resource classes under `${Config.APPLICATION_ID}.core_ui.resources`. Feature UI (`*Screen.kt` composables) lives in each feature module and depends on `core:ui` + `core:presentation`.
+
+### Markdown
+
+Note bodies are plain Markdown strings (no format flag; storage/encryption unaware of it). `core:markdown` wraps `org.jetbrains:markdown` (GFM) and provides: `MdParser` (flat spans/links/inline nodes with source offsets), `MarkdownVisualTransformation` (in-place highlighting for the editor — styles only, text and offsets unchanged, `OffsetMapping.Identity`; keep it that way), `MarkdownPreviewRenderer` (styled text without syntax for note cards) and `MarkdownEditing` (pure `TextFieldValue` operations behind the toolbar and smart Enter). Feature screens don't know about markdown: they work with "styled text" through thin adapters that call `core:markdown` — `features/note/.../styled_text/` (`StyledTextEditor`, `StyledTextState`, `TextStyleAction`, `TextStylesToolbar`) and `features/notes_browser/.../StyledTextPreview.kt`. `StyledTextEditor` must not scroll internally: link taps map pointer positions through its `TextLayoutResult`.

@@ -1,20 +1,33 @@
 package com.aspoliakov.securenotes.core_ui
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.CreateNewFolder
+import androidx.compose.material.icons.filled.DataObject
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DriveFileRenameOutline
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.FormatBold
+import androidx.compose.material.icons.filled.FormatClear
 import androidx.compose.material.icons.filled.FormatColorReset
+import androidx.compose.material.icons.filled.FormatItalic
+import androidx.compose.material.icons.filled.FormatListNumbered
+import androidx.compose.material.icons.filled.FormatQuote
+import androidx.compose.material.icons.filled.FormatStrikethrough
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Key
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PersonOff
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.TableChart
+import androidx.compose.material.icons.filled.TextFormat
+import androidx.compose.material.icons.filled.Title
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.outlined.Circle
@@ -39,5 +52,18 @@ object Icons {
     val CreateFolder = Icons.Default.CreateNewFolder
     val Rename = Icons.Default.DriveFileRenameOutline
     val Close = Icons.Default.Close
+    val TextStyles = Icons.Default.TextFormat
+    val TextStyleFormatClear = Icons.Default.FormatClear
+    val TextStyleFormatBold = Icons.Default.FormatBold
+    val TextStyleFormatItalic = Icons.Default.FormatItalic
+    val TextStyleFormatStrikethrough = Icons.Default.FormatStrikethrough
+    val TextStyleFormatHeading = Icons.Default.Title
+    val TextStyleFormatBulletedList = Icons.AutoMirrored.Filled.FormatListBulleted
+    val TextStyleFormatNumberedList = Icons.Default.FormatListNumbered
+    val TextStyleFormatQuote = Icons.Default.FormatQuote
+    val TextStyleFormatCode = Icons.Default.Code
+    val TextStyleFormatCodeBlock = Icons.Default.DataObject
+    val TextStyleFormatLink = Icons.Default.Link
+    val TextStyleFormatTable = Icons.Default.TableChart
 }
 

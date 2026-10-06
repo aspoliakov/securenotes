@@ -29,7 +29,7 @@ import coil3.network.ktor3.KtorNetworkFetcherFactory
 import com.aspoliakov.securenotes.core_presentation.mvi.Effect
 import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
 import com.aspoliakov.securenotes.core_presentation.utils.CollectEffects
-import com.aspoliakov.securenotes.core_ui.AppTheme
+import com.aspoliakov.securenotes.core_ui.AppPreview
 import com.aspoliakov.securenotes.core_ui.Icons
 import com.aspoliakov.securenotes.core_ui.component.ShimmerEffect
 import com.aspoliakov.securenotes.core_ui.component.Spacer16dp
@@ -256,7 +256,7 @@ internal fun ProfileActionRow(
 @Preview
 @Composable
 private fun ProfileScreenPreview() {
-    AppTheme {
+    AppPreview {
         ProfileScreen(
                 state = ProfileState(
                         profileDataState = ProfileDataState.Loaded(
@@ -272,7 +272,7 @@ private fun ProfileScreenPreview() {
 @Preview
 @Composable
 private fun ProfileScreenLoadingPreview() {
-    AppTheme {
+    AppPreview {
         ProfileScreen(
                 state = ProfileState(),
                 onNavigateToAbout = {},

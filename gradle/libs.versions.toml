@@ -31,6 +31,7 @@ kvault = "1.12.0"
 coil = "3.6.0"
 androidxActivityCompose = "1.13.0"
 playServicesAuth = "21.6.0"
+jetbrainsMarkdown = "0.7.16"
 
 [libraries]
 
@@ -88,6 +89,8 @@ coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.r
 
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidxActivityCompose" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
+
+jetbrains-markdown = { module = "org.jetbrains:markdown", version.ref = "jetbrainsMarkdown" }
 
 [plugins]
 

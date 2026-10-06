@@ -28,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -41,10 +40,8 @@ import androidx.navigationevent.compose.rememberNavigationEventState
 import com.aspoliakov.securenotes.core_presentation.mvi.Effect
 import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
 import com.aspoliakov.securenotes.core_presentation.utils.CollectEffects
-import com.aspoliakov.securenotes.core_ui.AppTheme
-import com.aspoliakov.securenotes.core_ui.component.Spacer12dp
-import com.aspoliakov.securenotes.core_ui.component.Spacer16dp
-import com.aspoliakov.securenotes.core_ui.component.Spacer4dp
+import com.aspoliakov.securenotes.core_ui.AppPreview
+import com.aspoliakov.securenotes.core_ui.component.*
 import com.aspoliakov.securenotes.core_ui.resources.*
 import com.aspoliakov.securenotes.domain_user_state.model.NotesSortOrder
 import com.aspoliakov.securenotes.domain_user_state.model.NotesViewMode
@@ -59,11 +56,9 @@ import com.aspoliakov.securenotes.core_ui.Icons as AppIcons
  * Project SecureNotes
  */
 
-private val NoteCardShape = RoundedCornerShape(20.dp)
 private val FolderRowShape = RoundedCornerShape(16.dp)
 private val SelectionBorderWidth = 3.dp
 private val FolderBorderWidth = 1.dp
-private const val NOTE_COLOR_TINT_ALPHA = 0.35f
 private val DragThreshold = 8.dp
 private val AutoScrollEdgeThreshold = 64.dp
 private val AutoScrollMaxSpeedPerFrame = 12.dp
@@ -805,7 +800,7 @@ private fun BrowserListItemContent(
 ) {
     val itemShape = when (item) {
         is BrowserListItem.NotesBrowserFolderItem -> FolderRowShape
-        is BrowserListItem.NotesBrowserNoteItem -> NoteCardShape
+        is BrowserListItem.NotesBrowserNoteItem -> NoteShape
     }
     val interactionSource = remember { MutableInteractionSource() }
     val itemModifier = modifier.then(
@@ -927,24 +922,17 @@ internal fun NoteListItemView(
         onLongClick: (() -> Unit)? = {},
 ) {
     val isSelected = selection is SelectionState.Active && selection.selectedIds.contains(note.id)
-    val noteColor = note.color
-    val containerColor = if (noteColor == null) {
-        MaterialTheme.colorScheme.surfaceContainerLow
-    } else {
-        Color(noteColor)
-            .copy(alpha = NOTE_COLOR_TINT_ALPHA)
-            .compositeOver(MaterialTheme.colorScheme.surfaceContainerLow)
-    }
+    val containerColor = noteContainerColor(note.color)
     val cardModifier = modifier
         .fillMaxWidth()
-        .clip(NoteCardShape)
+        .clip(NoteShape)
         .background(containerColor)
         .then(
                 if (isSelected) {
                     Modifier.border(
                             width = SelectionBorderWidth,
                             color = MaterialTheme.colorScheme.primary,
-                            shape = NoteCardShape,
+                            shape = NoteShape,
                     )
                 } else {
                     Modifier
@@ -979,11 +967,14 @@ internal fun NoteListItemView(
         }
         val body = note.body
         if (!body.isNullOrBlank()) {
+            val bodyStyle = MaterialTheme.typography.bodyMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            val styledBody = rememberStyledPreviewText(body, bodyStyle)
             Spacer12dp()
             Text(
-                    text = body,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    text = styledBody,
+                    style = bodyStyle,
                     maxLines = 8,
                     overflow = TextOverflow.Ellipsis,
             )
@@ -1085,7 +1076,7 @@ private fun FabMenuAction(
 @Preview
 @Composable
 private fun NotesBrowserScreenLoadingPreview() {
-    AppTheme {
+    AppPreview {
         NotesBrowserScreen(
                 state = NotesBrowserState(),
                 onNavigateToCreateNote = {},
@@ -1096,7 +1087,7 @@ private fun NotesBrowserScreenLoadingPreview() {
 @Preview
 @Composable
 private fun NotesBrowserScreenEmptyPreview() {
-    AppTheme {
+    AppPreview {
         NotesBrowserScreen(
                 state = NotesBrowserState(
                         browserListState = BrowserListState.Loaded(
@@ -1111,7 +1102,7 @@ private fun NotesBrowserScreenEmptyPreview() {
 @Preview
 @Composable
 private fun NotesBrowserScreenListPreview() {
-    AppTheme {
+    AppPreview {
         NotesBrowserScreen(
                 state = NotesBrowserState(
                         breadcrumb = listOf(
@@ -1145,7 +1136,8 @@ private fun NotesBrowserScreenListPreview() {
                                                 createdAt = 0L,
                                                 order = 2000.0,
                                                 title = "Title 2",
-                                                body = "Body 2 with more text to show card wrapping.",
+                                                body = "`Body 2 with` more *text* to ~~show~~ card wrapping " +
+                                                        "and text **styles**.",
                                                 color = 0xFFE91E63L,
                                                 folderId = "1",
                                         ),
@@ -1161,7 +1153,7 @@ private fun NotesBrowserScreenListPreview() {
 @Preview
 @Composable
 private fun NotesBrowserScreenSearchPreview() {
-    AppTheme {
+    AppPreview {
         NotesBrowserScreen(
                 state = NotesBrowserState(
                         browserListState = BrowserListState.Loaded(

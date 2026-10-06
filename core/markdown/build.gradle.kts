@@ -1,4 +1,4 @@
-private val moduleName = "feature_notes_browser"
+private val moduleName = "core_markdown"
 
 plugins {
     alias(libs.plugins.commonModulePlugin)
@@ -10,13 +10,9 @@ kotlin {
     }
     sourceSets {
         commonMain.dependencies {
-            implementation(projects.domain.notes)
-            implementation(projects.domain.folders)
-            implementation(projects.domain.userState)
             implementation(projects.core.base)
-            implementation(projects.core.presentation)
             implementation(projects.core.ui)
-            implementation(projects.core.markdown)
+            implementation(libs.jetbrains.markdown)
         }
         androidMain.dependencies {
         }

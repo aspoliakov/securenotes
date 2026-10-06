@@ -34,6 +34,7 @@ include(":core:key_value_storage", "core/key_value_storage")
 include(":core:network", "core/network")
 include(":core:presentation", "core/presentation")
 include(":core:ui", "core/ui")
+include(":core:markdown", "core/markdown")
 
 fun include(path: String, projectDir: String) {
     include(path)
