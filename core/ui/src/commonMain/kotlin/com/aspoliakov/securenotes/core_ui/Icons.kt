@@ -3,6 +3,8 @@ package com.aspoliakov.securenotes.core_ui
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.automirrored.filled.Redo
+import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
@@ -52,6 +54,8 @@ object Icons {
     val CreateFolder = Icons.Default.CreateNewFolder
     val Rename = Icons.Default.DriveFileRenameOutline
     val Close = Icons.Default.Close
+    val Undo = Icons.AutoMirrored.Filled.Undo
+    val Redo = Icons.AutoMirrored.Filled.Redo
     val TextStyles = Icons.Default.TextFormat
     val TextStyleFormatClear = Icons.Default.FormatClear
     val TextStyleFormatBold = Icons.Default.FormatBold

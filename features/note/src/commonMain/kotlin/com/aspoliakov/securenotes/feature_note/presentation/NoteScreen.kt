@@ -18,6 +18,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -34,7 +35,11 @@ import com.aspoliakov.securenotes.core_ui.component.NoteShape
 import com.aspoliakov.securenotes.core_ui.component.noteContainerColor
 import com.aspoliakov.securenotes.core_ui.resources.*
 import com.aspoliakov.securenotes.domain_notes.model.NoteColor
-import com.aspoliakov.securenotes.feature_note.presentation.styled_text.*
+import com.aspoliakov.securenotes.feature_note.presentation.editor.NoteEditorState
+import com.aspoliakov.securenotes.feature_note.presentation.editor.rememberNoteEditorState
+import com.aspoliakov.securenotes.feature_note.presentation.styled_text.StyledTextEditor
+import com.aspoliakov.securenotes.feature_note.presentation.styled_text.StyledTextState
+import com.aspoliakov.securenotes.feature_note.presentation.styled_text.TextStylesToolbar
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.emptyFlow
@@ -95,9 +100,14 @@ internal fun NoteScreen(
         }
     }
     var showColorPicker by remember { mutableStateOf(false) }
-    val bodyState = rememberStyledTextState(state.body)
-    LaunchedEffect(bodyState) {
-        snapshotFlow { bodyState.text }
+    val editorState = rememberNoteEditorState(initialTitle = state.title, initialBody = state.body)
+    LaunchedEffect(editorState) {
+        snapshotFlow { editorState.title.text }
+            .drop(1)
+            .collect { intentHandler(NoteIntent.OnTitleChanged(it)) }
+    }
+    LaunchedEffect(editorState) {
+        snapshotFlow { editorState.body.text }
             .drop(1)
             .collect { intentHandler(NoteIntent.OnBodyChanged(it)) }
     }
@@ -128,23 +138,22 @@ internal fun NoteScreen(
             var titleHeight by remember { mutableStateOf(0.dp) }
             NoteTitle(
                     modifier = Modifier.onSizeChanged { titleHeight = with(density) { it.height.toDp() } },
-                    value = state.title,
-                    onValueChange = { intentHandler(NoteIntent.OnTitleChanged(it)) },
+                    value = editorState.title,
+                    onValueChange = { editorState.title = it },
             )
             NoteBody(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = (viewportHeight - titleHeight).coerceAtLeast(0.dp))
                         .padding(horizontal = 16.dp, vertical = 8.dp),
-                    state = bodyState,
+                    state = editorState.body,
             )
         }
         NoteBottomBar(
                 modifier = Modifier
                     .padding(vertical = BarVerticalPadding)
                     .screenChromeTransition(enter = BottomBarEnterTransition, exit = BottomBarExitTransition),
-                stylesEnabled = bodyState.isFocused,
-                onStyleClick = bodyState::applyStyle,
+                editorState = editorState,
                 onColorPickerClick = { showColorPicker = true },
         )
     }
@@ -232,8 +241,8 @@ internal fun NoteTopBar(
 @Composable
 internal fun NoteTitle(
         modifier: Modifier = Modifier,
-        value: String,
-        onValueChange: (String) -> Unit,
+        value: TextFieldValue,
+        onValueChange: (TextFieldValue) -> Unit,
 ) {
     val style = MaterialTheme.typography.headlineSmall.copy(
             fontWeight = FontWeight.Normal,
@@ -282,63 +291,93 @@ internal fun NoteBody(
 @Composable
 internal fun NoteBottomBar(
         modifier: Modifier = Modifier,
-        stylesEnabled: Boolean,
-        onStyleClick: (TextStyleAction) -> Unit,
+        editorState: NoteEditorState,
         onColorPickerClick: () -> Unit,
 ) {
+    val stylesEnabled = editorState.body.isFocused
     var stylesExpanded by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(stylesEnabled) {
         if (!stylesEnabled) stylesExpanded = false
     }
-    AnimatedContent(
+    Row(
             modifier = modifier.fillMaxWidth(),
-            targetState = stylesExpanded,
-            transitionSpec = {
-                fadeIn(tween(BAR_CONTENT_FADE_IN_MILLIS)) togetherWith fadeOut(tween(BAR_CONTENT_FADE_OUT_MILLIS))
-            },
-            contentAlignment = Alignment.CenterStart,
-    ) { expanded ->
-        Row(
-                horizontalArrangement = Arrangement.spacedBy(FloatingButtonsSpacing),
-                verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (expanded) {
-                FloatingButtonGroup {
-                    IconButton(
-                            modifier = Modifier.focusProperties { canFocus = false },
-                            onClick = { stylesExpanded = false },
+            horizontalArrangement = Arrangement.spacedBy(FloatingButtonsSpacing),
+            verticalAlignment = Alignment.CenterVertically,
+    ) {
+        AnimatedContent(
+                modifier = Modifier.weight(1F),
+                targetState = stylesExpanded,
+                transitionSpec = {
+                    fadeIn(tween(BAR_CONTENT_FADE_IN_MILLIS)) togetherWith fadeOut(tween(BAR_CONTENT_FADE_OUT_MILLIS))
+                },
+                contentAlignment = Alignment.CenterStart,
+        ) { expanded ->
+            Row(
+                    horizontalArrangement = Arrangement.spacedBy(FloatingButtonsSpacing),
+                    verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (expanded) {
+                    FloatingButtonGroup {
+                        IconButton(
+                                modifier = Modifier.focusProperties { canFocus = false },
+                                onClick = { stylesExpanded = false },
+                        ) {
+                            Icon(
+                                    imageVector = Icons.Close,
+                                    contentDescription = stringResource(Res.string.feature_note_text_styles_close),
+                            )
+                        }
+                    }
+                    FloatingButtonGroup(
+                            modifier = Modifier.weight(1F, fill = false),
                     ) {
-                        Icon(
-                                imageVector = Icons.Close,
-                                contentDescription = stringResource(Res.string.feature_note_text_styles_close),
+                        TextStylesToolbar(
+                                onStyleClick = editorState::applyStyle,
                         )
                     }
-                }
-                FloatingButtonGroup(
-                        modifier = Modifier.weight(1F, fill = false),
-                ) {
-                    TextStylesToolbar(
-                            onStyleClick = onStyleClick,
-                    )
-                }
-            } else {
-                FloatingButtonGroup {
-                    NoteColorPickerButton(
-                            onClick = onColorPickerClick,
-                    )
-                }
-                FloatingButtonGroup {
-                    IconButton(
-                            modifier = Modifier.focusProperties { canFocus = false },
-                            enabled = stylesEnabled,
-                            onClick = { stylesExpanded = true },
-                    ) {
-                        Icon(
-                                imageVector = Icons.TextStyles,
-                                contentDescription = stringResource(Res.string.feature_note_text_styles),
+                } else {
+                    FloatingButtonGroup {
+                        NoteColorPickerButton(
+                                onClick = onColorPickerClick,
                         )
                     }
+                    FloatingButtonGroup {
+                        IconButton(
+                                modifier = Modifier.focusProperties { canFocus = false },
+                                enabled = stylesEnabled,
+                                onClick = { stylesExpanded = true },
+                        ) {
+                            Icon(
+                                    imageVector = Icons.TextStyles,
+                                    contentDescription = stringResource(Res.string.feature_note_text_styles),
+                            )
+                        }
+                    }
                 }
+            }
+        }
+        FloatingButtonGroup {
+            IconButton(
+                    modifier = Modifier.focusProperties { canFocus = false },
+                    enabled = editorState.canUndo,
+                    onClick = editorState::undo,
+            ) {
+                Icon(
+                        imageVector = Icons.Undo,
+                        contentDescription = stringResource(Res.string.feature_note_undo),
+                )
+            }
+        }
+        FloatingButtonGroup {
+            IconButton(
+                    modifier = Modifier.focusProperties { canFocus = false },
+                    enabled = editorState.canRedo,
+                    onClick = editorState::redo,
+            ) {
+                Icon(
+                        imageVector = Icons.Redo,
+                        contentDescription = stringResource(Res.string.feature_note_redo),
+                )
             }
         }
     }

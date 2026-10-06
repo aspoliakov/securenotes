@@ -1,8 +1,10 @@
 package com.aspoliakov.securenotes.feature_note.presentation.styled_text
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.text.input.TextFieldValue
 
@@ -36,9 +38,4 @@ internal class StyledTextState(initialValue: TextFieldValue) {
         value = action.apply(value)
         focusRequester.requestFocus()
     }
-}
-
-@Composable
-internal fun rememberStyledTextState(initialText: String): StyledTextState {
-    return rememberSaveable(saver = StyledTextState.Saver) { StyledTextState(TextFieldValue(initialText)) }
 }
