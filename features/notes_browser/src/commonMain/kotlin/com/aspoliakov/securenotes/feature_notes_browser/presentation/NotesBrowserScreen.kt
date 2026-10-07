@@ -26,9 +26,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -134,7 +136,11 @@ internal fun NotesBrowserScreen(
                     state = state,
                     intentHandler = intentHandler,
             )
-            if (state.selection is SelectionState.Idle && state.breadcrumb.isNotEmpty()) {
+            if (
+                    state.selection is SelectionState.Idle &&
+                    state.searchState is SearchState.Idle &&
+                    state.breadcrumb.isNotEmpty()
+            ) {
                 Spacer12dp()
                 FolderPathRow(
                         breadcrumb = state.breadcrumb,
@@ -192,6 +198,17 @@ internal fun NotesBrowserToolbar(
                 onExitClick = { intentHandler(NotesBrowserIntent.OnExitSelection) },
         )
     } else {
+        var isSearchFocused by remember { mutableStateOf(false) }
+        val focusManager = LocalFocusManager.current
+        val searchBackEventState = rememberNavigationEventState(currentInfo = NavigationEventInfo.None)
+        NavigationBackHandler(
+                state = searchBackEventState,
+                isBackEnabled = isSearchFocused,
+                onBackCompleted = { focusManager.clearFocus() },
+        )
+        LaunchedEffect(state.currentFolderId) {
+            focusManager.clearFocus()
+        }
         Row(
                 modifier = modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -199,17 +216,29 @@ internal fun NotesBrowserToolbar(
             NotesSearchView(
                     modifier = Modifier.weight(1f),
                     searchState = state.searchState,
+                    isFocused = isSearchFocused,
+                    onFocusChange = { isSearchFocused = it },
                     intentHandler = intentHandler,
             )
-            Spacer(modifier = Modifier.width(12.dp))
-            NotesViewModeToggleButton(
-                    viewMode = state.notesViewMode,
-                    onToggle = { intentHandler(NotesBrowserIntent.OnToggleViewMode) },
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            NotesSortButton(
-                    onClick = { intentHandler(NotesBrowserIntent.OnSortButtonClick) },
-            )
+            AnimatedVisibility(
+                    visible = !isSearchFocused,
+                    enter = expandHorizontally(expandFrom = Alignment.Start) + fadeIn(),
+                    exit = shrinkHorizontally(shrinkTowards = Alignment.Start) + fadeOut(),
+            ) {
+                Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Spacer(modifier = Modifier.width(12.dp))
+                    NotesViewModeToggleButton(
+                            viewMode = state.notesViewMode,
+                            onToggle = { intentHandler(NotesBrowserIntent.OnToggleViewMode) },
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    NotesSortButton(
+                            onClick = { intentHandler(NotesBrowserIntent.OnSortButtonClick) },
+                    )
+                }
+            }
         }
     }
 }
@@ -351,9 +380,12 @@ private fun SelectionActionButton(
 internal fun NotesSearchView(
         modifier: Modifier = Modifier,
         searchState: SearchState = SearchState.Idle,
+        isFocused: Boolean = false,
+        onFocusChange: (Boolean) -> Unit = {},
         intentHandler: (NotesBrowserIntent) -> Unit = {},
 ) {
     val activeSearch = searchState as? SearchState.Active
+    val focusManager = LocalFocusManager.current
     var query by remember { mutableStateOf(activeSearch?.query.orEmpty()) }
     LaunchedEffect(searchState) {
         if (searchState is SearchState.Idle && query.isNotEmpty()) {
@@ -366,7 +398,9 @@ internal fun NotesSearchView(
                 query = it
                 intentHandler(NotesBrowserIntent.OnSearch(it))
             },
-            modifier = modifier.clip(RoundedCornerShape(16.dp)),
+            modifier = modifier
+                .clip(RoundedCornerShape(16.dp))
+                .onFocusChanged { onFocusChange(it.isFocused) },
             singleLine = true,
             placeholder = { Text(text = stringResource(Res.string.feature_notes_search_notes)) },
             leadingIcon = {
@@ -377,22 +411,24 @@ internal fun NotesSearchView(
                 )
             },
             trailingIcon = {
-                if (activeSearch != null) {
+                if (isFocused || activeSearch != null) {
                     Row(
                             modifier = Modifier.padding(end = 12.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        Box(
-                                modifier = Modifier.size(20.dp),
-                                contentAlignment = Alignment.Center,
-                        ) {
-                            if (activeSearch.inProgress) {
-                                CircularProgressIndicator(
-                                        modifier = Modifier.size(20.dp),
-                                        color = MaterialTheme.colorScheme.secondary,
-                                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                                )
+                        if (activeSearch != null) {
+                            Box(
+                                    modifier = Modifier.size(20.dp),
+                                    contentAlignment = Alignment.Center,
+                            ) {
+                                if (activeSearch.inProgress) {
+                                    CircularProgressIndicator(
+                                            modifier = Modifier.size(20.dp),
+                                            color = MaterialTheme.colorScheme.secondary,
+                                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    )
+                                }
                             }
                         }
                         Icon(
@@ -401,6 +437,7 @@ internal fun NotesSearchView(
                                 modifier = Modifier.clickable {
                                     query = ""
                                     intentHandler(NotesBrowserIntent.OnSearch(""))
+                                    focusManager.clearFocus()
                                 },
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )

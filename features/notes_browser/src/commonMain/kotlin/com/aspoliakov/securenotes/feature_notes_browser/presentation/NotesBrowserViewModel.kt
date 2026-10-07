@@ -316,8 +316,10 @@ internal class NotesBrowserViewModel(
     }
 
     private fun moveToFolder(folderId: String?) {
+        searchJob?.cancel()
         reduceState {
             copy(
+                    currentFolderId = folderId,
                     browserListState = BrowserListState.Idle,
                     selection = SelectionState.Idle,
                     searchState = SearchState.Idle,
@@ -327,7 +329,6 @@ internal class NotesBrowserViewModel(
             val breadcrumb = buildBreadcrumb(folderId)
             reduceState {
                 copy(
-                        currentFolderId = folderId,
                         breadcrumb = breadcrumb,
                         canNavigateBack = backStack.isNotEmpty(),
                 )
