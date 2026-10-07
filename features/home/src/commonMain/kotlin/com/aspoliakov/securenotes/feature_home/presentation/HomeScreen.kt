@@ -13,7 +13,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.aspoliakov.securenotes.core_ui.AppTheme
+import com.aspoliakov.securenotes.core_ui.AppPreview
 import com.aspoliakov.securenotes.feature_home.HomeNavItem
 import com.aspoliakov.securenotes.feature_home.notesItem
 import com.aspoliakov.securenotes.feature_home.profileItem
@@ -106,7 +106,7 @@ fun BottomNavigationMenu(
 @Preview
 @Composable
 private fun HomeScreenPreview() {
-    AppTheme {
+    AppPreview {
         HomeScreen(
                 navItems = listOf(
                         notesItem { Text(text = "Notes") },

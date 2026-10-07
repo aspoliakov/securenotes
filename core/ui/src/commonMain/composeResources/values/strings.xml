@@ -86,6 +86,22 @@
     <string name="feature_note_text_field_body_hint">Note</string>
     <string name="feature_note_color_picker">Note color</string>
     <string name="feature_note_color_none">No color</string>
+    <string name="feature_note_undo">Undo</string>
+    <string name="feature_note_redo">Redo</string>
+    <string name="feature_note_text_styles">Text styles</string>
+    <string name="feature_note_text_styles_close">Close text styles</string>
+    <string name="feature_note_text_style_clear">Clear styles</string>
+    <string name="feature_note_text_style_bold">Bold</string>
+    <string name="feature_note_text_style_italic">Italic</string>
+    <string name="feature_note_text_style_strikethrough">Strikethrough</string>
+    <string name="feature_note_text_style_heading">Heading</string>
+    <string name="feature_note_text_style_bulleted_list">Bulleted list</string>
+    <string name="feature_note_text_style_numbered_list">Numbered list</string>
+    <string name="feature_note_text_style_quote">Quote</string>
+    <string name="feature_note_text_style_code">Code</string>
+    <string name="feature_note_text_style_code_block">Code block</string>
+    <string name="feature_note_text_style_link">Link</string>
+    <string name="feature_note_text_style_table">Table</string>
 
     <string name="feature_profile_about">About</string>
     <string name="feature_profile_logout">Logout</string>

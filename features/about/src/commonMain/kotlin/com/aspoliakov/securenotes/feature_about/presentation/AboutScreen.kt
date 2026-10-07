@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.aspoliakov.securenotes.core_presentation.mvi.Effect
 import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
 import com.aspoliakov.securenotes.core_presentation.utils.CollectEffects
-import com.aspoliakov.securenotes.core_ui.AppTheme
+import com.aspoliakov.securenotes.core_ui.AppPreview
 import com.aspoliakov.securenotes.core_ui.Icons
 import com.aspoliakov.securenotes.core_ui.LocalCustomColorSchemeProvider
 import com.aspoliakov.securenotes.core_ui.component.TopAppBar
@@ -220,7 +220,7 @@ internal fun VersionPill(
 @Preview
 @Composable
 private fun AboutScreenPreview() {
-    AppTheme {
+    AppPreview {
         AboutScreen(
                 state = AboutState(appVersion = "1.0.0"),
         )

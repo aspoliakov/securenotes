@@ -15,7 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
 import com.aspoliakov.securenotes.core_presentation.utils.CollectEffects
-import com.aspoliakov.securenotes.core_ui.AppTheme
+import com.aspoliakov.securenotes.core_ui.AppPreview
 import com.aspoliakov.securenotes.core_ui.Icons
 import com.aspoliakov.securenotes.core_ui.component.Spacer16dp
 import com.aspoliakov.securenotes.core_ui.resources.*
@@ -126,7 +126,7 @@ internal fun FolderScreen(
 @Preview
 @Composable
 private fun FolderScreenCreatePreview() {
-    AppTheme {
+    AppPreview {
         FolderScreen(
                 state = FolderState(mode = FolderMode.Create(parentId = null)),
                 onDismiss = {},
@@ -137,7 +137,7 @@ private fun FolderScreenCreatePreview() {
 @Preview
 @Composable
 private fun FolderScreenEditPreview() {
-    AppTheme {
+    AppPreview {
         FolderScreen(
                 state = FolderState(mode = FolderMode.Edit(folderId = "1"), name = "Ideas"),
                 onDismiss = {},
