@@ -3,23 +3,29 @@ package com.aspoliakov.securenotes
 import com.aspoliakov.securenotes.core_presentation.mvi.Effect
 import com.aspoliakov.securenotes.core_presentation.mvi.Intent
 import com.aspoliakov.securenotes.core_presentation.mvi.State
+import com.aspoliakov.securenotes.domain_user_state.model.AppThemeMode
 import com.aspoliakov.securenotes.domain_user_state.model.UserState
 
 /**
  * Project SecureNotes
  */
 
-sealed class AppComposableState : State() {
-    data object Unauthorized : AppComposableState()
-    data object Authorized : AppComposableState()
-    data object Active : AppComposableState()
+data class AppComposableState(
+        val globalState: AppGlobalState,
+        val themeMode: AppThemeMode,
+) : State()
+
+sealed class AppGlobalState {
+    data object Auth : AppGlobalState()
+    data object Keys : AppGlobalState()
+    data object Active : AppGlobalState()
 }
 
-fun UserState.toAppState(): AppComposableState {
+fun UserState.toAppGlobalState(): AppGlobalState {
     return when (this) {
-        UserState.UNAUTHORIZED -> AppComposableState.Unauthorized
-        UserState.AUTHORIZED -> AppComposableState.Authorized
-        UserState.ACTIVE -> AppComposableState.Active
+        UserState.AUTH -> AppGlobalState.Auth
+        UserState.KEYS -> AppGlobalState.Keys
+        UserState.ACTIVE -> AppGlobalState.Active
     }
 }
 

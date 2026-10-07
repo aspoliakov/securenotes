@@ -43,6 +43,7 @@ kotlin {
             api(projects.core.ui)
         }
         androidMain.dependencies {
+            implementation(libs.androidx.activity.compose)
             api(libs.androidx.appcompat)
             api(libs.androidx.ktx)
             api(libs.androidx.splashScreen)

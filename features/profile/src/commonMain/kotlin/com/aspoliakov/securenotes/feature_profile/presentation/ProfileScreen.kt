@@ -3,12 +3,17 @@ package com.aspoliakov.securenotes.feature_profile.presentation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -19,6 +24,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -34,9 +40,15 @@ import com.aspoliakov.securenotes.core_ui.Icons
 import com.aspoliakov.securenotes.core_ui.component.ShimmerEffect
 import com.aspoliakov.securenotes.core_ui.component.Spacer16dp
 import com.aspoliakov.securenotes.core_ui.resources.Res
+import com.aspoliakov.securenotes.core_ui.resources.common_cancel
 import com.aspoliakov.securenotes.core_ui.resources.feature_profile_about
 import com.aspoliakov.securenotes.core_ui.resources.feature_profile_avatar_description
 import com.aspoliakov.securenotes.core_ui.resources.feature_profile_logout
+import com.aspoliakov.securenotes.core_ui.resources.feature_profile_theme
+import com.aspoliakov.securenotes.core_ui.resources.feature_profile_theme_dark
+import com.aspoliakov.securenotes.core_ui.resources.feature_profile_theme_light
+import com.aspoliakov.securenotes.core_ui.resources.feature_profile_theme_system
+import com.aspoliakov.securenotes.domain_user_state.model.AppThemeMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import org.jetbrains.compose.resources.StringResource
@@ -83,8 +95,17 @@ internal fun ProfileScreen(
         )
         Spacer(modifier = Modifier.height(48.dp))
         ProfileActions(
+                themeMode = state.themeMode,
+                onThemeClick = { intentHandler(ProfileIntent.OnThemeClick) },
                 onAboutClick = { onNavigateToAbout() },
                 onLogoutClick = { intentHandler(ProfileIntent.OnLogoutClick) },
+        )
+    }
+    if (state.isThemeDialogVisible) {
+        ThemeDialog(
+                themeMode = state.themeMode,
+                onThemeSelected = { intentHandler(ProfileIntent.OnThemeSelected(it)) },
+                onDismiss = { intentHandler(ProfileIntent.OnThemeDialogDismissed) },
         )
     }
 }
@@ -185,6 +206,8 @@ private fun rememberAvatarImageLoader(): ImageLoader {
 @Composable
 internal fun ProfileActions(
         modifier: Modifier = Modifier,
+        themeMode: AppThemeMode,
+        onThemeClick: () -> Unit,
         onAboutClick: () -> Unit,
         onLogoutClick: () -> Unit,
 ) {
@@ -194,6 +217,18 @@ internal fun ProfileActions(
                 .clip(RoundedCornerShape(20.dp))
                 .background(MaterialTheme.colorScheme.surfaceContainerLow),
     ) {
+        ProfileActionRow(
+                imageVector = Icons.Theme,
+                text = Res.string.feature_profile_theme,
+                value = themeMode.title(),
+                iconTint = MaterialTheme.colorScheme.secondary,
+                iconContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                onClick = onThemeClick,
+        )
+        HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 20.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant,
+        )
         ProfileActionRow(
                 imageVector = Icons.About,
                 text = Res.string.feature_profile_about,
@@ -219,6 +254,7 @@ internal fun ProfileActions(
 internal fun ProfileActionRow(
         imageVector: ImageVector,
         text: StringResource,
+        value: StringResource? = null,
         iconTint: Color,
         iconContainerColor: Color,
         onClick: () -> Unit,
@@ -246,10 +282,105 @@ internal fun ProfileActionRow(
         }
         Spacer(modifier = Modifier.width(16.dp))
         Text(
+                modifier = Modifier.weight(1f),
                 text = stringResource(text),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface,
         )
+        if (value != null) {
+            Text(
+                    text = stringResource(value),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+internal fun ThemeDialog(
+        themeMode: AppThemeMode,
+        onThemeSelected: (AppThemeMode) -> Unit,
+        onDismiss: () -> Unit,
+) {
+    AlertDialog(
+            icon = { Icon(imageVector = Icons.Theme, contentDescription = null) },
+            title = { Text(text = stringResource(Res.string.feature_profile_theme)) },
+            text = {
+                Column(modifier = Modifier.selectableGroup()) {
+                    AppThemeMode.entries.forEach { option ->
+                        ThemeOptionRow(
+                                themeMode = option,
+                                selected = option == themeMode,
+                                onClick = { onThemeSelected(option) },
+                        )
+                    }
+                }
+            },
+            onDismissRequest = onDismiss,
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text(text = stringResource(Res.string.common_cancel))
+                }
+            },
+    )
+}
+
+@Composable
+private fun ThemeOptionRow(
+        themeMode: AppThemeMode,
+        selected: Boolean,
+        onClick: () -> Unit,
+) {
+    Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .selectable(
+                        selected = selected,
+                        role = Role.RadioButton,
+                        onClick = onClick,
+                )
+                .padding(horizontal = 12.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+                imageVector = themeMode.icon(),
+                contentDescription = null,
+                tint = if (selected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Text(
+                modifier = Modifier.weight(1f),
+                text = stringResource(themeMode.title()),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+        )
+        RadioButton(
+                selected = selected,
+                onClick = null,
+        )
+    }
+}
+
+private fun AppThemeMode.title(): StringResource {
+    return when (this) {
+        AppThemeMode.SYSTEM -> Res.string.feature_profile_theme_system
+        AppThemeMode.LIGHT -> Res.string.feature_profile_theme_light
+        AppThemeMode.DARK -> Res.string.feature_profile_theme_dark
+    }
+}
+
+private fun AppThemeMode.icon(): ImageVector {
+    return when (this) {
+        AppThemeMode.SYSTEM -> Icons.ThemeSystem
+        AppThemeMode.LIGHT -> Icons.ThemeLight
+        AppThemeMode.DARK -> Icons.ThemeDark
     }
 }
 
@@ -265,6 +396,18 @@ private fun ProfileScreenPreview() {
                         ),
                 ),
                 onNavigateToAbout = {},
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun ThemeDialogPreview() {
+    AppPreview {
+        ThemeDialog(
+                themeMode = AppThemeMode.DARK,
+                onThemeSelected = {},
+                onDismiss = {},
         )
     }
 }

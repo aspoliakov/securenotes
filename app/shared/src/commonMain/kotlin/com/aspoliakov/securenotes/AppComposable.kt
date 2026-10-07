@@ -4,13 +4,8 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.*
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
 import com.aspoliakov.securenotes.core_presentation.navigation.AppGlobalScreen
 import com.aspoliakov.securenotes.core_ui.AppTheme
+import com.aspoliakov.securenotes.domain_user_state.model.AppThemeMode
 import com.aspoliakov.securenotes.feature_auth.presentation.AuthScreenRoute
 import com.aspoliakov.securenotes.feature_keys.presentation.KeysScreenRoute
 
@@ -28,22 +24,33 @@ import com.aspoliakov.securenotes.feature_keys.presentation.KeysScreenRoute
 @Composable
 fun MainAppComposable() {
     val navController = rememberNavController()
-    AppTheme {
-        val mainViewModel = koinMviViewModel<AppComposableViewModel>()
-        val state by mainViewModel.state.collectAsState()
+    val mainViewModel = koinMviViewModel<AppComposableViewModel>()
+    val state by mainViewModel.state.collectAsState()
+    val darkTheme = state.themeMode.isDarkTheme()
+    SystemBarsEffect(darkTheme = darkTheme)
+    AppTheme(darkTheme = darkTheme) {
         MainAppNavHost(
-                state = state,
+                globalState = state.globalState,
                 navController = navController,
         )
     }
 }
 
 @Composable
+private fun AppThemeMode.isDarkTheme(): Boolean {
+    return when (this) {
+        AppThemeMode.SYSTEM -> isSystemInDarkTheme()
+        AppThemeMode.LIGHT -> false
+        AppThemeMode.DARK -> true
+    }
+}
+
+@Composable
 internal fun MainAppNavHost(
-        state: AppComposableState,
+        globalState: AppGlobalState,
         navController: NavHostController,
 ) {
-    val destination = remember(state) { state.toScreen() }
+    val destination = remember(globalState) { globalState.toScreen() }
     val startDestination = remember { destination }
     var initialized by remember { mutableStateOf(false) }
     NavHost(
@@ -81,10 +88,10 @@ internal fun MainAppNavHost(
     }
 }
 
-fun AppComposableState.toScreen(): AppGlobalScreen {
+fun AppGlobalState.toScreen(): AppGlobalScreen {
     return when (this) {
-        is AppComposableState.Unauthorized -> AppGlobalScreen.Auth
-        is AppComposableState.Authorized -> AppGlobalScreen.Keys
-        is AppComposableState.Active -> AppGlobalScreen.Main
+        is AppGlobalState.Auth -> AppGlobalScreen.Auth
+        is AppGlobalState.Keys -> AppGlobalScreen.Keys
+        is AppGlobalState.Active -> AppGlobalScreen.Main
     }
 }

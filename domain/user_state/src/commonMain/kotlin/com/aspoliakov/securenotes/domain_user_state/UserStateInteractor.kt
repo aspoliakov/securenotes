@@ -38,7 +38,7 @@ class UserStateInteractor(
     ) {
         keyValueStorage.put(USER_EMAIL, email)
         keyValueStorage.put(USER_ID, userId)
-        keyValueStorage.put(USER_AUTH_STATE, UserState.AUTHORIZED.state)
+        keyValueStorage.put(USER_AUTH_STATE, UserState.KEYS.state)
         encryptedKeyValueStorage.put(USER_TOKEN, token)
     }
 
