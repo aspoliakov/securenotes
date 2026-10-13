@@ -6,7 +6,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.aspoliakov.securenotes.di.AppDI
-import org.koin.android.ext.koin.androidContext
 
 /**
  * Project SecureNotes
@@ -19,11 +18,7 @@ class AppActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AppDI(
-                    appDeclaration = {
-                        androidContext(this@AppActivity)
-                    }
-            ) {
+            AppDI {
                 MainAppComposable()
             }
         }
