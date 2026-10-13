@@ -11,6 +11,7 @@ import io.github.aakira.napier.Napier
 
 class UserAuthInteractor(
         private val userStateInteractor: UserStateInteractor,
+        private val userPrefsInteractor: UserPrefsInteractor,
         private val authApiProvider: AuthApiProvider,
 ) {
 
@@ -25,12 +26,11 @@ class UserAuthInteractor(
                             password = password,
                     )
             )
-            userStateInteractor.setUserAuthorized(
+            onAuthSuccess(
                     userId = response.user.userId,
                     email = response.user.email,
                     token = response.token,
             )
-            AuthResult.OK
         }.getOrElse(this::onAuthFailure)
     }
 
@@ -41,12 +41,11 @@ class UserAuthInteractor(
                             idToken = idToken,
                     ),
             )
-            userStateInteractor.setUserAuthorized(
+            onAuthSuccess(
                     userId = response.user.userId,
                     email = response.user.email,
                     token = response.token,
             )
-            AuthResult.OK
         }.getOrElse(this::onAuthFailure)
     }
 
@@ -61,13 +60,26 @@ class UserAuthInteractor(
                             password = password,
                     )
             )
-            userStateInteractor.setUserAuthorized(
+            onAuthSuccess(
                     userId = response.user.userId,
                     email = response.user.email,
                     token = response.token,
             )
-            AuthResult.OK
         }.getOrElse(this::onAuthFailure)
+    }
+
+    private suspend fun onAuthSuccess(
+            userId: String,
+            email: String,
+            token: String,
+    ): AuthResult {
+        userStateInteractor.setUserAuthorized(
+                userId = userId,
+                email = email,
+                token = token,
+        )
+        userPrefsInteractor.sync()
+        return AuthResult.OK
     }
 
     private fun onAuthFailure(throwable: Throwable): AuthResult {

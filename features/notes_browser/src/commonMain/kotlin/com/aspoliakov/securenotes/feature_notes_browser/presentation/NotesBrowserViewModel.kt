@@ -2,6 +2,7 @@ package com.aspoliakov.securenotes.feature_notes_browser.presentation
 
 import androidx.lifecycle.viewModelScope
 import com.aspoliakov.securenotes.core_base.util.flowOnIO
+import com.aspoliakov.securenotes.core_base.util.flowOnMain
 import com.aspoliakov.securenotes.core_presentation.mvi.MviViewModel
 import com.aspoliakov.securenotes.core_presentation.utils.launchOnIO
 import com.aspoliakov.securenotes.domain_folders.FolderInteractor
@@ -44,6 +45,7 @@ internal class NotesBrowserViewModel(
 
     init {
         loadCurrentFolder()
+        observePrefs()
     }
 
     override fun handleIntent(intent: NotesBrowserIntent) {
@@ -252,6 +254,22 @@ internal class NotesBrowserViewModel(
                 reduceState { copy(browserListState = BrowserListState.Loaded(items)) }
             }
             .flowOnIO()
+            .launchIn(viewModelScope)
+    }
+
+    private fun observePrefs() {
+        userPrefsInteractor.observeNotesViewMode()
+            .onEach { reduceState { copy(notesViewMode = it) } }
+            .flowOnMain()
+            .launchIn(viewModelScope)
+        userPrefsInteractor.observeNotesSortOrder()
+            .onEach { sortOrder ->
+                if (sortOrder != currentState.sortOrder) {
+                    reduceState { copy(sortOrder = sortOrder) }
+                    loadCurrentFolder()
+                }
+            }
+            .flowOnMain()
             .launchIn(viewModelScope)
     }
 

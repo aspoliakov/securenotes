@@ -2,6 +2,7 @@ package com.aspoliakov.securenotes.domain_user_state.di
 
 import com.aspoliakov.securenotes.domain_user_state.*
 import com.aspoliakov.securenotes.domain_user_state.network.AuthApiProvider
+import com.aspoliakov.securenotes.domain_user_state.network.UserSettingsApiProvider
 import org.koin.dsl.module
 
 /**
@@ -10,6 +11,7 @@ import org.koin.dsl.module
 
 val userStateDomainModule = module {
     val authApiProvider = AuthApiProvider()
+    val userSettingsApiProvider = UserSettingsApiProvider()
     single {
         UserStateProvider(
                 keyValueStorage = get(),
@@ -25,11 +27,14 @@ val userStateDomainModule = module {
     single {
         UserPrefsInteractor(
                 keyValueStorage = get(),
+                userStateInteractor = get(),
+                userSettingsApiProvider = userSettingsApiProvider,
         )
     }
     single {
         UserAuthInteractor(
                 userStateInteractor = get(),
+                userPrefsInteractor = get(),
                 authApiProvider = authApiProvider,
         )
     }

@@ -35,6 +35,7 @@ fun AppDI(
             appDeclaration()
             appInit(
                     syncStackInteractor = koin.get<SyncStackInteractor>(),
+                    userPrefsInteractor = koin.get<UserPrefsInteractor>(),
             )
         },
         content = content
@@ -59,6 +60,8 @@ val appComposableViewModelModule = module {
 
 private fun appInit(
         syncStackInteractor: SyncStackInteractor,
+        userPrefsInteractor: UserPrefsInteractor,
 ) {
     syncStackInteractor.sync()
+    userPrefsInteractor.sync()
 }
