@@ -11,6 +11,7 @@ import io.github.aakira.napier.Napier
 
 class UserAuthInteractor(
         private val userStateInteractor: UserStateInteractor,
+        private val userSessionInteractor: UserSessionInteractor,
         private val userPrefsInteractor: UserPrefsInteractor,
         private val authApiProvider: AuthApiProvider,
 ) {
@@ -29,7 +30,8 @@ class UserAuthInteractor(
             onAuthSuccess(
                     userId = response.user.userId,
                     email = response.user.email,
-                    token = response.token,
+                    accessToken = response.accessToken,
+                    refreshToken = response.refreshToken,
             )
         }.getOrElse(this::onAuthFailure)
     }
@@ -44,7 +46,8 @@ class UserAuthInteractor(
             onAuthSuccess(
                     userId = response.user.userId,
                     email = response.user.email,
-                    token = response.token,
+                    accessToken = response.accessToken,
+                    refreshToken = response.refreshToken,
             )
         }.getOrElse(this::onAuthFailure)
     }
@@ -63,7 +66,8 @@ class UserAuthInteractor(
             onAuthSuccess(
                     userId = response.user.userId,
                     email = response.user.email,
-                    token = response.token,
+                    accessToken = response.accessToken,
+                    refreshToken = response.refreshToken,
             )
         }.getOrElse(this::onAuthFailure)
     }
@@ -71,12 +75,16 @@ class UserAuthInteractor(
     private suspend fun onAuthSuccess(
             userId: String,
             email: String,
-            token: String,
+            accessToken: String,
+            refreshToken: String,
     ): AuthResult {
+        userSessionInteractor.saveSession(
+                accessToken = accessToken,
+                refreshToken = refreshToken,
+        )
         userStateInteractor.setUserAuthorized(
                 userId = userId,
                 email = email,
-                token = token,
         )
         userPrefsInteractor.sync()
         return AuthResult.OK

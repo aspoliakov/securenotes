@@ -11,5 +11,6 @@ import kotlinx.serialization.Serializable
 data class AuthGoogleResponse(
         @SerialName("message") val message: String,
         @SerialName("user") val user: UserDTO,
-        @SerialName("token") val token: String,
+        @SerialName("token") val accessToken: String,
+        @SerialName("refresh_token") val refreshToken: String,
 )

@@ -11,8 +11,8 @@ import org.koin.dsl.module
  */
 
 val foldersDomainModule = module {
-    single<FoldersApiProvider> { FoldersApiProvider() }
+    single { FoldersApiProvider(get()) }
     single { FolderCryptoInteractor(get()) }
-    single { FolderInteractor(get(), get(), get(), get(), get(), get(), get()) }
-    single { FoldersListInteractor(get(), get(), get(), get(), get()) }
+    single { FolderInteractor(get(), get(), get(), get(), get(), get()) }
+    single { FoldersListInteractor(get(), get(), get(), get()) }
 }

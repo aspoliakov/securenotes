@@ -22,7 +22,7 @@ import kotlinx.coroutines.sync.withLock
 
 class UserPrefsInteractor(
         private val keyValueStorage: KeyValueStorage,
-        private val userStateInteractor: UserStateInteractor,
+        private val userStateProvider: UserStateProvider,
         private val userSettingsApiProvider: UserSettingsApiProvider,
 ) {
 
@@ -112,7 +112,7 @@ class UserPrefsInteractor(
     }
 
     private suspend fun uploadChanges() {
-        val token = userStateInteractor.getUserToken() ?: return
+        if (!userStateProvider.isAuthorized()) return
         val pendingSettings = listOfNotNull(
                 pendingSetting(NOTES_VIEW_MODE) { getNotesViewMode().name },
                 pendingSetting(NOTES_SORT_ORDER) { getNotesSortOrder().name },
@@ -121,7 +121,6 @@ class UserPrefsInteractor(
         if (pendingSettings.isEmpty()) return
         Napier.d("upload user settings to server: ${pendingSettings.map { it.key }}")
         userSettingsApiProvider.provideApi().saveSettings(
-                token = token,
                 request = PostUserSettingsRequest(
                         settings = pendingSettings.map { PostUserSettingItem(it.key, it.value) },
                 ),
@@ -136,8 +135,8 @@ class UserPrefsInteractor(
     }
 
     private suspend fun downloadChanges() {
-        val token = userStateInteractor.getUserToken() ?: return
-        val serverSettings = userSettingsApiProvider.provideApi().getAllSettings(token = token).settings
+        if (!userStateProvider.isAuthorized()) return
+        val serverSettings = userSettingsApiProvider.provideApi().getAllSettings().settings
         syncedPrefsMutex.withLock {
             serverSettings.forEach { setting ->
                 if (isSyncRequired(setting.key)) return@forEach

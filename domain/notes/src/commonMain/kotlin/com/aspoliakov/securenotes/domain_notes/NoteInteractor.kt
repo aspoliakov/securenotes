@@ -13,7 +13,6 @@ import com.aspoliakov.securenotes.domain_notes.model.NotePayload
 import com.aspoliakov.securenotes.domain_notes.model.NoteVO
 import com.aspoliakov.securenotes.domain_notes.model.PostNoteRequest
 import com.aspoliakov.securenotes.domain_notes.network.NotesApiProvider
-import com.aspoliakov.securenotes.domain_user_state.UserStateInteractor
 import io.github.aakira.napier.Napier
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
@@ -32,7 +31,6 @@ class NoteInteractor(
         private val syncStackDao: SyncStackDao,
         private val syncStackEventBus: SyncStackEventBus,
         private val notesApiProvider: NotesApiProvider,
-        private val userStateInteractor: UserStateInteractor,
         private val noteCryptoInteractor: NoteCryptoInteractor,
 ) {
 
@@ -141,7 +139,6 @@ class NoteInteractor(
                         )
                 )
                 notesApiProvider.provideApi().saveNote(
-                        token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
                         request = PostNoteRequest(
                                 noteId = noteId,
                                 folderId = noteDB.folderId,
@@ -154,7 +151,6 @@ class NoteInteractor(
             SyncStackDB.Action.DELETE -> {
                 Napier.d("remove note from server")
                 notesApiProvider.provideApi().deleteNote(
-                        token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
                         noteId = noteId,
                 )
             }

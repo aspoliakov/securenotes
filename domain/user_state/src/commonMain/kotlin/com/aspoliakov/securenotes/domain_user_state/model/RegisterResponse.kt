@@ -11,7 +11,8 @@ import kotlinx.serialization.Serializable
 data class RegisterResponse(
         @SerialName("message") val message: String,
         @SerialName("user") val user: UserDTO,
-        @SerialName("token") val token: String,
+        @SerialName("token") val accessToken: String,
+        @SerialName("refresh_token") val refreshToken: String,
 ) {
     companion object {
         const val ERROR_USER_ALREADY_REGISTERERD = "user already registererd"

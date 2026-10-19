@@ -36,7 +36,6 @@ class UserKeysInteractor(
                 .toBase64()
         return runCatching {
             val response = keysApiProvider.provideApi().postNewUserKey(
-                    token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
                     request = PostKeyPairRequest(
                             publicKey = encodedPublicKey,
                             encryptedPrivateKey = encryptedPrivateKey,
@@ -53,9 +52,7 @@ class UserKeysInteractor(
     }
 
     suspend fun loadKey(): KeyDTO? {
-        val allUserKeys = keysApiProvider.provideApi().getAllUserKeys(
-                token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
-        ).keys
+        val allUserKeys = keysApiProvider.provideApi().getAllUserKeys().keys
         return allUserKeys.takeIf { it.isNotEmpty() }?.maxBy { it.version }
     }
 

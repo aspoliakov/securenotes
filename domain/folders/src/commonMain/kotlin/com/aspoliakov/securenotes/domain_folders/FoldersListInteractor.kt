@@ -7,7 +7,6 @@ import com.aspoliakov.securenotes.core_db.model.FolderDB
 import com.aspoliakov.securenotes.core_db.model.SyncStackDB
 import com.aspoliakov.securenotes.domain_folders.model.FolderVO
 import com.aspoliakov.securenotes.domain_folders.network.FoldersApiProvider
-import com.aspoliakov.securenotes.domain_user_state.UserStateInteractor
 import com.aspoliakov.securenotes.domain_user_state.model.NotesSortOrder
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +24,6 @@ class FoldersListInteractor(
         private val folderDao: FolderDao,
         private val syncStackDao: SyncStackDao,
         private val foldersApiProvider: FoldersApiProvider,
-        private val userStateInteractor: UserStateInteractor,
         private val folderCryptoInteractor: FolderCryptoInteractor,
 ) {
 
@@ -52,9 +50,7 @@ class FoldersListInteractor(
             // resurrect a locally deleted folder or silently discard an unsynced local edit, so
             // they are left untouched until their own pending sync completes
             val pendingIds = syncStackDao.selectIdsByItemType(SyncStackDB.ItemType.FOLDER).toSet()
-            val folders = foldersApiProvider.provideApi().getAllFolders(
-                    token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
-            )
+            val folders = foldersApiProvider.provideApi().getAllFolders()
                 .folders
                 .filterNot { it.folderId in pendingIds }
                 .map {

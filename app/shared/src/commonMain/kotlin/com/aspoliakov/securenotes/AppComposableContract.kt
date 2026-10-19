@@ -23,7 +23,8 @@ sealed class AppGlobalState {
 
 fun UserState.toAppGlobalState(): AppGlobalState {
     return when (this) {
-        UserState.AUTH -> AppGlobalState.Auth
+        UserState.AUTH,
+        UserState.DEACTIVATED -> AppGlobalState.Auth
         UserState.KEYS -> AppGlobalState.Keys
         UserState.ACTIVE -> AppGlobalState.Active
     }

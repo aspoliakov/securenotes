@@ -12,7 +12,6 @@ import com.aspoliakov.securenotes.domain_folders.model.FolderPayload
 import com.aspoliakov.securenotes.domain_folders.model.FolderVO
 import com.aspoliakov.securenotes.domain_folders.model.PostFolderRequest
 import com.aspoliakov.securenotes.domain_folders.network.FoldersApiProvider
-import com.aspoliakov.securenotes.domain_user_state.UserStateInteractor
 import io.github.aakira.napier.Napier
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
@@ -32,7 +31,6 @@ class FolderInteractor(
         private val syncStackDao: SyncStackDao,
         private val syncStackEventBus: SyncStackEventBus,
         private val foldersApiProvider: FoldersApiProvider,
-        private val userStateInteractor: UserStateInteractor,
         private val folderCryptoInteractor: FolderCryptoInteractor,
 ) {
 
@@ -120,7 +118,6 @@ class FolderInteractor(
                         FolderPayload(name = folderDB.name)
                 )
                 foldersApiProvider.provideApi().saveFolder(
-                        token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
                         request = PostFolderRequest(
                                 folderId = folderId,
                                 parentId = folderDB.parentId,
@@ -133,7 +130,6 @@ class FolderInteractor(
             SyncStackDB.Action.DELETE -> {
                 Napier.d("remove folder from server")
                 foldersApiProvider.provideApi().deleteFolder(
-                        token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
                         folderId = folderId,
                 )
             }

@@ -10,7 +10,6 @@ import com.aspoliakov.securenotes.domain_folders.FoldersListInteractor
 import com.aspoliakov.securenotes.domain_notes.model.NoteColor
 import com.aspoliakov.securenotes.domain_notes.model.NoteVO
 import com.aspoliakov.securenotes.domain_notes.network.NotesApiProvider
-import com.aspoliakov.securenotes.domain_user_state.UserStateInteractor
 import com.aspoliakov.securenotes.domain_user_state.model.NotesSortOrder
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.Flow
@@ -29,7 +28,6 @@ class NotesListInteractor(
         private val folderDao: FolderDao,
         private val syncStackDao: SyncStackDao,
         private val notesApiProvider: NotesApiProvider,
-        private val userStateInteractor: UserStateInteractor,
         private val noteCryptoInteractor: NoteCryptoInteractor,
         private val foldersListInteractor: FoldersListInteractor,
 ) {
@@ -72,9 +70,7 @@ class NotesListInteractor(
             // resurrect a locally deleted note or silently discard an unsynced local edit, so
             // they are left untouched until their own pending sync completes
             val pendingIds = syncStackDao.selectIdsByItemType(SyncStackDB.ItemType.NOTE).toSet()
-            val notes = notesApiProvider.provideApi().getAllNotes(
-                    token = userStateInteractor.getUserToken() ?: throw IllegalStateException(),
-            )
+            val notes = notesApiProvider.provideApi().getAllNotes()
                     .notes
                     .filterNot { it.noteId in pendingIds }
                     .map {

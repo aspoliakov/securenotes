@@ -14,6 +14,7 @@ val authViewModelModule = module {
         AuthViewModel(
                 initialState = AuthState(),
                 userAuthInteractor = get(),
+                userStateProvider = get(),
         )
     }
 }
