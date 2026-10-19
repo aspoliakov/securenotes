@@ -32,8 +32,4 @@ class UserStateInteractor(
     suspend fun setUserDeactivated() {
         keyValueStorage.put(USER_AUTH_STATE, UserState.DEACTIVATED.state)
     }
-
-    suspend fun clearUserState() {
-        keyValueStorage.clear()
-    }
 }

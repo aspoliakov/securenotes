@@ -13,6 +13,7 @@ data class RegisterResponse(
         @SerialName("user") val user: UserDTO,
         @SerialName("token") val accessToken: String,
         @SerialName("refresh_token") val refreshToken: String,
+        @SerialName("session_id") val sessionId: String,
 ) {
     companion object {
         const val ERROR_USER_ALREADY_REGISTERERD = "user already registererd"

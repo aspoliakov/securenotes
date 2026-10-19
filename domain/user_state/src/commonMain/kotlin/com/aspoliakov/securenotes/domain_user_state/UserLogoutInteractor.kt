@@ -2,6 +2,7 @@ package com.aspoliakov.securenotes.domain_user_state
 
 import com.aspoliakov.securenotes.core_db.DatabaseManager
 import com.aspoliakov.securenotes.core_key_value_storage.EncryptedKeyValueStorage
+import com.aspoliakov.securenotes.core_key_value_storage.KeyValueStorage
 import com.aspoliakov.securenotes.domain_user_state.model.LogoutRequest
 import com.aspoliakov.securenotes.domain_user_state.network.AuthApiProvider
 import io.github.aakira.napier.Napier
@@ -21,6 +22,7 @@ class UserLogoutInteractor(
         private val userStateProvider: UserStateProvider,
         private val userSessionInteractor: UserSessionInteractor,
         private val encryptedKeyValueStorage: EncryptedKeyValueStorage,
+        private val keyValueStorage: KeyValueStorage,
         private val databaseManager: DatabaseManager,
         private val authApiProvider: AuthApiProvider,
 ) {
@@ -67,6 +69,6 @@ class UserLogoutInteractor(
     private suspend fun clearUserData() {
         databaseManager.clearAll()
         encryptedKeyValueStorage.clear()
-        userStateInteractor.clearUserState()
+        keyValueStorage.clear()
     }
 }

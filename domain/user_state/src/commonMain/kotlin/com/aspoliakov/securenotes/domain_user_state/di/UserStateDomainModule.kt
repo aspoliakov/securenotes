@@ -3,6 +3,7 @@ package com.aspoliakov.securenotes.domain_user_state.di
 import com.aspoliakov.securenotes.core_network.auth.AuthTokenProvider
 import com.aspoliakov.securenotes.domain_user_state.*
 import com.aspoliakov.securenotes.domain_user_state.network.AuthApiProvider
+import com.aspoliakov.securenotes.domain_user_state.network.UserSessionsApiProvider
 import com.aspoliakov.securenotes.domain_user_state.network.UserSettingsApiProvider
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -19,6 +20,11 @@ val userStateDomainModule = module {
         )
     }
     single {
+        UserSessionsApiProvider(
+                authTokenProvider = get(),
+        )
+    }
+    single {
         UserStateProvider(
                 keyValueStorage = get(),
         )
@@ -31,6 +37,7 @@ val userStateDomainModule = module {
     single {
         UserSessionInteractor(
                 encryptedKeyValueStorage = get(),
+                keyValueStorage = get(),
         )
     }
     single {
@@ -61,8 +68,15 @@ val userStateDomainModule = module {
                 userStateProvider = get(),
                 userSessionInteractor = get(),
                 encryptedKeyValueStorage = get(),
+                keyValueStorage = get(),
                 databaseManager = get(),
                 authApiProvider = authApiProvider,
+        )
+    }
+    single {
+        ActiveSessionsInteractor(
+                userSessionInteractor = get(),
+                userSessionsApiProvider = get(),
         )
     }
 }

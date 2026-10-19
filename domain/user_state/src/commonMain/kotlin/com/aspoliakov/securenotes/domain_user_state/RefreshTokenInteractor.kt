@@ -78,7 +78,7 @@ class RefreshTokenInteractor(
                 // signed out while the refresh was in flight
                 return@withContext null
             }
-            userSessionInteractor.saveSession(
+            userSessionInteractor.saveTokens(
                     accessToken = response.accessToken,
                     refreshToken = response.refreshToken,
             )

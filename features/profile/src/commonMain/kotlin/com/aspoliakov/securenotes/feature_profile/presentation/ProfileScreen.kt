@@ -44,6 +44,7 @@ import com.aspoliakov.securenotes.core_ui.resources.common_cancel
 import com.aspoliakov.securenotes.core_ui.resources.feature_profile_about
 import com.aspoliakov.securenotes.core_ui.resources.feature_profile_avatar_description
 import com.aspoliakov.securenotes.core_ui.resources.feature_profile_logout
+import com.aspoliakov.securenotes.core_ui.resources.feature_profile_sessions
 import com.aspoliakov.securenotes.core_ui.resources.feature_profile_theme
 import com.aspoliakov.securenotes.core_ui.resources.feature_profile_theme_dark
 import com.aspoliakov.securenotes.core_ui.resources.feature_profile_theme_light
@@ -62,6 +63,7 @@ import org.jetbrains.compose.resources.stringResource
 fun ProfileScreenRoute(
         modifier: Modifier = Modifier,
         onNavigateToAbout: () -> Unit,
+        onNavigateToSessions: () -> Unit,
 ) {
     val viewModel = koinMviViewModel<ProfileViewModel>()
     val state by viewModel.state.collectAsState()
@@ -70,6 +72,7 @@ fun ProfileScreenRoute(
             state = state,
             effects = viewModel.effects,
             onNavigateToAbout = onNavigateToAbout,
+            onNavigateToSessions = onNavigateToSessions,
             intentHandler = viewModel::emitIntent,
     )
 }
@@ -80,6 +83,7 @@ internal fun ProfileScreen(
         state: ProfileState = ProfileState(),
         effects: Flow<Effect> = emptyFlow(),
         onNavigateToAbout: () -> Unit,
+        onNavigateToSessions: () -> Unit,
         intentHandler: (ProfileIntent) -> Unit = {},
 ) {
     CollectEffects<ProfileEffect>(effects) {}
@@ -97,6 +101,7 @@ internal fun ProfileScreen(
         ProfileActions(
                 themeMode = state.themeMode,
                 onThemeClick = { intentHandler(ProfileIntent.OnThemeClick) },
+                onSessionsClick = { onNavigateToSessions() },
                 onAboutClick = { onNavigateToAbout() },
                 onLogoutClick = { intentHandler(ProfileIntent.OnLogoutClick) },
         )
@@ -208,6 +213,7 @@ internal fun ProfileActions(
         modifier: Modifier = Modifier,
         themeMode: AppThemeMode,
         onThemeClick: () -> Unit,
+        onSessionsClick: () -> Unit,
         onAboutClick: () -> Unit,
         onLogoutClick: () -> Unit,
 ) {
@@ -224,6 +230,17 @@ internal fun ProfileActions(
                 iconTint = MaterialTheme.colorScheme.secondary,
                 iconContainerColor = MaterialTheme.colorScheme.secondaryContainer,
                 onClick = onThemeClick,
+        )
+        HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 20.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant,
+        )
+        ProfileActionRow(
+                imageVector = Icons.Sessions,
+                text = Res.string.feature_profile_sessions,
+                iconTint = MaterialTheme.colorScheme.tertiary,
+                iconContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                onClick = onSessionsClick,
         )
         HorizontalDivider(
                 modifier = Modifier.padding(horizontal = 20.dp),
@@ -396,6 +413,7 @@ private fun ProfileScreenPreview() {
                         ),
                 ),
                 onNavigateToAbout = {},
+                onNavigateToSessions = {},
         )
     }
 }
@@ -419,6 +437,7 @@ private fun ProfileScreenLoadingPreview() {
         ProfileScreen(
                 state = ProfileState(),
                 onNavigateToAbout = {},
+                onNavigateToSessions = {},
         )
     }
 }

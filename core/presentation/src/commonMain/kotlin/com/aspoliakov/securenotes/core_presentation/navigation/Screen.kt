@@ -25,4 +25,7 @@ sealed class Screen {
 
     @Serializable
     data object About : Screen()
+
+    @Serializable
+    data object Sessions : Screen()
 }

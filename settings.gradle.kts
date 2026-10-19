@@ -22,6 +22,7 @@ include(":features:note", "features/note")
 include(":features:folder", "features/folder")
 include(":features:notes_browser", "features/notes_browser")
 include(":features:profile", "features/profile")
+include(":features:sessions", "features/sessions")
 
 include(":domain:notes", "domain/notes")
 include(":domain:folders", "domain/folders")

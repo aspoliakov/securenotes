@@ -15,6 +15,8 @@ import androidx.compose.material.icons.filled.CreateNewFolder
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.DataObject
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeleteSweep
+import androidx.compose.material.icons.filled.Devices
 import androidx.compose.material.icons.filled.DriveFileRenameOutline
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.FormatBold
@@ -30,6 +32,8 @@ import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PersonOff
+import androidx.compose.material.icons.filled.PhoneAndroid
+import androidx.compose.material.icons.filled.PhoneIphone
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.TableChart
 import androidx.compose.material.icons.filled.TextFormat
@@ -45,6 +49,10 @@ object Icons {
     val Delete = Icons.Default.Delete
     val Logout = Icons.AutoMirrored.Filled.Logout
     val About = Icons.Default.Info
+    val Sessions = Icons.Default.Devices
+    val SessionAndroid = Icons.Default.PhoneAndroid
+    val SessionIos = Icons.Default.PhoneIphone
+    val TerminateSessions = Icons.Default.DeleteSweep
     val Theme = Icons.Default.Contrast
     val ThemeSystem = Icons.Default.BrightnessAuto
     val ThemeLight = Icons.Default.LightMode
