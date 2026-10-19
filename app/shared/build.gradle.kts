@@ -30,6 +30,7 @@ kotlin {
             implementation(projects.features.folder)
             implementation(projects.features.notesBrowser)
             implementation(projects.features.profile)
+            implementation(projects.features.sessions)
 
             implementation(projects.domain.notes)
             implementation(projects.domain.folders)
@@ -43,6 +44,7 @@ kotlin {
             api(projects.core.ui)
         }
         androidMain.dependencies {
+            implementation(libs.androidx.activity.compose)
             api(libs.androidx.appcompat)
             api(libs.androidx.ktx)
             api(libs.androidx.splashScreen)

@@ -11,8 +11,8 @@ import org.koin.dsl.module
  */
 
 val notesDomainModule = module {
-    single<NotesApiProvider> { NotesApiProvider() }
+    single { NotesApiProvider(get()) }
     single { NoteCryptoInteractor(get()) }
-    single { NoteInteractor(get(), get(), get(), get(), get(), get(), get()) }
-    single { NotesListInteractor(get(), get(), get(), get(), get(), get(), get()) }
+    single { NoteInteractor(get(), get(), get(), get(), get(), get()) }
+    single { NotesListInteractor(get(), get(), get(), get(), get(), get()) }
 }

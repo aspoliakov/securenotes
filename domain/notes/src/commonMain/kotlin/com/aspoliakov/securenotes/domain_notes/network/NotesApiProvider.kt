@@ -1,6 +1,7 @@
 package com.aspoliakov.securenotes.domain_notes.network
 
 import com.aspoliakov.securenotes.core_base.BACKEND_BASE_URL
+import com.aspoliakov.securenotes.core_network.auth.AuthTokenProvider
 import com.aspoliakov.securenotes.core_network.createHttpClient
 import de.jensklingenberg.ktorfit.ktorfit
 import io.github.aakira.napier.Napier
@@ -8,7 +9,9 @@ import io.github.aakira.napier.Napier
 /**
  * Project SecureNotes
  */
-class NotesApiProvider {
+class NotesApiProvider(
+        private val authTokenProvider: AuthTokenProvider,
+) {
 
     companion object {
         private const val NOTES_API_ENDPOINT = BACKEND_BASE_URL + "api/v1/notes/"
@@ -18,7 +21,7 @@ class NotesApiProvider {
         ktorfit {
             Napier.e("Notes api endpoint: $NOTES_API_ENDPOINT")
             baseUrl(NOTES_API_ENDPOINT)
-            httpClient(createHttpClient())
+            httpClient(createHttpClient(authTokenProvider))
         }
     }
 

@@ -1,5 +1,6 @@
 package com.aspoliakov.securenotes.domain_user_state
 
+import com.aspoliakov.securenotes.core_base.util.currentDeviceInfo
 import com.aspoliakov.securenotes.core_network.exceptions.ErrorResponseException
 import com.aspoliakov.securenotes.domain_user_state.model.*
 import com.aspoliakov.securenotes.domain_user_state.network.AuthApiProvider
@@ -11,6 +12,8 @@ import io.github.aakira.napier.Napier
 
 class UserAuthInteractor(
         private val userStateInteractor: UserStateInteractor,
+        private val userSessionInteractor: UserSessionInteractor,
+        private val userPrefsInteractor: UserPrefsInteractor,
         private val authApiProvider: AuthApiProvider,
 ) {
 
@@ -23,14 +26,16 @@ class UserAuthInteractor(
                     request = AuthEmailRequest(
                             email = email,
                             password = password,
+                            device = deviceInfoDTO(),
                     )
             )
-            userStateInteractor.setUserAuthorized(
+            onAuthSuccess(
                     userId = response.user.userId,
                     email = response.user.email,
-                    token = response.token,
+                    accessToken = response.accessToken,
+                    refreshToken = response.refreshToken,
+                    sessionId = response.sessionId,
             )
-            AuthResult.OK
         }.getOrElse(this::onAuthFailure)
     }
 
@@ -39,14 +44,16 @@ class UserAuthInteractor(
             val response = authApiProvider.provideApi().authenticateViaGoogle(
                     request = AuthGoogleRequest(
                             idToken = idToken,
+                            device = deviceInfoDTO(),
                     ),
             )
-            userStateInteractor.setUserAuthorized(
+            onAuthSuccess(
                     userId = response.user.userId,
                     email = response.user.email,
-                    token = response.token,
+                    accessToken = response.accessToken,
+                    refreshToken = response.refreshToken,
+                    sessionId = response.sessionId,
             )
-            AuthResult.OK
         }.getOrElse(this::onAuthFailure)
     }
 
@@ -59,15 +66,46 @@ class UserAuthInteractor(
                     request = RegisterRequest(
                             email = email,
                             password = password,
+                            device = deviceInfoDTO(),
                     )
             )
-            userStateInteractor.setUserAuthorized(
+            onAuthSuccess(
                     userId = response.user.userId,
                     email = response.user.email,
-                    token = response.token,
+                    accessToken = response.accessToken,
+                    refreshToken = response.refreshToken,
+                    sessionId = response.sessionId,
             )
-            AuthResult.OK
         }.getOrElse(this::onAuthFailure)
+    }
+
+    private suspend fun onAuthSuccess(
+            userId: String,
+            email: String,
+            accessToken: String,
+            refreshToken: String,
+            sessionId: String,
+    ): AuthResult {
+        userSessionInteractor.saveSession(
+                accessToken = accessToken,
+                refreshToken = refreshToken,
+                sessionId = sessionId,
+        )
+        userStateInteractor.setUserAuthorized(
+                userId = userId,
+                email = email,
+        )
+        userPrefsInteractor.sync()
+        return AuthResult.OK
+    }
+
+    private fun deviceInfoDTO(): DeviceInfoDTO {
+        val deviceInfo = currentDeviceInfo()
+        return DeviceInfoDTO(
+                deviceName = deviceInfo.name,
+                platform = deviceInfo.platform,
+                osVersion = deviceInfo.osVersion,
+        )
     }
 
     private fun onAuthFailure(throwable: Throwable): AuthResult {

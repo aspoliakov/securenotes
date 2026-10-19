@@ -13,7 +13,7 @@ import org.koin.dsl.module
 
 val cryptoDomainModule = module {
     runBlocking { LibsodiumInitializer.initialize() }
-    single<KeysApiProvider> { KeysApiProvider() }
+    single { KeysApiProvider(get()) }
     single { UserKeysInteractor(get(), get(), get()) }
     single { UserKeysProvider(get()) }
 }

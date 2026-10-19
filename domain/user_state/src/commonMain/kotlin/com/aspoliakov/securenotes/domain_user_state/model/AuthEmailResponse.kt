@@ -11,7 +11,9 @@ import kotlinx.serialization.Serializable
 data class AuthEmailResponse(
         @SerialName("message") val message: String,
         @SerialName("user") val user: UserDTO,
-        @SerialName("token") val token: String,
+        @SerialName("token") val accessToken: String,
+        @SerialName("refresh_token") val refreshToken: String,
+        @SerialName("session_id") val sessionId: String,
 ) {
     companion object {
         const val ERROR_WRONG_CREDENTIALS = "wrong credentials"

@@ -4,7 +4,9 @@ import com.aspoliakov.securenotes.core_base.util.Patterns
 import com.aspoliakov.securenotes.core_presentation.mvi.MviViewModel
 import com.aspoliakov.securenotes.core_presentation.utils.launchOnIO
 import com.aspoliakov.securenotes.domain_user_state.UserAuthInteractor
+import com.aspoliakov.securenotes.domain_user_state.UserStateProvider
 import com.aspoliakov.securenotes.domain_user_state.model.AuthResult
+import com.aspoliakov.securenotes.domain_user_state.model.UserState
 import io.github.aakira.napier.Napier
 
 /**
@@ -14,7 +16,20 @@ import io.github.aakira.napier.Napier
 class AuthViewModel(
         initialState: AuthState,
         private val userAuthInteractor: UserAuthInteractor,
+        private val userStateProvider: UserStateProvider,
 ) : MviViewModel<AuthState, AuthEffect, AuthIntent>(initialState) {
+
+    init {
+        launchOnIO {
+            if (userStateProvider.getUserState() == UserState.DEACTIVATED) {
+                reduceState {
+                    copy(
+                            authActionState = AuthActionState.Error(AuthError.SESSION_EXPIRED)
+                    )
+                }
+            }
+        }
+    }
 
     override fun handleIntent(intent: AuthIntent) {
         when (intent) {

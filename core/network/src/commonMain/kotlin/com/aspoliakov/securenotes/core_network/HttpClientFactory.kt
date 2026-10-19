@@ -1,40 +1,40 @@
 package com.aspoliakov.securenotes.core_network
 
+import com.aspoliakov.securenotes.core_network.auth.ACCESS_TOKEN_HEADER
+import com.aspoliakov.securenotes.core_network.auth.AuthTokenPlugin
+import com.aspoliakov.securenotes.core_network.auth.AuthTokenProvider
 import com.aspoliakov.securenotes.core_network.exceptions.Error404Exception
 import com.aspoliakov.securenotes.core_network.exceptions.ErrorResponse
 import com.aspoliakov.securenotes.core_network.exceptions.ErrorResponseException
 import io.github.aakira.napier.Napier
-import io.ktor.client.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.logging.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.HttpResponseValidator
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.HttpStatusCode
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 /**
  * Project SecureNotes
  */
 
-/**
- * TCP connect only — no payload involved, so it can be short: an unreachable backend
- * host fails fast, while a live one on a slow mobile network still connects in time.
- */
 private const val CONNECT_TIMEOUT_MS = 5_000L
-
-/**
- * Max silence between two packets of an established connection.
- */
 private const val SOCKET_TIMEOUT_MS = 15_000L
-
-/**
- * Upper bound for the whole call, including large note sync payloads.
- */
 private const val REQUEST_TIMEOUT_MS = 30_000L
 
-fun createHttpClient(): HttpClient {
+fun createHttpClient(authTokenProvider: AuthTokenProvider? = null): HttpClient {
     return HttpClient {
+        if (authTokenProvider != null) {
+            install(AuthTokenPlugin) {
+                tokenProvider = authTokenProvider
+            }
+        }
         install(HttpTimeout) {
             connectTimeoutMillis = CONNECT_TIMEOUT_MS
             socketTimeoutMillis = SOCKET_TIMEOUT_MS
@@ -47,6 +47,7 @@ fun createHttpClient(): HttpClient {
                 }
             }
             level = LogLevel.ALL
+            sanitizeHeader { it == ACCESS_TOKEN_HEADER }
         }
         install(ContentNegotiation) {
             json(
@@ -68,7 +69,10 @@ fun createHttpClient(): HttpClient {
                     throw Error404Exception()
                 } else {
                     val errorResponse = Json.decodeFromString<ErrorResponse>(response.bodyAsText())
-                    throw ErrorResponseException(errorResponse.detail)
+                    throw ErrorResponseException(
+                            statusCode = response.status.value,
+                            detail = errorResponse.detail,
+                    )
                 }
             }
         }

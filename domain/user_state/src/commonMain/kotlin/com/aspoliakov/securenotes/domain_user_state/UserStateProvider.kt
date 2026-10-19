@@ -27,9 +27,13 @@ class UserStateProvider(
         return observeUserState().first()
     }
 
+    suspend fun isAuthorized(): Boolean {
+        return getUserState().isAuthorized()
+    }
+
     fun observeUserState(): Flow<UserState> {
         return keyValueStorage.getInt(USER_AUTH_STATE)
-                .map { it?.let(UserState::fromIntState) ?: UserState.UNAUTHORIZED }
+            .map { it?.let(UserState::fromIntState) ?: UserState.AUTH }
     }
 
     suspend fun getUserProfileData(): UserProfileData {

@@ -35,6 +35,7 @@
     <string name="feature_auth_error_empty_password">Password cannot be empty</string>
     <string name="feature_auth_error_wrong_credentials">Wrong email or password</string>
     <string name="feature_auth_error_user_already_registered">User already registered</string>
+    <string name="feature_auth_error_session_expired">Your session has expired. Please sign in again.</string>
     <string name="feature_auth_error_account_uses_google">This account uses Google sign-in. Continue with Google instead.</string>
     <string name="feature_auth_sign_in_with_google">Continue with Google</string>
     <string name="feature_auth_or_divider">or</string>
@@ -104,6 +105,30 @@
     <string name="feature_note_text_style_table">Table</string>
 
     <string name="feature_profile_about">About</string>
+    <string name="feature_profile_sessions">Active sessions</string>
+    <string name="feature_profile_theme">Theme</string>
+    <string name="feature_profile_theme_system">System default</string>
+    <string name="feature_profile_theme_light">Light</string>
+    <string name="feature_profile_theme_dark">Dark</string>
     <string name="feature_profile_logout">Logout</string>
     <string name="feature_profile_avatar_description">Profile avatar</string>
+
+    <string name="feature_sessions_current">This device</string>
+    <string name="feature_sessions_others">Other sessions</string>
+    <string name="feature_sessions_no_others">No other active sessions</string>
+    <string name="feature_sessions_unknown_device">Unknown device</string>
+    <string name="feature_sessions_platform_android">Android</string>
+    <string name="feature_sessions_platform_ios">iOS</string>
+    <string name="feature_sessions_signed_in">Signed in %1$s</string>
+    <string name="feature_sessions_last_active">Last active %1$s</string>
+    <string name="feature_sessions_active_now">Active now</string>
+    <string name="feature_sessions_terminate">Terminate session</string>
+    <string name="feature_sessions_terminate_others">Terminate other sessions</string>
+    <string name="feature_sessions_terminate_title">Terminate session?</string>
+    <string name="feature_sessions_terminate_message">%1$s will be signed out.</string>
+    <string name="feature_sessions_terminate_others_title">Terminate other sessions?</string>
+    <string name="feature_sessions_terminate_others_message">All devices except this one will be signed out.</string>
+    <string name="feature_sessions_terminate_confirm">Terminate</string>
+    <string name="feature_sessions_load_error">Couldn't load active sessions</string>
+    <string name="feature_sessions_terminate_error">Couldn't terminate. Please try again.</string>
 </resources>

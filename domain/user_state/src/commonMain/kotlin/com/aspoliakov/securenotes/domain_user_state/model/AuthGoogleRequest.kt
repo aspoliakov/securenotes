@@ -10,4 +10,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class AuthGoogleRequest(
         @SerialName("id_token") val idToken: String,
+        @SerialName("device") val device: DeviceInfoDTO,
 )

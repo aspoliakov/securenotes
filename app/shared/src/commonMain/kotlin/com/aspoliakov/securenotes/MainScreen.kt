@@ -25,6 +25,7 @@ import com.aspoliakov.securenotes.feature_home.profileItem
 import com.aspoliakov.securenotes.feature_note.presentation.NoteScreenRoute
 import com.aspoliakov.securenotes.feature_notes_browser.presentation.NotesBrowserScreenRoute
 import com.aspoliakov.securenotes.feature_profile.presentation.ProfileScreenRoute
+import com.aspoliakov.securenotes.feature_sessions.presentation.SessionsScreenRoute
 
 /**
  * Project SecureNotes
@@ -112,6 +113,11 @@ private fun MainNavHost() {
                     onNavigationBack = { navController.popBackStack() },
             )
         }
+        composable<Screen.Sessions> {
+            SessionsScreenRoute(
+                    onNavigationBack = { navController.popBackStack() },
+            )
+        }
     }
 }
 
@@ -141,7 +147,10 @@ private fun HomeDestination(
                     ProfileScreenRoute(
                             onNavigateToAbout = {
                                 navController.navigate(Screen.About)
-                            }
+                            },
+                            onNavigateToSessions = {
+                                navController.navigate(Screen.Sessions)
+                            },
                     )
                 },
         )

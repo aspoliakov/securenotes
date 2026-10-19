@@ -1,7 +1,11 @@
 package com.aspoliakov.securenotes.domain_user_state.di
 
+import com.aspoliakov.securenotes.core_network.auth.AuthTokenProvider
 import com.aspoliakov.securenotes.domain_user_state.*
 import com.aspoliakov.securenotes.domain_user_state.network.AuthApiProvider
+import com.aspoliakov.securenotes.domain_user_state.network.UserSessionsApiProvider
+import com.aspoliakov.securenotes.domain_user_state.network.UserSettingsApiProvider
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 /**
@@ -11,6 +15,16 @@ import org.koin.dsl.module
 val userStateDomainModule = module {
     val authApiProvider = AuthApiProvider()
     single {
+        UserSettingsApiProvider(
+                authTokenProvider = get(),
+        )
+    }
+    single {
+        UserSessionsApiProvider(
+                authTokenProvider = get(),
+        )
+    }
+    single {
         UserStateProvider(
                 keyValueStorage = get(),
         )
@@ -18,24 +32,51 @@ val userStateDomainModule = module {
     single {
         UserStateInteractor(
                 keyValueStorage = get(),
-                encryptedKeyValueStorage = get(),
-                databaseManager = get(),
         )
     }
     single {
+        UserSessionInteractor(
+                encryptedKeyValueStorage = get(),
+                keyValueStorage = get(),
+        )
+    }
+    single {
+        RefreshTokenInteractor(
+                userSessionInteractor = get(),
+                userLogoutInteractor = get(),
+                authApiProvider = authApiProvider,
+        )
+    } bind AuthTokenProvider::class
+    single {
         UserPrefsInteractor(
                 keyValueStorage = get(),
+                userStateProvider = get(),
+                userSettingsApiProvider = get(),
         )
     }
     single {
         UserAuthInteractor(
                 userStateInteractor = get(),
+                userSessionInteractor = get(),
+                userPrefsInteractor = get(),
                 authApiProvider = authApiProvider,
         )
     }
     single {
         UserLogoutInteractor(
                 userStateInteractor = get(),
+                userStateProvider = get(),
+                userSessionInteractor = get(),
+                encryptedKeyValueStorage = get(),
+                keyValueStorage = get(),
+                databaseManager = get(),
+                authApiProvider = authApiProvider,
+        )
+    }
+    single {
+        ActiveSessionsInteractor(
+                userSessionInteractor = get(),
+                userSessionsApiProvider = get(),
         )
     }
 }

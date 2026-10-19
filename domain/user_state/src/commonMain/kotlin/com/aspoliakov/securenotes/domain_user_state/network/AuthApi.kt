@@ -28,4 +28,16 @@ interface AuthApi {
     suspend fun authenticateViaGoogle(
             @Body request: AuthGoogleRequest,
     ): AuthGoogleResponse
+
+    @Headers("Content-Type: application/json")
+    @POST("refresh")
+    suspend fun refreshToken(
+            @Body request: RefreshTokenRequest,
+    ): RefreshTokenResponse
+
+    @Headers("Content-Type: application/json")
+    @POST("logout")
+    suspend fun logout(
+            @Body request: LogoutRequest,
+    ): LogoutResponse
 }

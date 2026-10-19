@@ -2,6 +2,7 @@ package com.aspoliakov.securenotes.core_key_value_storage
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
@@ -27,6 +28,10 @@ class KeyValueStorage(private val dataStore: DataStore<Preferences>) {
         dataStore.edit { it[intPreferencesKey(key)] = value }
     }
 
+    suspend fun put(key: String, value: Boolean) {
+        dataStore.edit { it[booleanPreferencesKey(key)] = value }
+    }
+
     fun getDataFlow(): Flow<Preferences> {
         return dataStore.data
     }
@@ -41,6 +46,10 @@ class KeyValueStorage(private val dataStore: DataStore<Preferences>) {
 
     fun getInt(key: String): Flow<Int?> {
         return dataStore.data.map { it[intPreferencesKey(key)] }
+    }
+
+    fun getBoolean(key: String): Flow<Boolean?> {
+        return dataStore.data.map { it[booleanPreferencesKey(key)] }
     }
 
     suspend fun clear() {

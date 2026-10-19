@@ -11,4 +11,5 @@ import kotlinx.serialization.Serializable
 data class RegisterRequest(
         @SerialName("email") val email: String,
         @SerialName("password") val password: String,
+        @SerialName("device") val device: DeviceInfoDTO,
 )

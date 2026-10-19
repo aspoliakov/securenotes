@@ -14,6 +14,7 @@ val profileViewModelModule = module {
         ProfileViewModel(
                 initialState = ProfileState(),
                 userStateProvider = get(),
+                userPrefsInteractor = get(),
                 userLogoutInteractor = get(),
         )
     }

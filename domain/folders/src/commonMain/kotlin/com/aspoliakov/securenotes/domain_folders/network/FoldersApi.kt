@@ -1,5 +1,6 @@
 package com.aspoliakov.securenotes.domain_folders.network
 
+import com.aspoliakov.securenotes.core_network.auth.Authorized
 import com.aspoliakov.securenotes.domain_folders.model.DeleteFolderResponse
 import com.aspoliakov.securenotes.domain_folders.model.GetFoldersResponse
 import com.aspoliakov.securenotes.domain_folders.model.PostFolderRequest
@@ -12,23 +13,22 @@ import de.jensklingenberg.ktorfit.http.*
 
 interface FoldersApi {
 
+    @Authorized
     @Headers("Content-Type: application/json")
     @POST("save")
     suspend fun saveFolder(
-            @Header("access_token") token: String,
             @Body request: PostFolderRequest,
     ): PostFolderResponse
 
+    @Authorized
     @Headers("Content-Type: application/json")
     @GET("all")
-    suspend fun getAllFolders(
-            @Header("access_token") token: String,
-    ): GetFoldersResponse
+    suspend fun getAllFolders(): GetFoldersResponse
 
+    @Authorized
     @Headers("Content-Type: application/json")
     @DELETE("{folder_id}")
     suspend fun deleteFolder(
-            @Header("access_token") token: String,
             @Path("folder_id") folderId: String,
     ): DeleteFolderResponse
 }

@@ -8,6 +8,7 @@ import com.aspoliakov.securenotes.feature_keys.di.keysViewModelModule
 import com.aspoliakov.securenotes.feature_note.di.noteViewModelModule
 import com.aspoliakov.securenotes.feature_notes_browser.di.notesBrowserViewModelModule
 import com.aspoliakov.securenotes.feature_profile.di.profileViewModelModule
+import com.aspoliakov.securenotes.feature_sessions.di.sessionsViewModelModule
 
 /**
  * Project SecureNotes
@@ -22,4 +23,5 @@ val featureModules = listOf(
         notesBrowserViewModelModule,
         profileViewModelModule,
         aboutViewModelModule,
+        sessionsViewModelModule,
 )
