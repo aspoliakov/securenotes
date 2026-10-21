@@ -1,3 +1,7 @@
+import utils.buildVersionCode
+import utils.buildVersionName
+import utils.getVersionProperties
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsComposeCompiler)
@@ -12,12 +16,14 @@ android {
     namespace = "${Config.APPLICATION_ID}.android"
     compileSdk = Config.COMPILE_SDK_VERSION
 
+    val versionProperties = getVersionProperties(rootDir.absolutePath)
+
     defaultConfig {
         applicationId = Config.APPLICATION_ID
         minSdk = Config.MIN_SDK_VERSION
         targetSdk = Config.TARGET_SDK_VERSION
-        versionCode = Config.VERSION_CODE
-        versionName = Config.VERSION_NAME
+        versionCode = buildVersionCode(versionProperties)
+        versionName = buildVersionName(versionProperties)
     }
 
     signingConfigs {

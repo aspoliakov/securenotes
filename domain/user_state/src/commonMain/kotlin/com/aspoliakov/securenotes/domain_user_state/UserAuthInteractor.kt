@@ -1,6 +1,6 @@
 package com.aspoliakov.securenotes.domain_user_state
 
-import com.aspoliakov.securenotes.core_base.util.currentDeviceInfo
+import com.aspoliakov.securenotes.core_base.DeviceConfigProvider
 import com.aspoliakov.securenotes.core_network.exceptions.ErrorResponseException
 import com.aspoliakov.securenotes.domain_user_state.model.*
 import com.aspoliakov.securenotes.domain_user_state.network.AuthApiProvider
@@ -11,6 +11,7 @@ import io.github.aakira.napier.Napier
  */
 
 class UserAuthInteractor(
+        private val deviceConfigProvider: DeviceConfigProvider,
         private val userStateInteractor: UserStateInteractor,
         private val userSessionInteractor: UserSessionInteractor,
         private val userPrefsInteractor: UserPrefsInteractor,
@@ -100,7 +101,7 @@ class UserAuthInteractor(
     }
 
     private fun deviceInfoDTO(): DeviceInfoDTO {
-        val deviceInfo = currentDeviceInfo()
+        val deviceInfo = deviceConfigProvider.getDeviceInfo()
         return DeviceInfoDTO(
                 deviceName = deviceInfo.name,
                 platform = deviceInfo.platform,

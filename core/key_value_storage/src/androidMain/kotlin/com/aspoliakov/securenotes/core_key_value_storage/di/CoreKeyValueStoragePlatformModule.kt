@@ -8,7 +8,7 @@ import org.koin.dsl.module
  * Project SecureNotes
  */
 
-internal actual val platformDataStoreModule = module {
+internal actual val coreKeyValueStoragePlatformModule = module {
     single { PlatformDataStore(context = get()).getDataStore() }
     single { KVault(get()) }
 }

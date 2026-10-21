@@ -11,6 +11,7 @@ import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.runBlocking
 import org.koin.compose.KoinApplication
+import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.koinConfiguration
 import org.koin.dsl.module
@@ -20,12 +21,16 @@ import org.koin.dsl.module
  */
 
 @Composable
-fun AppDI(content: @Composable () -> Unit) {
+fun AppDI(
+        appModule: Module,
+        content: @Composable () -> Unit,
+) {
     KoinApplication(
             configuration = koinConfiguration {
                 Napier.base(DebugAntilog())
                 modules(
-                        dataModule +
+                        appModule +
+                                coreModules +
                                 domainModule +
                                 appComposableViewModelModule +
                                 featureModules

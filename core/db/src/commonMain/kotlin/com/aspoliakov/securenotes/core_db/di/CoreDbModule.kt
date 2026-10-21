@@ -14,14 +14,14 @@ import org.koin.dsl.module
  * Project SecureNotes
  */
 
-val databaseModule = module {
+val coreDbModule = module {
     single { getDatabase(get()) }
     single<DatabaseManager> { DatabaseManager(get()) }
     single<NotesDao> { get<AppDatabase>().notesDao() }
     single<SyncStackDao> { get<AppDatabase>().syncStackDao() }
     single<FolderDao> { get<AppDatabase>().folderDao() }
     single<SyncStackEventBus> { SyncStackEventBus() }
-    includes(platformDatabaseModule)
+    includes(coreDbPlatformModule)
 }
 
-internal expect val platformDatabaseModule: Module
+internal expect val coreDbPlatformModule: Module

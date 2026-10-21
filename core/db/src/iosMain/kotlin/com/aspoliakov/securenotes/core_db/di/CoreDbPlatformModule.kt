@@ -7,6 +7,6 @@ import org.koin.dsl.module
  * Project SecureNotes
  */
 
-internal actual val platformDatabaseModule = module {
-    single { PlatformDatabase(get()).getDatabaseBuilder() }
+internal actual val coreDbPlatformModule = module {
+    single { PlatformDatabase().getDatabaseBuilder() }
 }

@@ -56,6 +56,7 @@ val userStateDomainModule = module {
     }
     single {
         UserAuthInteractor(
+                deviceConfigProvider = get(),
                 userStateInteractor = get(),
                 userSessionInteractor = get(),
                 userPrefsInteractor = get(),

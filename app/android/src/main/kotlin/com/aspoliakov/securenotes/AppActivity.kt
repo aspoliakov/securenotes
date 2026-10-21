@@ -18,7 +18,7 @@ class AppActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AppDI {
+            AppDI(appModule) {
                 MainAppComposable()
             }
         }

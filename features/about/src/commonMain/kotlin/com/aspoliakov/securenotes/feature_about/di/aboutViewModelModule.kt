@@ -1,5 +1,6 @@
 package com.aspoliakov.securenotes.feature_about.di
 
+import com.aspoliakov.securenotes.core_base.AppConfigProvider
 import com.aspoliakov.securenotes.feature_about.presentation.AboutState
 import com.aspoliakov.securenotes.feature_about.presentation.AboutViewModel
 import org.koin.core.module.dsl.viewModel
@@ -11,9 +12,10 @@ import org.koin.dsl.module
 
 val aboutViewModelModule = module {
     viewModel {
+        val appConfigProvider = get<AppConfigProvider>()
         AboutViewModel(
                 initialState = AboutState(
-                        appVersion = "0.1",
+                        appVersion = appConfigProvider.getAppVersion(),
                 ),
         )
     }

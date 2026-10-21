@@ -9,10 +9,10 @@ import org.koin.dsl.module
  * Project SecureNotes
  */
 
-val dataStoreModule = module {
+val coreKeyValueStorageModule = module {
     single { KeyValueStorage(get()) }
     single { EncryptedKeyValueStorage(get()) }
-    includes(platformDataStoreModule)
+    includes(coreKeyValueStoragePlatformModule)
 }
 
-internal expect val platformDataStoreModule: Module
+internal expect val coreKeyValueStoragePlatformModule: Module
