@@ -1,3 +1,9 @@
 TEAM_ID=
 BUNDLE_ID=com.aspoliakov.securenotes
 APP_NAME=securenotes
+
+// version.properties is plain `key = value`, so it's a valid xcconfig: provides $(major), $(minor), $(patch)
+#include "../../../tools/versioning/version.properties"
+
+MARKETING_VERSION = $(major).$(minor).$(patch)
+CURRENT_PROJECT_VERSION = $(major).$(minor).$(patch)

@@ -18,6 +18,7 @@ kotlin {
             baseName = "app"
             binaryOptions["bundleId"] = "${Config.APPLICATION_ID}.shared"
             isStatic = true
+            export(projects.core.base)
         }
     }
     sourceSets {
