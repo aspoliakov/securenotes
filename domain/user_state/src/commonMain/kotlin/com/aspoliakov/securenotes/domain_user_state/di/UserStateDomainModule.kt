@@ -42,6 +42,7 @@ val userStateDomainModule = module {
     }
     single {
         RefreshTokenInteractor(
+                appConfigProvider = get(),
                 userSessionInteractor = get(),
                 userLogoutInteractor = get(),
                 authApiProvider = authApiProvider,
@@ -56,6 +57,7 @@ val userStateDomainModule = module {
     }
     single {
         UserAuthInteractor(
+                appConfigProvider = get(),
                 deviceConfigProvider = get(),
                 userStateInteractor = get(),
                 userSessionInteractor = get(),

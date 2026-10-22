@@ -60,6 +60,7 @@ class ActiveSessionsInteractor(
                     else -> SessionPlatform.UNKNOWN
                 },
                 osVersion = osVersion,
+                appVersion = appVersion,
                 createdAt = Instant.parse(createdAt),
                 lastActiveAt = Instant.parse(lastActiveAt),
                 isCurrent = sessionId == currentSessionId,

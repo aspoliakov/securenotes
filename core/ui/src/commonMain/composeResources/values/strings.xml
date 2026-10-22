@@ -119,6 +119,7 @@
     <string name="feature_sessions_unknown_device">Unknown device</string>
     <string name="feature_sessions_platform_android">Android</string>
     <string name="feature_sessions_platform_ios">iOS</string>
+    <string name="feature_sessions_app_version">App version %1$s</string>
     <string name="feature_sessions_signed_in">Signed in %1$s</string>
     <string name="feature_sessions_last_active">Last active %1$s</string>
     <string name="feature_sessions_active_now">Active now</string>

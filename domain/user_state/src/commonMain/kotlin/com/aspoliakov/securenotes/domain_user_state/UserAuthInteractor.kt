@@ -1,5 +1,6 @@
 package com.aspoliakov.securenotes.domain_user_state
 
+import com.aspoliakov.securenotes.core_base.AppConfigProvider
 import com.aspoliakov.securenotes.core_base.DeviceConfigProvider
 import com.aspoliakov.securenotes.core_network.exceptions.ErrorResponseException
 import com.aspoliakov.securenotes.domain_user_state.model.*
@@ -11,6 +12,7 @@ import io.github.aakira.napier.Napier
  */
 
 class UserAuthInteractor(
+        private val appConfigProvider: AppConfigProvider,
         private val deviceConfigProvider: DeviceConfigProvider,
         private val userStateInteractor: UserStateInteractor,
         private val userSessionInteractor: UserSessionInteractor,
@@ -106,6 +108,7 @@ class UserAuthInteractor(
                 deviceName = deviceInfo.name,
                 platform = deviceInfo.platform,
                 osVersion = deviceInfo.osVersion,
+                appVersion = appConfigProvider.getVersionName(),
         )
     }
 

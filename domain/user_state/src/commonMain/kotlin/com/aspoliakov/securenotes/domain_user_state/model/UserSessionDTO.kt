@@ -16,4 +16,5 @@ data class UserSessionDTO(
         @SerialName("device_name") val deviceName: String?,
         @SerialName("platform") val platform: String?,
         @SerialName("os_version") val osVersion: String?,
+        @SerialName("app_version") val appVersion: String?,
 )

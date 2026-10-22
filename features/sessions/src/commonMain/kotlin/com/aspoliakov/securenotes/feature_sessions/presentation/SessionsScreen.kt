@@ -305,7 +305,15 @@ internal fun SessionRow(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            Spacer(modifier = Modifier.height(4.dp))
+            session.appVersion?.let { appVersion ->
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                        text = stringResource(Res.string.feature_sessions_app_version, appVersion),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
                     text = stringResource(Res.string.feature_sessions_signed_in, session.createdAt.formatted()),
                     style = MaterialTheme.typography.bodySmall,
@@ -425,6 +433,7 @@ private fun SessionsScreenPreview() {
                                         deviceName = "Google Pixel 8",
                                         platform = SessionPlatform.ANDROID,
                                         osVersion = "15",
+                                        appVersion = "0.1.1",
                                         createdAt = now - 30.days,
                                         lastActiveAt = now,
                                         isCurrent = true,
@@ -435,6 +444,7 @@ private fun SessionsScreenPreview() {
                                                 deviceName = "iPhone",
                                                 platform = SessionPlatform.IOS,
                                                 osVersion = "26.0",
+                                                appVersion = "0.1.0",
                                                 createdAt = now - 3.days,
                                                 lastActiveAt = now - 5.hours,
                                                 isCurrent = false,
@@ -444,6 +454,7 @@ private fun SessionsScreenPreview() {
                                                 deviceName = null,
                                                 platform = SessionPlatform.UNKNOWN,
                                                 osVersion = null,
+                                                appVersion = null,
                                                 createdAt = now - 60.days,
                                                 lastActiveAt = now - 20.days,
                                                 isCurrent = false,

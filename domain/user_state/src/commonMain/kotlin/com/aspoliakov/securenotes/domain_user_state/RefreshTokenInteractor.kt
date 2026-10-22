@@ -1,5 +1,6 @@
 package com.aspoliakov.securenotes.domain_user_state
 
+import com.aspoliakov.securenotes.core_base.AppConfigProvider
 import com.aspoliakov.securenotes.core_network.auth.AuthTokenProvider
 import com.aspoliakov.securenotes.core_network.exceptions.ErrorResponseException
 import com.aspoliakov.securenotes.domain_user_state.model.RefreshTokenRequest
@@ -15,6 +16,7 @@ import kotlinx.coroutines.withContext
  * Project SecureNotes
  */
 class RefreshTokenInteractor(
+        private val appConfigProvider: AppConfigProvider,
         private val userSessionInteractor: UserSessionInteractor,
         private val userLogoutInteractor: UserLogoutInteractor,
         private val authApiProvider: AuthApiProvider,
@@ -66,7 +68,10 @@ class RefreshTokenInteractor(
         return withContext(NonCancellable) {
             val response = runCatching {
                 authApiProvider.provideApi().refreshToken(
-                        request = RefreshTokenRequest(refreshToken = refreshToken),
+                        request = RefreshTokenRequest(
+                                refreshToken = refreshToken,
+                                appVersion = appConfigProvider.getVersionName(),
+                        ),
                 )
             }.getOrElse { throwable ->
                 Napier.e("Token refresh error: $throwable")

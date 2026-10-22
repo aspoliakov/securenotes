@@ -11,6 +11,7 @@ data class ActiveSession(
         val deviceName: String?,
         val platform: SessionPlatform,
         val osVersion: String?,
+        val appVersion: String?,
         val createdAt: Instant,
         val lastActiveAt: Instant,
         val isCurrent: Boolean,
