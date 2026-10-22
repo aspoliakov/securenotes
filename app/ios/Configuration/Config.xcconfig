@@ -7,3 +7,6 @@ APP_NAME=securenotes
 
 MARKETING_VERSION = $(major).$(minor).$(patch)
 CURRENT_PROJECT_VERSION = $(major).$(minor).$(patch)
+
+// Google Sign-In redirect URL scheme: REVERSED_CLIENT_ID from GoogleService-Info.plist
+GOOGLE_REVERSED_CLIENT_ID = com.googleusercontent.apps.1038246125981-h87333olcd3k58gks1cqm50kosubdmcm

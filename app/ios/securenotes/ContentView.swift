@@ -11,13 +11,20 @@ import app
 
 struct ContentView: View {
     var body: some View {
-        ComposeView().ignoresSafeArea(.all) // Compose has own keyboard handler
+        ComposeView()
+            .ignoresSafeArea(.all) // Compose has own keyboard handler
+            .onOpenURL { url in
+                _ = IosGoogleSignInLauncher.handle(url: url)
+            }
     }
 }
 
 struct ComposeView: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIViewController {
-        MainViewControllerKt.mainViewController(appConfigProvider: IosAppConfigProvider())
+        MainViewControllerKt.mainViewController(
+            appConfigProvider: IosAppConfigProvider(),
+            googleSignInLauncher: IosGoogleSignInLauncher()
+        )
     }
 
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
