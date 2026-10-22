@@ -15,9 +15,5 @@ kotlin {
             implementation(projects.core.presentation)
             implementation(projects.core.ui)
         }
-        androidMain.dependencies {
-            implementation(libs.androidx.activity.compose)
-            implementation(libs.play.services.auth)
-        }
     }
 }

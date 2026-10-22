@@ -19,12 +19,13 @@ kotlin {
             binaryOptions["bundleId"] = "${Config.APPLICATION_ID}.shared"
             isStatic = true
             export(projects.core.base)
+            export(projects.features.auth)
         }
     }
     sourceSets {
         commonMain.dependencies {
             implementation(projects.features.about)
-            implementation(projects.features.auth)
+            api(projects.features.auth)
             implementation(projects.features.keys)
             implementation(projects.features.home)
             implementation(projects.features.note)

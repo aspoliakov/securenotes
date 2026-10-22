@@ -60,4 +60,5 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.ktx)
     implementation(libs.androidx.splashScreen)
+    implementation(libs.play.services.auth)
 }

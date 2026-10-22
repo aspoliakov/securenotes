@@ -10,12 +10,13 @@ import app
 class IosGoogleSignInLauncher: NSObject, GoogleSignInLauncher {
 
     func signIn(
-        serverClientId: String,
         onIdTokenReceived: @escaping (String) -> Void,
         onCancelled: @escaping () -> Void,
         onError: @escaping () -> Void
     ) {
-        guard let clientId = Self.readClientId(), let presenter = Self.topViewController() else {
+        guard let clientId = Self.readClientId(),
+              let serverClientId = Bundle.main.object(forInfoDictionaryKey: "GIDServerClientID") as? String,
+              let presenter = Self.topViewController() else {
             onError()
             return
         }

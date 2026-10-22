@@ -36,7 +36,6 @@ import com.aspoliakov.securenotes.core_ui.component.DividerWithText
 import com.aspoliakov.securenotes.core_ui.component.PasswordTextField
 import com.aspoliakov.securenotes.core_ui.resources.*
 import com.aspoliakov.securenotes.feature_auth.presentation.auth_providers.GoogleSignInProvider
-import com.aspoliakov.securenotes.feature_auth.presentation.auth_providers.isGoogleSignInSupported
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import org.jetbrains.compose.resources.painterResource
@@ -76,14 +75,12 @@ internal fun AuthScreen(
         }
     }
 
-    if (isGoogleSignInSupported) {
-        GoogleSignInProvider(
-                shouldLaunch = state.authActionState is AuthActionState.Active.Google,
-                onIdTokenReceived = { intentHandler(AuthIntent.OnGoogleIdTokenReceived(it)) },
-                onCancelled = { intentHandler(AuthIntent.OnGoogleSignInCancelled) },
-                onError = { intentHandler(AuthIntent.OnGoogleSignInFailed) },
-        )
-    }
+    GoogleSignInProvider(
+            shouldLaunch = state.authActionState is AuthActionState.Active.Google,
+            onIdTokenReceived = { intentHandler(AuthIntent.OnGoogleIdTokenReceived(it)) },
+            onCancelled = { intentHandler(AuthIntent.OnGoogleSignInCancelled) },
+            onError = { intentHandler(AuthIntent.OnGoogleSignInFailed) },
+    )
 
     Scaffold(
             modifier = modifier,
@@ -217,7 +214,7 @@ internal fun AuthFormCard(
                 enabled = viewsEnabled,
                 intentHandler = intentHandler,
         )
-        if (isGoogleSignInSupported && state.authActionState !is AuthActionState.Completed) {
+        if (state.authActionState !is AuthActionState.Completed) {
             Spacer(modifier = Modifier.height(16.dp))
             DividerWithText(textRes = Res.string.feature_auth_or_divider)
             Spacer(modifier = Modifier.height(16.dp))
