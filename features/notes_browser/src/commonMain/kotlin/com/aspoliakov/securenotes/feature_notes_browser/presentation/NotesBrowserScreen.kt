@@ -22,13 +22,17 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.pullToRefresh
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
@@ -65,6 +69,9 @@ private val FolderBorderWidth = 1.dp
 private val DragThreshold = 8.dp
 private val AutoScrollEdgeThreshold = 64.dp
 private val AutoScrollMaxSpeedPerFrame = 12.dp
+private val RefreshGapHeight = 64.dp
+private val RefreshIndicatorSize = 28.dp
+private val RefreshIndicatorStrokeWidth = 3.dp
 
 @Composable
 fun NotesBrowserScreenRoute(
@@ -153,14 +160,20 @@ internal fun NotesBrowserScreen(
                     modifier = Modifier.weight(1f),
             ) {
                 when (val searchState = state.searchState) {
-                    is SearchState.Idle -> BrowserListView(
+                    is SearchState.Idle -> BrowserListRefreshBox(
                             modifier = Modifier.fillMaxSize(),
-                            browserListState = state.browserListState,
-                            viewMode = state.notesViewMode,
-                            selection = state.selection,
-                            sortOrder = state.sortOrder,
-                            intentHandler = intentHandler,
-                    )
+                            isRefreshing = state.isRefreshing,
+                            onRefresh = { intentHandler(NotesBrowserIntent.OnRefresh) },
+                    ) { contentModifier ->
+                        BrowserListView(
+                                modifier = contentModifier.fillMaxSize(),
+                                browserListState = state.browserListState,
+                                viewMode = state.notesViewMode,
+                                selection = state.selection,
+                                sortOrder = state.sortOrder,
+                                intentHandler = intentHandler,
+                        )
+                    }
                     is SearchState.Active -> BrowserListActiveSearchView(
                             modifier = Modifier.fillMaxSize(),
                             searchState = searchState,
@@ -594,13 +607,73 @@ internal fun BrowserListView(
                     intentHandler = intentHandler,
             )
         } else {
-            BrowserListPlaceholderView(
-                    modifier = modifier,
-                    title = stringResource(Res.string.feature_notes_empty_title),
-                    subtitle = stringResource(Res.string.feature_notes_empty_subtitle),
-                    icon = Res.drawable.ic_notes,
-            )
+            BoxWithConstraints(modifier = modifier) {
+                BrowserListPlaceholderView(
+                        modifier = Modifier
+                            .verticalScroll(rememberScrollState())
+                            .fillMaxWidth()
+                            .height(maxHeight),
+                        title = stringResource(Res.string.feature_notes_empty_title),
+                        subtitle = stringResource(Res.string.feature_notes_empty_subtitle),
+                        icon = Res.drawable.ic_notes,
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun BrowserListRefreshBox(
+        modifier: Modifier = Modifier,
+        isRefreshing: Boolean,
+        onRefresh: () -> Unit,
+        content: @Composable (contentModifier: Modifier) -> Unit,
+) {
+    val pullToRefreshState = rememberPullToRefreshState()
+    val density = LocalDensity.current
+    val gapHeightPx = with(density) { RefreshGapHeight.toPx() }
+    val indicatorSizePx = with(density) { RefreshIndicatorSize.toPx() }
+    Box(
+            modifier = modifier
+                .clipToBounds()
+                .pullToRefresh(
+                        isRefreshing = isRefreshing,
+                        state = pullToRefreshState,
+                        threshold = RefreshGapHeight,
+                        onRefresh = onRefresh,
+                ),
+    ) {
+        if (isRefreshing || pullToRefreshState.distanceFraction > 0f) {
+            val indicatorModifier = Modifier
+                .align(Alignment.TopCenter)
+                .size(RefreshIndicatorSize)
+                .graphicsLayer {
+                    val fraction = pullToRefreshState.distanceFraction
+                    translationY = (gapHeightPx * fraction - indicatorSizePx) / 2f
+                    alpha = fraction.coerceIn(0f, 1f)
+                }
+            if (isRefreshing) {
+                CircularProgressIndicator(
+                        modifier = indicatorModifier,
+                        color = MaterialTheme.colorScheme.secondary,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                        strokeWidth = RefreshIndicatorStrokeWidth,
+                )
+            } else {
+                CircularProgressIndicator(
+                        modifier = indicatorModifier,
+                        progress = { pullToRefreshState.distanceFraction.coerceIn(0f, 1f) },
+                        color = MaterialTheme.colorScheme.secondary,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                        strokeWidth = RefreshIndicatorStrokeWidth,
+                )
+            }
+        }
+        content(
+                Modifier.graphicsLayer {
+                    translationY = gapHeightPx * pullToRefreshState.distanceFraction
+                }
+        )
     }
 }
 

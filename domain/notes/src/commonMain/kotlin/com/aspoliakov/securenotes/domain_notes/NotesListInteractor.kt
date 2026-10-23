@@ -38,7 +38,7 @@ class NotesListInteractor(
         }
         return notesFlow
                 .map { notesList -> notesList.map(this::mapNoteDBToNoteVO) }
-                .also { sync() }
+                .also { IOScope().launch { syncNotes() } }
     }
 
     suspend fun searchNotes(query: String): List<NoteVO> {
@@ -59,7 +59,7 @@ class NotesListInteractor(
         )
     }
 
-    private fun sync() = IOScope().launch {
+    suspend fun syncNotes() {
         runCatching {
             // folders must be synced first so that folder_id resolution below reflects
             // the freshest known folder set (orphaned folder_id falls back to root)

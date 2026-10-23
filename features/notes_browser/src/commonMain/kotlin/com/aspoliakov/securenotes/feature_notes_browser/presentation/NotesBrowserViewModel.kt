@@ -38,6 +38,7 @@ internal class NotesBrowserViewModel(
 
     private var browseJob: Job? = null
     private var searchJob: Job? = null
+    private var refreshJob: Job? = null
 
     private val reorderJobs: MutableMap<String, Job> = mutableMapOf()
 
@@ -51,6 +52,7 @@ internal class NotesBrowserViewModel(
     override fun handleIntent(intent: NotesBrowserIntent) {
         when (intent) {
             is NotesBrowserIntent.OnSearch -> onSearch(intent.query)
+            is NotesBrowserIntent.OnRefresh -> onRefresh()
             is NotesBrowserIntent.OnToggleViewMode -> onToggleViewMode()
             is NotesBrowserIntent.OnSortButtonClick -> onSortButtonClick()
             is NotesBrowserIntent.OnSortOrderSelected -> onSortOrderSelected(intent.sortOrder)
@@ -99,6 +101,15 @@ internal class NotesBrowserViewModel(
                         )
                 )
             }
+        }
+    }
+
+    private fun onRefresh() {
+        if (refreshJob?.isActive == true) return
+        reduceState { copy(isRefreshing = true) }
+        refreshJob = launchOnIO {
+            runCatching { notesListInteractor.syncNotes() }
+            reduceState { copy(isRefreshing = false) }
         }
     }
 

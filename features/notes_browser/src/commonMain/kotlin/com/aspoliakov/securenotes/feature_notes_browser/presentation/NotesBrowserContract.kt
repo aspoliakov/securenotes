@@ -15,6 +15,7 @@ internal data class NotesBrowserState(
         val breadcrumb: List<FolderBreadcrumbItem> = emptyList(),
         val canNavigateBack: Boolean = false,
         val browserListState: BrowserListState = BrowserListState.Idle,
+        val isRefreshing: Boolean = false,
         val notesViewMode: NotesViewMode = NotesViewMode.LIST,
         val sortOrder: NotesSortOrder = NotesSortOrder.NEWEST_FIRST,
         val isSortSheetVisible: Boolean = false,
@@ -85,6 +86,7 @@ sealed class NotesBrowserEffect : Effect() {
 
 sealed class NotesBrowserIntent : Intent() {
     data class OnSearch(val query: String) : NotesBrowserIntent()
+    data object OnRefresh : NotesBrowserIntent()
     data object OnToggleViewMode : NotesBrowserIntent()
     data object OnSortButtonClick : NotesBrowserIntent()
     data class OnSortOrderSelected(val sortOrder: NotesSortOrder) : NotesBrowserIntent()
