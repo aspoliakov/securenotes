@@ -28,6 +28,8 @@ import androidx.compose.material.icons.filled.FormatQuote
 import androidx.compose.material.icons.filled.FormatStrikethrough
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Key
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Link
@@ -35,6 +37,7 @@ import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PersonOff
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.PhoneIphone
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.TableChart
 import androidx.compose.material.icons.filled.TextFormat
@@ -49,6 +52,9 @@ object Icons {
     val ArrowBack = Icons.AutoMirrored.Rounded.ArrowBack
     val Delete = Icons.Default.Delete
     val NoteProperties = Icons.Default.MoreVert
+    val Search = Icons.Default.Search
+    val SearchPrevious = Icons.Default.KeyboardArrowUp
+    val SearchNext = Icons.Default.KeyboardArrowDown
     val Logout = Icons.AutoMirrored.Filled.Logout
     val About = Icons.Default.Info
     val Sessions = Icons.Default.Devices

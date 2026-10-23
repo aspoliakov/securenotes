@@ -14,9 +14,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,9 +41,13 @@ import com.aspoliakov.securenotes.core_ui.resources.*
 import com.aspoliakov.securenotes.domain_notes.model.NoteColor
 import com.aspoliakov.securenotes.feature_note.presentation.editor.NoteEditorState
 import com.aspoliakov.securenotes.feature_note.presentation.editor.rememberNoteEditorState
-import com.aspoliakov.securenotes.feature_note.presentation.styled_text.StyledTextEditor
-import com.aspoliakov.securenotes.feature_note.presentation.styled_text.StyledTextState
-import com.aspoliakov.securenotes.feature_note.presentation.styled_text.TextStylesToolbar
+import com.aspoliakov.securenotes.feature_note.presentation.component.NoteSearchBar
+import com.aspoliakov.securenotes.feature_note.presentation.component.StyledTextEditor
+import com.aspoliakov.securenotes.feature_note.presentation.component.StyledTextState
+import com.aspoliakov.securenotes.feature_note.presentation.component.TextStylesToolbar
+import com.aspoliakov.securenotes.feature_note.presentation.component.findMatches
+import com.aspoliakov.securenotes.feature_note.presentation.component.nextMatch
+import com.aspoliakov.securenotes.feature_note.presentation.component.previousMatch
 import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.drop
@@ -138,6 +144,19 @@ internal fun NoteScreen(
             .drop(1)
             .collect { intentHandler(NoteIntent.OnBodyChanged(it)) }
     }
+    val searchQuery = (state.searchState as? SearchState.Active)?.query.orEmpty()
+    val searchMatches = remember(searchQuery, editorState.body.text) {
+        findMatches(editorState.body.text, searchQuery)
+    }
+    LaunchedEffect(searchQuery) {
+        val body = editorState.body
+        val selection = body.value.selection
+        val match = nextMatch(findMatches(body.text, searchQuery), selection.min)
+        when {
+            match != null -> body.select(match)
+            !selection.collapsed -> body.select(TextRange(selection.max))
+        }
+    }
     Column(
             modifier = modifier
                 .passInputThroughWhileExiting()
@@ -175,15 +194,41 @@ internal fun NoteScreen(
                         .heightIn(min = (viewportHeight - titleHeight).coerceAtLeast(0.dp))
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     state = editorState.body,
+                    highlights = searchMatches,
             )
         }
-        NoteBottomBar(
+        AnimatedContent(
                 modifier = Modifier
                     .padding(vertical = BarVerticalPadding)
                     .screenChromeTransition(enter = BottomBarEnterTransition, exit = BottomBarExitTransition),
-                editorState = editorState,
-                onColorPickerClick = { showColorPicker = true },
-        )
+                targetState = state.searchState is SearchState.Active,
+                transitionSpec = {
+                    fadeIn(tween(BAR_CONTENT_FADE_IN_MILLIS)) togetherWith fadeOut(tween(BAR_CONTENT_FADE_OUT_MILLIS))
+                },
+        ) { isSearchActive ->
+            if (isSearchActive) {
+                NoteSearchBar(
+                        modifier = Modifier.fillMaxWidth(),
+                        initialQuery = searchQuery,
+                        hasMatches = searchMatches.isNotEmpty(),
+                        onQueryChange = { intentHandler(NoteIntent.OnSearchQueryChanged(it)) },
+                        onPreviousClick = {
+                            val body = editorState.body
+                            previousMatch(searchMatches, body.value.selection)?.let(body::select)
+                        },
+                        onNextClick = {
+                            val body = editorState.body
+                            nextMatch(searchMatches, body.value.selection)?.let(body::select)
+                        },
+                        onClose = { intentHandler(NoteIntent.OnSearchClose) },
+                )
+            } else {
+                NoteBottomBar(
+                        editorState = editorState,
+                        onColorPickerClick = { showColorPicker = true },
+                )
+            }
+        }
     }
     if (showColorPicker) {
         NoteColorPickerSheet(
@@ -195,6 +240,10 @@ internal fun NoteScreen(
     if (showProperties) {
         NotePropertiesSheet(
                 contentUpdatedAt = state.contentUpdatedAt,
+                onSearchClick = {
+                    showProperties = false
+                    intentHandler(NoteIntent.OnSearchClick)
+                },
                 onDismiss = { showProperties = false },
         )
     }
@@ -364,10 +413,12 @@ internal fun NoteTitle(
 internal fun NoteBody(
         modifier: Modifier = Modifier,
         state: StyledTextState,
+        highlights: List<TextRange> = emptyList(),
 ) {
     StyledTextEditor(
             modifier = modifier,
             state = state,
+            highlights = highlights,
             textStyle = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Normal,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -522,6 +573,7 @@ internal fun NoteColorPickerSheet(
 @Composable
 internal fun NotePropertiesSheet(
         contentUpdatedAt: Long?,
+        onSearchClick: () -> Unit,
         onDismiss: () -> Unit,
 ) {
     ModalBottomSheet(
@@ -531,11 +583,11 @@ internal fun NotePropertiesSheet(
         Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
                     .padding(top = 8.dp, bottom = 32.dp),
         ) {
             if (contentUpdatedAt != null) {
                 Text(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                         text = stringResource(
                                 Res.string.feature_note_properties_edited,
                                 contentUpdatedAt.formattedDate(),
@@ -544,8 +596,27 @@ internal fun NotePropertiesSheet(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
+            NotePropertiesItem(
+                    icon = Icons.Search,
+                    text = stringResource(Res.string.feature_note_search),
+                    onClick = onSearchClick,
+            )
         }
     }
+}
+
+@Composable
+private fun NotePropertiesItem(
+        icon: ImageVector,
+        text: String,
+        onClick: () -> Unit,
+) {
+    ListItem(
+            modifier = Modifier.clickable(onClick = onClick),
+            leadingContent = { Icon(imageVector = icon, contentDescription = null) },
+            headlineContent = { Text(text = text) },
+            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+    )
 }
 
 @Composable

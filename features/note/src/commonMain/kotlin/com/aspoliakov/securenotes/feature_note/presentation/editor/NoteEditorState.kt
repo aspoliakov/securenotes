@@ -5,8 +5,8 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.text.input.TextFieldValue
-import com.aspoliakov.securenotes.feature_note.presentation.styled_text.StyledTextState
-import com.aspoliakov.securenotes.feature_note.presentation.styled_text.TextStyleAction
+import com.aspoliakov.securenotes.feature_note.presentation.component.StyledTextState
+import com.aspoliakov.securenotes.feature_note.presentation.component.TextStyleAction
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeSource
 

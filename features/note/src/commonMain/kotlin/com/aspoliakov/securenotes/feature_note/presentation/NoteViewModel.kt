@@ -62,6 +62,9 @@ class NoteViewModel(
             is NoteIntent.OnBodyChanged -> onBodyChanged(intent)
             is NoteIntent.OnColorSelected -> onColorSelected(intent)
             is NoteIntent.OnScreenStopped -> onScreenStopped()
+            is NoteIntent.OnSearchClick -> onSearchClick()
+            is NoteIntent.OnSearchQueryChanged -> onSearchQueryChanged(intent)
+            is NoteIntent.OnSearchClose -> onSearchClose()
         }
     }
 
@@ -91,6 +94,23 @@ class NoteViewModel(
             saveDraft(noteId)
             noteInteractor.syncChanges(noteId)
         }
+    }
+
+    private fun onSearchClick() {
+        reduceState { copy(searchState = SearchState.Active()) }
+    }
+
+    private fun onSearchQueryChanged(intent: NoteIntent.OnSearchQueryChanged) {
+        val searchState = currentState.searchState
+        if (searchState is SearchState.Active) {
+            reduceState {
+                copy(searchState = searchState.copy(query = intent.query))
+            }
+        }
+    }
+
+    private fun onSearchClose() {
+        reduceState { copy(searchState = SearchState.Idle) }
     }
 
     private fun observeNote(noteId: String) {

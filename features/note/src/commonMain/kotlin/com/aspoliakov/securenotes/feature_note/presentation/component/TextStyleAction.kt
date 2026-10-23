@@ -1,4 +1,4 @@
-package com.aspoliakov.securenotes.feature_note.presentation.styled_text
+package com.aspoliakov.securenotes.feature_note.presentation.component
 
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.TextFieldValue
