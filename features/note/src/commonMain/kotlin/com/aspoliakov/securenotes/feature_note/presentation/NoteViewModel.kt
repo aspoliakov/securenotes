@@ -1,11 +1,17 @@
 package com.aspoliakov.securenotes.feature_note.presentation
 
+import androidx.lifecycle.viewModelScope
 import com.aspoliakov.securenotes.core_base.util.IOScope
+import com.aspoliakov.securenotes.core_base.util.flowOnIO
 import com.aspoliakov.securenotes.core_presentation.mvi.MviViewModel
 import com.aspoliakov.securenotes.core_presentation.utils.launchOnIO
 import com.aspoliakov.securenotes.domain_notes.NoteInteractor
-import kotlinx.coroutines.Job
+import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * Project SecureNotes
@@ -17,21 +23,34 @@ class NoteViewModel(
         private val folderId: String? = null,
 ) : MviViewModel<NoteState, NoteEffect, NoteIntent>(initialState) {
 
-    private var saveChangesJob: Job? = null
+    companion object {
+        private const val DRAFT_SAVE_PERIOD = 500L
+    }
+
+    private val noteActions = Mutex()
 
     init {
-        if (currentState.noteId == null) {
+        val noteId = currentState.noteId
+        if (noteId == null) {
             launchOnIO {
                 val newNoteId = noteInteractor.createNew(folderId = folderId)
                 reduceState { copy(noteId = newNoteId) }
+                observeNote(newNoteId)
             }
+        } else {
+            observeNote(noteId)
         }
+        observeDraft()
     }
 
     override fun onCleared() {
-        val noteId = currentState.noteId
-        if (currentState.newNote && noteId != null) {
-            noteInteractor.undoCreation(noteId)
+        val newNote = currentState.newNote
+        runNoteAction { noteId ->
+            saveDraft(noteId)
+            if (newNote) {
+                noteInteractor.undoCreation(noteId)
+            }
+            noteInteractor.syncChanges(noteId)
         }
         super.onCleared()
     }
@@ -42,46 +61,71 @@ class NoteViewModel(
             is NoteIntent.OnTitleChanged -> onTitleChanged(intent)
             is NoteIntent.OnBodyChanged -> onBodyChanged(intent)
             is NoteIntent.OnColorSelected -> onColorSelected(intent)
+            is NoteIntent.OnScreenStopped -> onScreenStopped()
         }
     }
 
     private fun onNoteDelete() {
-        val noteId = currentState.noteId
-        if (noteId != null) {
-            saveChangesJob?.cancel()
-            launchOnIO {
-                noteInteractor.delete(noteId)
-                sendEffect { NoteEffect.Close }
-            }
+        runNoteAction { noteId ->
+            noteInteractor.delete(noteId)
+            sendEffect { NoteEffect.Close }
         }
     }
 
     private fun onTitleChanged(intent: NoteIntent.OnTitleChanged) {
         reduceState { copy(title = intent.text) }
-        saveChanges()
     }
 
     private fun onBodyChanged(intent: NoteIntent.OnBodyChanged) {
         reduceState { copy(body = intent.text) }
-        saveChanges()
     }
 
     private fun onColorSelected(intent: NoteIntent.OnColorSelected) {
-        if (currentState.color == intent.color) return
-        reduceState { copy(color = intent.color) }
-        saveChanges()
+        runNoteAction { noteInteractor.setColor(it, intent.color) }
     }
 
-    private fun saveChanges() {
+    private fun onScreenStopped() {
+        if (currentState.newNote && currentState.title.isBlank() && currentState.body.isBlank()) return
+        reduceState { copy(newNote = false) }
+        runNoteAction { noteId ->
+            saveDraft(noteId)
+            noteInteractor.syncChanges(noteId)
+        }
+    }
+
+    private fun observeNote(noteId: String) {
+        noteInteractor.observeById(noteId)
+            .onEach {
+                reduceState {
+                    copy(
+                            color = it.color,
+                            contentUpdatedAt = it.contentUpdatedAt,
+                    )
+                }
+            }
+            .flowOnIO()
+            .launchIn(viewModelScope)
+    }
+
+    @OptIn(FlowPreview::class)
+    private fun observeDraft() {
+        state.map { it.title to it.body }
+            .distinctUntilChanged()
+            .drop(1)
+            .sample(DRAFT_SAVE_PERIOD.milliseconds)
+            .onEach { runNoteAction { noteId -> saveDraft(noteId) } }
+            .launchIn(viewModelScope)
+    }
+
+    private suspend fun saveDraft(noteId: String) {
+        noteInteractor.setTitle(noteId, currentState.title)
+        noteInteractor.setBody(noteId, currentState.body)
+    }
+
+    private fun runNoteAction(action: suspend (noteId: String) -> Unit) {
         val noteId = currentState.noteId ?: return
-        saveChangesJob?.cancel()
-        saveChangesJob = IOScope().launch {
-            noteInteractor.saveChanges(
-                    noteId = noteId,
-                    title = currentState.title,
-                    body = currentState.body,
-                    color = currentState.color,
-            )
+        IOScope().launch {
+            noteActions.withLock { action(noteId) }
         }
     }
 }

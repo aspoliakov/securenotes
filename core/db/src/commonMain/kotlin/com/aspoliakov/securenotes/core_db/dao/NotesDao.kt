@@ -37,14 +37,26 @@ interface NotesDao : BaseDao<NoteDB> {
     @Query("SELECT * FROM $TABLE WHERE note_id = :noteId")
     suspend fun selectById(noteId: String): NoteDB?
 
+    @Query("SELECT * FROM $TABLE WHERE note_id = :noteId")
+    fun observeById(noteId: String): Flow<NoteDB?>
+
     @Query("SELECT note_id FROM $TABLE WHERE folder_id = :folderId")
     suspend fun selectIdsByFolderId(folderId: String): List<String>
 
     @Query("SELECT * FROM $TABLE WHERE title LIKE '%' || :query || '%' OR body LIKE '%' || :query || '%' ORDER BY created_at DESC")
     suspend fun searchAllByCreatedAtDesc(query: String): List<NoteDB>
 
-    @Query("UPDATE $TABLE SET title = :title, body = :body, color = :color WHERE note_id = :noteId")
-    suspend fun updateNote(noteId: String, title: String?, body: String?, color: Long?)
+    @Query("UPDATE $TABLE SET title = :title, content_updated_at = :contentUpdatedAt WHERE note_id = :noteId")
+    suspend fun updateTitle(noteId: String, title: String?, contentUpdatedAt: Long)
+
+    @Query("UPDATE $TABLE SET body = :body, content_updated_at = :contentUpdatedAt WHERE note_id = :noteId")
+    suspend fun updateBody(noteId: String, body: String?, contentUpdatedAt: Long)
+
+    @Query("UPDATE $TABLE SET color = :color, content_updated_at = :contentUpdatedAt WHERE note_id = :noteId")
+    suspend fun updateColor(noteId: String, color: Long?, contentUpdatedAt: Long)
+
+    @Query("UPDATE $TABLE SET created_at = :createdAt, content_updated_at = :contentUpdatedAt WHERE note_id = :noteId")
+    suspend fun updateUploaded(noteId: String, createdAt: Long, contentUpdatedAt: Long)
 
     @Query("UPDATE $TABLE SET folder_id = :folderId WHERE note_id = :noteId")
     suspend fun updateFolder(noteId: String, folderId: String?)

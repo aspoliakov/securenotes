@@ -23,6 +23,7 @@ val noteViewModelModule = module {
                         title = noteData?.title ?: "",
                         body = noteData?.body ?: "",
                         color = noteData?.color ?: NoteColor.DEFAULT,
+                        contentUpdatedAt = noteData?.contentUpdatedAt,
                 ),
                 noteInteractor = noteInteractor,
                 folderId = folderId,

@@ -1,7 +1,7 @@
 package com.aspoliakov.securenotes.core_base
 
 /**
- * Project Express. Created by Unlimited Production team.
+ * Project SecureNotes
  */
 
 interface DeviceConfigProvider {

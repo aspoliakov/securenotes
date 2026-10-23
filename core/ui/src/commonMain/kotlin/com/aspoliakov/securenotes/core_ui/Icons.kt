@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.FormatStrikethrough
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PersonOff
@@ -47,6 +48,7 @@ object Icons {
     val Settings = Icons.Default.Settings
     val ArrowBack = Icons.AutoMirrored.Rounded.ArrowBack
     val Delete = Icons.Default.Delete
+    val NoteProperties = Icons.Default.MoreVert
     val Logout = Icons.AutoMirrored.Filled.Logout
     val About = Icons.Default.Info
     val Sessions = Icons.Default.Devices

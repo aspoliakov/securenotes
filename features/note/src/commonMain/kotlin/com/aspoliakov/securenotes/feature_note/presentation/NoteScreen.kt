@@ -22,6 +22,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import com.aspoliakov.securenotes.core_presentation.mvi.Effect
 import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
 import com.aspoliakov.securenotes.core_presentation.navigation.passInputThroughWhileExiting
@@ -40,9 +42,17 @@ import com.aspoliakov.securenotes.feature_note.presentation.editor.rememberNoteE
 import com.aspoliakov.securenotes.feature_note.presentation.styled_text.StyledTextEditor
 import com.aspoliakov.securenotes.feature_note.presentation.styled_text.StyledTextState
 import com.aspoliakov.securenotes.feature_note.presentation.styled_text.TextStylesToolbar
+import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
+import kotlinx.datetime.format.MonthNames
+import kotlinx.datetime.format.Padding
+import kotlinx.datetime.format.char
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.core.parameter.parametersOf
 
@@ -58,6 +68,18 @@ private const val BAR_EXIT_DURATION_MILLIS = 150
 private const val BAR_CONTENT_FADE_IN_MILLIS = 200
 private const val BAR_CONTENT_FADE_OUT_MILLIS = 120
 private val FloatingButtonsSpacing = 12.dp
+
+private val noteDateFormat = LocalDateTime.Format {
+    day(padding = Padding.NONE)
+    char(' ')
+    monthName(MonthNames.ENGLISH_ABBREVIATED)
+    char(' ')
+    year()
+    chars(", ")
+    hour()
+    char(':')
+    minute()
+}
 
 private val TopBarEnterTransition = fadeIn(tween(BAR_ENTER_DURATION_MILLIS)) +
         slideInVertically(tween(BAR_ENTER_DURATION_MILLIS)) { -it / 2 }
@@ -99,7 +121,11 @@ internal fun NoteScreen(
             is NoteEffect.Close -> onNavigationBack()
         }
     }
+    LifecycleEventEffect(Lifecycle.Event.ON_STOP) {
+        intentHandler(NoteIntent.OnScreenStopped)
+    }
     var showColorPicker by remember { mutableStateOf(false) }
+    var showProperties by remember { mutableStateOf(false) }
     val editorState = rememberNoteEditorState(initialTitle = state.title, initialBody = state.body)
     LaunchedEffect(editorState) {
         snapshotFlow { editorState.title.text }
@@ -123,8 +149,9 @@ internal fun NoteScreen(
                 modifier = Modifier
                     .padding(vertical = BarVerticalPadding)
                     .screenChromeTransition(enter = TopBarEnterTransition, exit = TopBarExitTransition),
-                showDelete = state.noteId != null,
+                showActions = state.noteId != null,
                 onNavigationBack = onNavigationBack,
+                onPropertiesClick = { showProperties = true },
                 onDeleteClick = { intentHandler.invoke(NoteIntent.OnDeleteClick) },
         )
         NoteCard(
@@ -164,6 +191,12 @@ internal fun NoteScreen(
                 onDismiss = { showColorPicker = false },
         )
     }
+    if (showProperties) {
+        NotePropertiesSheet(
+                contentUpdatedAt = state.contentUpdatedAt,
+                onDismiss = { showProperties = false },
+        )
+    }
 }
 
 @Composable
@@ -200,8 +233,9 @@ private fun NoteCard(
 @Composable
 internal fun NoteTopBar(
         modifier: Modifier = Modifier,
-        showDelete: Boolean,
+        showActions: Boolean,
         onNavigationBack: () -> Unit,
+        onPropertiesClick: () -> Unit,
         onDeleteClick: () -> Unit,
 ) {
     Row(
@@ -220,22 +254,43 @@ internal fun NoteTopBar(
         }
         Spacer(modifier = Modifier.weight(1F))
         AnimatedVisibility(
-                visible = showDelete,
+                visible = showActions,
                 enter = fadeIn() + scaleIn(),
                 exit = fadeOut() + scaleOut(),
         ) {
-            FloatingButtonGroup {
-                IconButton(
-                        onClick = onDeleteClick,
-                ) {
-                    Icon(
-                            imageVector = Icons.Delete,
-                            contentDescription = stringResource(Res.string.common_delete),
-                    )
+            Row(
+                    horizontalArrangement = Arrangement.spacedBy(FloatingButtonsSpacing),
+                    verticalAlignment = Alignment.CenterVertically,
+            ) {
+                FloatingButtonGroup {
+                    IconButton(
+                            onClick = onDeleteClick,
+                    ) {
+                        Icon(
+                                imageVector = Icons.Delete,
+                                contentDescription = stringResource(Res.string.common_delete),
+                        )
+                    }
+                }
+                FloatingButtonGroup {
+                    IconButton(
+                            onClick = onPropertiesClick,
+                    ) {
+                        Icon(
+                                imageVector = Icons.NoteProperties,
+                                contentDescription = stringResource(Res.string.feature_note_properties),
+                        )
+                    }
                 }
             }
         }
     }
+}
+
+private fun Long.formattedDate(): String {
+    return Instant.fromEpochMilliseconds(this)
+        .toLocalDateTime(TimeZone.currentSystemDefault())
+        .format(noteDateFormat)
 }
 
 @Composable
@@ -430,6 +485,36 @@ internal fun NoteColorPickerSheet(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun NotePropertiesSheet(
+        contentUpdatedAt: Long?,
+        onDismiss: () -> Unit,
+) {
+    ModalBottomSheet(
+            onDismissRequest = onDismiss,
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+    ) {
+        Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .padding(top = 8.dp, bottom = 32.dp),
+        ) {
+            if (contentUpdatedAt != null) {
+                Text(
+                        text = stringResource(
+                                Res.string.feature_note_properties_edited,
+                                contentUpdatedAt.formattedDate(),
+                        ),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
+}
+
 @Composable
 private fun NoteColorItem(
         color: NoteColor,
@@ -486,6 +571,7 @@ private fun NoteScreenPreview() {
                         title = "Title",
                         body = "Body",
                         color = NoteColor.BLUE,
+                        contentUpdatedAt = 0L,
                 ),
                 onNavigationBack = {},
         )

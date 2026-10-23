@@ -15,7 +15,6 @@ import com.aspoliakov.securenotes.domain_folders.network.FoldersApiProvider
 import io.github.aakira.napier.Napier
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -41,7 +40,6 @@ class FolderInteractor(
 
     private val syncJobs: MutableMap<String, Job> = mutableMapOf()
 
-    @OptIn(ExperimentalTime::class)
     suspend fun createNew(parentId: String?, name: String): String {
         val maxOrder = maxOf(
                 notesDao.selectMaxOrderByFolderId(parentId) ?: 0.0,

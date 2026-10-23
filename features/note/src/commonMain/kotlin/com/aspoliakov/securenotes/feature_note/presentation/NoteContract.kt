@@ -15,6 +15,7 @@ data class NoteState(
         val title: String = "",
         val body: String = "",
         val color: NoteColor = NoteColor.DEFAULT,
+        val contentUpdatedAt: Long? = null,
 ) : State()
 
 sealed class NoteEffect : Effect() {
@@ -26,4 +27,5 @@ sealed class NoteIntent : Intent() {
     data class OnTitleChanged(val text: String) : NoteIntent()
     data class OnBodyChanged(val text: String) : NoteIntent()
     data class OnColorSelected(val color: NoteColor) : NoteIntent()
+    data object OnScreenStopped : NoteIntent()
 }

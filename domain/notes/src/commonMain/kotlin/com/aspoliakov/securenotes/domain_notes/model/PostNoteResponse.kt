@@ -10,5 +10,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class PostNoteResponse(
         @SerialName("message") val message: String,
-        @SerialName("note") val key: NoteDTO,
+        @SerialName("note") val note: NoteDTO,
 )

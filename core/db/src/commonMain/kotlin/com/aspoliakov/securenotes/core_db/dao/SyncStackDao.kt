@@ -27,6 +27,9 @@ interface SyncStackDao : BaseDao<SyncStackDB> {
     @Query("DELETE FROM $TABLE WHERE item_id = :itemId")
     suspend fun delete(itemId: String)
 
+    @Query("DELETE FROM $TABLE WHERE _id = :id")
+    suspend fun deleteByRowId(id: Long)
+
     @Query("DELETE FROM $TABLE")
     suspend fun deleteAll()
 }

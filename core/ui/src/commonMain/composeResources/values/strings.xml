@@ -89,6 +89,8 @@
     <string name="feature_note_color_none">No color</string>
     <string name="feature_note_undo">Undo</string>
     <string name="feature_note_redo">Redo</string>
+    <string name="feature_note_properties">Note properties</string>
+    <string name="feature_note_properties_edited">Edited: %1$s</string>
     <string name="feature_note_text_styles">Text styles</string>
     <string name="feature_note_text_styles_close">Close text styles</string>
     <string name="feature_note_text_style_clear">Clear styles</string>

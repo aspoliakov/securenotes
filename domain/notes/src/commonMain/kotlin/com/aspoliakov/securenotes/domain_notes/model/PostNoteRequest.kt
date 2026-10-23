@@ -14,4 +14,5 @@ data class PostNoteRequest(
         @SerialName("key_id") val keyId: String,
         @SerialName("payload") val payload: String,
         @SerialName("order") val order: Double,
+        @SerialName("content_updated_at") val contentUpdatedAt: String,
 )
