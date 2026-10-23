@@ -152,16 +152,16 @@ internal class NotesBrowserViewModel(
             ORDER_STEP
         }
         val reorderedItem: BrowserListItem = when (draggedItem) {
-            is BrowserListItem.NotesBrowserFolderItem -> draggedItem.copy(order = newOrder)
-            is BrowserListItem.NotesBrowserNoteItem -> draggedItem.copy(order = newOrder)
+            is BrowserListItem.Folder -> draggedItem.copy(order = newOrder)
+            is BrowserListItem.Note -> draggedItem.copy(order = newOrder)
         }
         items.add(insertIndex, reorderedItem)
         reduceState { copy(browserListState = BrowserListState.Loaded(items)) }
         reorderJobs[draggedItem.id]?.cancel()
         reorderJobs[draggedItem.id] = launchOnIO {
             when (draggedItem) {
-                is BrowserListItem.NotesBrowserFolderItem -> folderInteractor.reorder(draggedItem.id, newOrder)
-                is BrowserListItem.NotesBrowserNoteItem -> noteInteractor.reorder(draggedItem.id, newOrder)
+                is BrowserListItem.Folder -> folderInteractor.reorder(draggedItem.id, newOrder)
+                is BrowserListItem.Note -> noteInteractor.reorder(draggedItem.id, newOrder)
             }
         }
     }
@@ -172,8 +172,8 @@ internal class NotesBrowserViewModel(
             return
         }
         when (val item = currentVisibleItems().find { it.id == itemId }) {
-            is BrowserListItem.NotesBrowserFolderItem -> navigateToFolder(item.id)
-            is BrowserListItem.NotesBrowserNoteItem -> sendEffect { NotesBrowserEffect.NavigateToNote(item.id) }
+            is BrowserListItem.Folder -> navigateToFolder(item.id)
+            is BrowserListItem.Note -> sendEffect { NotesBrowserEffect.NavigateToNote(item.id) }
             null -> Unit
         }
     }
@@ -230,8 +230,8 @@ internal class NotesBrowserViewModel(
         launchOnIO {
             selection.selectedIds.forEach { id ->
                 when (val item = items.find { it.id == id }) {
-                    is BrowserListItem.NotesBrowserFolderItem -> folderInteractor.delete(item.id)
-                    is BrowserListItem.NotesBrowserNoteItem -> noteInteractor.delete(item.id)
+                    is BrowserListItem.Folder -> folderInteractor.delete(item.id)
+                    is BrowserListItem.Note -> noteInteractor.delete(item.id)
                     null -> Unit
                 }
             }
@@ -273,8 +273,8 @@ internal class NotesBrowserViewModel(
             .launchIn(viewModelScope)
     }
 
-    private fun FolderVO.toBrowserItem(): BrowserListItem.NotesBrowserFolderItem {
-        return BrowserListItem.NotesBrowserFolderItem(
+    private fun FolderVO.toBrowserItem(): BrowserListItem.Folder {
+        return BrowserListItem.Folder(
                 id = id,
                 parentId = parentId,
                 createdAt = createdAt,
@@ -283,8 +283,8 @@ internal class NotesBrowserViewModel(
         )
     }
 
-    private fun NoteVO.toBrowserItem(): BrowserListItem.NotesBrowserNoteItem {
-        return BrowserListItem.NotesBrowserNoteItem(
+    private fun NoteVO.toBrowserItem(): BrowserListItem.Note {
+        return BrowserListItem.Note(
                 id = id,
                 createdAt = createdAt,
                 order = order,
@@ -318,7 +318,7 @@ internal class NotesBrowserViewModel(
     private fun availableActions(selectedIds: Set<String>): Set<SelectionAction> {
         val actions = mutableSetOf(SelectionAction.DELETE)
         val singleItem = selectedIds.singleOrNull()?.let { id -> currentVisibleItems().find { it.id == id } }
-        if (singleItem is BrowserListItem.NotesBrowserFolderItem) {
+        if (singleItem is BrowserListItem.Folder) {
             actions += SelectionAction.RENAME
         }
         return actions
@@ -364,7 +364,7 @@ internal class NotesBrowserViewModel(
         val selection = currentState.selection as? SelectionState.Active
         val id = selection?.selectedIds?.singleOrNull()
         val item = id?.let { itemId -> currentVisibleItems().find { it.id == itemId } }
-        val folder = item as? BrowserListItem.NotesBrowserFolderItem
+        val folder = item as? BrowserListItem.Folder
         if (folder != null) {
             reduceState { copy(selection = SelectionState.Idle) }
             sendEffect { NotesBrowserEffect.NavigateToEditFolder(folder.id) }

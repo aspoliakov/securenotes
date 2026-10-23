@@ -29,7 +29,7 @@ internal sealed class BrowserListItem(
         open val order: Double,
 ) {
 
-    data class NotesBrowserFolderItem(
+    data class Folder(
             override val id: String,
             override val createdAt: Long,
             override val order: Double,
@@ -37,7 +37,7 @@ internal sealed class BrowserListItem(
             val name: String?,
     ) : BrowserListItem(id, createdAt, order)
 
-    data class NotesBrowserNoteItem(
+    data class Note(
             override val id: String,
             override val createdAt: Long,
             override val order: Double,

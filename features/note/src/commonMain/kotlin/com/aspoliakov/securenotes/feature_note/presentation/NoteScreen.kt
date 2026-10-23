@@ -126,6 +126,7 @@ internal fun NoteScreen(
     }
     var showColorPicker by remember { mutableStateOf(false) }
     var showProperties by remember { mutableStateOf(false) }
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
     val editorState = rememberNoteEditorState(initialTitle = state.title, initialBody = state.body)
     LaunchedEffect(editorState) {
         snapshotFlow { editorState.title.text }
@@ -152,7 +153,7 @@ internal fun NoteScreen(
                 showActions = state.noteId != null,
                 onNavigationBack = onNavigationBack,
                 onPropertiesClick = { showProperties = true },
-                onDeleteClick = { intentHandler.invoke(NoteIntent.OnDeleteClick) },
+                onDeleteClick = { showDeleteConfirmation = true },
         )
         NoteCard(
                 modifier = Modifier
@@ -197,6 +198,38 @@ internal fun NoteScreen(
                 onDismiss = { showProperties = false },
         )
     }
+    if (showDeleteConfirmation) {
+        NoteDeleteDialog(
+                onConfirm = {
+                    showDeleteConfirmation = false
+                    intentHandler(NoteIntent.OnDeleteClick)
+                },
+                onDismiss = { showDeleteConfirmation = false },
+        )
+    }
+}
+
+@Composable
+private fun NoteDeleteDialog(
+        onConfirm: () -> Unit,
+        onDismiss: () -> Unit,
+) {
+    AlertDialog(
+            icon = { Icon(imageVector = Icons.Delete, contentDescription = null) },
+            title = { Text(text = stringResource(Res.string.feature_note_delete_title)) },
+            text = { Text(text = stringResource(Res.string.feature_note_delete_message)) },
+            onDismissRequest = onDismiss,
+            confirmButton = {
+                TextButton(onClick = onConfirm) {
+                    Text(text = stringResource(Res.string.common_confirm), fontWeight = FontWeight.Medium)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text(text = stringResource(Res.string.common_cancel))
+                }
+            },
+    )
 }
 
 @Composable

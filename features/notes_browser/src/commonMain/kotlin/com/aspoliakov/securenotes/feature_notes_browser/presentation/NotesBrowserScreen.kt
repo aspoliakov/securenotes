@@ -583,7 +583,7 @@ internal fun BrowserListView(
         intentHandler: (NotesBrowserIntent) -> Unit,
 ) {
     when (browserListState) {
-        is BrowserListState.Idle -> NotesListLoadingView(modifier = modifier)
+        is BrowserListState.Idle -> BrowserListLoadingView(modifier = modifier)
         is BrowserListState.Loaded -> if (browserListState.items.isNotEmpty()) {
             BrowserListContentView(
                     modifier = modifier,
@@ -594,7 +594,7 @@ internal fun BrowserListView(
                     intentHandler = intentHandler,
             )
         } else {
-            NotesListPlaceholderView(
+            BrowserListPlaceholderView(
                     modifier = modifier,
                     title = stringResource(Res.string.feature_notes_empty_title),
                     subtitle = stringResource(Res.string.feature_notes_empty_subtitle),
@@ -618,8 +618,8 @@ internal fun BrowserListActiveSearchView(
                 selection = selection,
                 intentHandler = intentHandler,
         )
-        searchState.inProgress -> NotesListLoadingView(modifier = modifier)
-        else -> NotesListPlaceholderView(
+        searchState.inProgress -> BrowserListLoadingView(modifier = modifier)
+        else -> BrowserListPlaceholderView(
                 modifier = modifier,
                 title = stringResource(Res.string.feature_notes_no_results_title),
                 subtitle = stringResource(Res.string.feature_notes_no_results_subtitle),
@@ -629,7 +629,7 @@ internal fun BrowserListActiveSearchView(
 }
 
 @Composable
-internal fun NotesListLoadingView(
+internal fun BrowserListLoadingView(
         modifier: Modifier = Modifier,
 ) {
     Column(
@@ -646,7 +646,7 @@ internal fun NotesListLoadingView(
 }
 
 @Composable
-private fun NotesListPlaceholderView(
+private fun BrowserListPlaceholderView(
         modifier: Modifier = Modifier,
         title: String,
         subtitle: String,
@@ -837,8 +837,8 @@ private fun BrowserListItemContent(
         intentHandler: (NotesBrowserIntent) -> Unit,
 ) {
     val itemShape = when (item) {
-        is BrowserListItem.NotesBrowserFolderItem -> FolderRowShape
-        is BrowserListItem.NotesBrowserNoteItem -> NoteShape
+        is BrowserListItem.Folder -> FolderRowShape
+        is BrowserListItem.Note -> NoteShape
     }
     val interactionSource = remember { MutableInteractionSource() }
     val itemModifier = modifier.then(
@@ -876,7 +876,7 @@ private fun BrowserListItemContent(
     }
     val rippleInteractionSource = if (reorderEnabled) interactionSource else null
     when (item) {
-        is BrowserListItem.NotesBrowserFolderItem -> FolderListItemView(
+        is BrowserListItem.Folder -> FolderListItemView(
                 modifier = itemModifier,
                 folder = item,
                 selection = selection,
@@ -885,7 +885,7 @@ private fun BrowserListItemContent(
                 onClick = onClick,
                 onLongClick = onLongClick,
         )
-        is BrowserListItem.NotesBrowserNoteItem -> NoteListItemView(
+        is BrowserListItem.Note -> NoteListItemView(
                 modifier = itemModifier,
                 note = item,
                 selection = selection,
@@ -900,7 +900,7 @@ private fun BrowserListItemContent(
 @Composable
 internal fun FolderListItemView(
         modifier: Modifier = Modifier,
-        folder: BrowserListItem.NotesBrowserFolderItem,
+        folder: BrowserListItem.Folder,
         selection: SelectionState,
         isDragging: Boolean = false,
         interactionSource: MutableInteractionSource? = null,
@@ -953,7 +953,7 @@ internal fun FolderListItemView(
 @Composable
 internal fun NoteListItemView(
         modifier: Modifier = Modifier,
-        note: BrowserListItem.NotesBrowserNoteItem,
+        note: BrowserListItem.Note,
         selection: SelectionState = SelectionState.Idle,
         interactionSource: MutableInteractionSource? = null,
         onClick: (() -> Unit)? = {},
@@ -1154,14 +1154,14 @@ private fun NotesBrowserScreenListPreview() {
                         canNavigateBack = true,
                         browserListState = BrowserListState.Loaded(
                                 items = listOf(
-                                        BrowserListItem.NotesBrowserFolderItem(
+                                        BrowserListItem.Folder(
                                                 id = "f1",
                                                 parentId = "1",
                                                 createdAt = 0L,
                                                 order = 0.0,
                                                 name = "Subfolder",
                                         ),
-                                        BrowserListItem.NotesBrowserNoteItem(
+                                        BrowserListItem.Note(
                                                 id = "1",
                                                 createdAt = 0L,
                                                 order = 1000.0,
@@ -1170,7 +1170,7 @@ private fun NotesBrowserScreenListPreview() {
                                                 color = null,
                                                 folderId = "1",
                                         ),
-                                        BrowserListItem.NotesBrowserNoteItem(
+                                        BrowserListItem.Note(
                                                 id = "2",
                                                 createdAt = 0L,
                                                 order = 2000.0,
