@@ -14,5 +14,5 @@ val foldersDomainModule = module {
     single { FoldersApiProvider(get()) }
     single { FolderCryptoInteractor(get()) }
     single { FolderInteractor(get(), get(), get(), get(), get(), get()) }
-    single { FoldersListInteractor(get(), get(), get(), get()) }
+    single { FoldersListInteractor(get(), get(), get()) }
 }

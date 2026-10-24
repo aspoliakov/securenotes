@@ -11,6 +11,7 @@ import com.aspoliakov.securenotes.domain_folders.model.FolderVO
 import com.aspoliakov.securenotes.domain_notes.NoteInteractor
 import com.aspoliakov.securenotes.domain_notes.NotesListInteractor
 import com.aspoliakov.securenotes.domain_notes.model.NoteVO
+import com.aspoliakov.securenotes.domain_sync.SyncInteractor
 import com.aspoliakov.securenotes.domain_user_state.UserPrefsInteractor
 import com.aspoliakov.securenotes.domain_user_state.model.NotesSortOrder
 import com.aspoliakov.securenotes.domain_user_state.model.NotesViewMode
@@ -29,6 +30,7 @@ internal class NotesBrowserViewModel(
         private val folderInteractor: FolderInteractor,
         private val foldersListInteractor: FoldersListInteractor,
         private val noteInteractor: NoteInteractor,
+        private val syncInteractor: SyncInteractor,
         private val userPrefsInteractor: UserPrefsInteractor,
 ) : MviViewModel<NotesBrowserState, NotesBrowserEffect, NotesBrowserIntent>(initialState) {
 
@@ -47,6 +49,7 @@ internal class NotesBrowserViewModel(
     init {
         loadCurrentFolder()
         observePrefs()
+        launchOnIO { syncInteractor.sync() }
     }
 
     override fun handleIntent(intent: NotesBrowserIntent) {
@@ -108,7 +111,7 @@ internal class NotesBrowserViewModel(
         if (refreshJob?.isActive == true) return
         reduceState { copy(isRefreshing = true) }
         refreshJob = launchOnIO {
-            runCatching { notesListInteractor.syncNotes() }
+            syncInteractor.sync()
             reduceState { copy(isRefreshing = false) }
         }
     }

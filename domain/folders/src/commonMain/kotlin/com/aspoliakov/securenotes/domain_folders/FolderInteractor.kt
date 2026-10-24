@@ -8,6 +8,7 @@ import com.aspoliakov.securenotes.core_db.dao.SyncStackDao
 import com.aspoliakov.securenotes.core_db.event_bus.SyncStackEventBus
 import com.aspoliakov.securenotes.core_db.model.FolderDB
 import com.aspoliakov.securenotes.core_db.model.SyncStackDB
+import com.aspoliakov.securenotes.core_network.exceptions.ErrorResponseException
 import com.aspoliakov.securenotes.domain_folders.model.FolderPayload
 import com.aspoliakov.securenotes.domain_folders.model.FolderVO
 import com.aspoliakov.securenotes.domain_folders.model.PostFolderRequest
@@ -36,6 +37,7 @@ class FolderInteractor(
     companion object {
         private const val HANDLE_CHANGES_DELAY = 2000L
         private const val ORDER_STEP = 1000.0
+        private const val ITEM_ALREADY_DELETED = "item already deleted"
     }
 
     private val syncJobs: MutableMap<String, Job> = mutableMapOf()
@@ -88,6 +90,12 @@ class FolderInteractor(
         addChangesToSyncStack(folderId, SyncStackDB.Action.DELETE)
     }
 
+    suspend fun resetMissingParentIds() {
+        val folderIds = folderDao.selectIdsWithMissingParent()
+        folderDao.resetMissingParentId()
+        folderIds.forEach { addChangesToSyncStack(it, SyncStackDB.Action.SAVE) }
+    }
+
     suspend fun getFolder(folderId: String): FolderVO? {
         val folderDB = folderDao.selectById(folderId) ?: return null
         return mapFolderDBToFolderVO(folderDB)
@@ -115,15 +123,26 @@ class FolderInteractor(
                 val encryptedPayload = folderCryptoInteractor.encrypt(
                         FolderPayload(name = folderDB.name)
                 )
-                foldersApiProvider.provideApi().saveFolder(
-                        request = PostFolderRequest(
-                                folderId = folderId,
-                                parentId = folderDB.parentId,
-                                keyId = encryptedPayload.keyId,
-                                payload = encryptedPayload.payload,
-                                order = folderDB.order,
-                        )
-                )
+                runCatching {
+                    foldersApiProvider.provideApi().saveFolder(
+                            request = PostFolderRequest(
+                                    folderId = folderId,
+                                    parentId = folderDB.parentId,
+                                    keyId = encryptedPayload.keyId,
+                                    payload = encryptedPayload.payload,
+                                    order = folderDB.order,
+                            )
+                    )
+                }
+                    .onFailure {
+                        if (it is ErrorResponseException && it.detail == ITEM_ALREADY_DELETED) {
+                            Napier.d("folder is deleted on server")
+                            folderDao.delete(folderId)
+                            syncStackDao.delete(folderId)
+                        } else {
+                            throw it
+                        }
+                    }
             }
             SyncStackDB.Action.DELETE -> {
                 Napier.d("remove folder from server")

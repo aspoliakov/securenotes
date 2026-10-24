@@ -4,6 +4,7 @@ import com.aspoliakov.securenotes.domain.SyncStackInteractor
 import com.aspoliakov.securenotes.domain_crypto.di.cryptoDomainModule
 import com.aspoliakov.securenotes.domain_folders.di.foldersDomainModule
 import com.aspoliakov.securenotes.domain_notes.di.notesDomainModule
+import com.aspoliakov.securenotes.domain_sync.di.syncDomainModule
 import com.aspoliakov.securenotes.domain_user_state.di.userStateDomainModule
 import org.koin.dsl.module
 
@@ -28,4 +29,5 @@ val domainModule = listOf(
         notesDomainModule,
         cryptoDomainModule,
         foldersDomainModule,
+        syncDomainModule,
 )

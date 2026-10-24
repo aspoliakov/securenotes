@@ -49,6 +49,12 @@ interface FolderDao : BaseDao<FolderDB> {
     @Query("DELETE FROM $TABLE WHERE folder_id = :folderId")
     suspend fun delete(folderId: String)
 
+    @Query("SELECT folder_id FROM $TABLE WHERE parent_id NOT IN (SELECT folder_id FROM $TABLE)")
+    suspend fun selectIdsWithMissingParent(): List<String>
+
+    @Query("UPDATE $TABLE SET parent_id = NULL WHERE parent_id NOT IN (SELECT folder_id FROM $TABLE)")
+    suspend fun resetMissingParentId()
+
     @Query("DELETE FROM $TABLE")
     suspend fun deleteAll()
 }

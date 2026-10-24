@@ -69,10 +69,7 @@ class NoteViewModel(
     }
 
     private fun onNoteDelete() {
-        runNoteAction { noteId ->
-            noteInteractor.delete(noteId)
-            sendEffect { NoteEffect.Close }
-        }
+        runNoteAction { noteId -> noteInteractor.delete(noteId) }
     }
 
     private fun onTitleChanged(intent: NoteIntent.OnTitleChanged) {
@@ -115,11 +112,16 @@ class NoteViewModel(
 
     private fun observeNote(noteId: String) {
         noteInteractor.observeById(noteId)
-            .onEach {
+            .distinctUntilChanged()
+            .onEach { note ->
+                if (note == null) {
+                    sendEffect { NoteEffect.Close }
+                    return@onEach
+                }
                 reduceState {
                     copy(
-                            color = it.color,
-                            contentUpdatedAt = it.contentUpdatedAt,
+                            color = note.color,
+                            contentUpdatedAt = note.contentUpdatedAt,
                     )
                 }
             }

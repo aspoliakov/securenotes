@@ -35,6 +35,7 @@ kotlin {
             implementation(projects.features.sessions)
 
             implementation(projects.domain.notes)
+            implementation(projects.domain.sync)
             implementation(projects.domain.folders)
             implementation(projects.domain.userState)
             implementation(projects.domain.crypto)

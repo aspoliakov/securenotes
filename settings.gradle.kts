@@ -27,6 +27,7 @@ include(":features:sessions", "features/sessions")
 include(":domain:crypto", "domain/crypto")
 include(":domain:folders", "domain/folders")
 include(":domain:notes", "domain/notes")
+include(":domain:sync", "domain/sync")
 include(":domain:user_state", "domain/user_state")
 
 include(":core:base", "core/base")

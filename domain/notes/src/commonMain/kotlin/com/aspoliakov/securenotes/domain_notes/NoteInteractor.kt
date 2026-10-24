@@ -8,6 +8,7 @@ import com.aspoliakov.securenotes.core_db.event_bus.SyncStackEventBus
 import com.aspoliakov.securenotes.core_db.model.NoteDB
 import com.aspoliakov.securenotes.core_db.model.SyncStackDB
 import com.aspoliakov.securenotes.core_network.exceptions.Error404Exception
+import com.aspoliakov.securenotes.core_network.exceptions.ErrorResponseException
 import com.aspoliakov.securenotes.domain_notes.model.NoteColor
 import com.aspoliakov.securenotes.domain_notes.model.NotePayload
 import com.aspoliakov.securenotes.domain_notes.model.NoteVO
@@ -18,7 +19,6 @@ import com.aspoliakov.securenotes.domain_notes.util.toServerDateTime
 import io.github.aakira.napier.Napier
 import kotlin.time.Clock
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 
 /**
@@ -36,6 +36,7 @@ class NoteInteractor(
 
     companion object {
         private const val ORDER_STEP = 1000.0
+        private const val ITEM_ALREADY_DELETED = "item already deleted"
     }
 
     suspend fun createNew(folderId: String? = null): String {
@@ -65,10 +66,9 @@ class NoteInteractor(
         return notesDao.selectById(noteId)?.let { mapNoteDBToNoteVO(it) }
     }
 
-    fun observeById(noteId: String): Flow<NoteVO> {
+    fun observeById(noteId: String): Flow<NoteVO?> {
         return notesDao.observeById(noteId)
-            .filterNotNull()
-            .map { mapNoteDBToNoteVO(it) }
+            .map { noteDB -> noteDB?.let { mapNoteDBToNoteVO(it) } }
     }
 
     suspend fun undoCreation(noteId: String) {
@@ -109,6 +109,15 @@ class NoteInteractor(
         }
     }
 
+    suspend fun resetMissingFolderIds() {
+        val noteIds = notesDao.selectIdsWithMissingFolder()
+        notesDao.resetMissingFolderId()
+        noteIds.forEach { noteId ->
+            addChangesToSyncStack(noteId, SyncStackDB.Action.SAVE)
+            syncChanges(noteId)
+        }
+    }
+
     suspend fun delete(noteId: String) {
         notesDao.delete(noteId)
         addChangesToSyncStack(noteId, SyncStackDB.Action.DELETE)
@@ -130,16 +139,28 @@ class NoteInteractor(
                                 color = NoteColor.fromArgb(noteDB.color).argb,
                         )
                 )
-                val response = notesApiProvider.provideApi().saveNote(
-                        request = PostNoteRequest(
-                                noteId = noteId,
-                                folderId = noteDB.folderId,
-                                keyId = encryptedPayload.keyId,
-                                payload = encryptedPayload.payload,
-                                order = noteDB.order,
-                                contentUpdatedAt = noteDB.contentUpdatedAt.toServerDateTime(),
-                        )
-                )
+                val response = runCatching {
+                    notesApiProvider.provideApi().saveNote(
+                            request = PostNoteRequest(
+                                    noteId = noteId,
+                                    folderId = noteDB.folderId,
+                                    keyId = encryptedPayload.keyId,
+                                    payload = encryptedPayload.payload,
+                                    order = noteDB.order,
+                                    contentUpdatedAt = noteDB.contentUpdatedAt.toServerDateTime(),
+                            )
+                    )
+                }
+                    .onFailure {
+                        if (it is ErrorResponseException && it.detail == ITEM_ALREADY_DELETED) {
+                            // deleted on another device: the deletion wins over the edit
+                            Napier.d("note is deleted on server")
+                            notesDao.delete(noteId)
+                            syncStackDao.delete(noteId)
+                            return
+                        }
+                    }
+                    .getOrThrow()
                 val noteDTO = response.note
                 notesDao.updateUploaded(
                         noteId = noteId,
@@ -149,14 +170,19 @@ class NoteInteractor(
             }
             SyncStackDB.Action.DELETE -> {
                 Napier.d("remove note from server")
-                try {
+                runCatching {
                     notesApiProvider.provideApi().deleteNote(
                             noteId = noteId,
                     )
-                } catch (_: Error404Exception) {
-                    // a note deleted before its first upload is not on the server: nothing to delete
-                    Napier.d("note is not on server")
                 }
+                    .onFailure {
+                        // a note deleted before its first upload is not on the server: nothing to delete
+                        if (it is Error404Exception) {
+                            Napier.d("note is not on server")
+                        } else {
+                            throw it
+                        }
+                    }
             }
         }
     }

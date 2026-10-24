@@ -13,6 +13,7 @@ data class FolderDTO(
         @SerialName("parent_id") val parentId: String?,
         @SerialName("created_at") val createdAt: String,
         @SerialName("updated_at") val updatedAt: String?,
-        @SerialName("payload") val payload: String,
+        @SerialName("payload") val payload: String?,
         @SerialName("order") val order: Double,
+        @SerialName("deleted_at") val deletedAt: String? = null,
 )

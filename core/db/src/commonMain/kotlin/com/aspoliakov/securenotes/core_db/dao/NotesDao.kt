@@ -67,6 +67,12 @@ interface NotesDao : BaseDao<NoteDB> {
     @Query("DELETE FROM $TABLE WHERE folder_id = :folderId")
     suspend fun deleteByFolderId(folderId: String)
 
+    @Query("SELECT note_id FROM $TABLE WHERE folder_id NOT IN (SELECT folder_id FROM folders)")
+    suspend fun selectIdsWithMissingFolder(): List<String>
+
+    @Query("UPDATE $TABLE SET folder_id = NULL WHERE folder_id NOT IN (SELECT folder_id FROM folders)")
+    suspend fun resetMissingFolderId()
+
     @Query("DELETE FROM $TABLE")
     suspend fun deleteAll()
 }
