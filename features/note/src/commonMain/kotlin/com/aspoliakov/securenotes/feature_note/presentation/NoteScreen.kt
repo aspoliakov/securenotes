@@ -168,7 +168,7 @@ internal fun NoteScreen(
                 showActions = state.noteId != null,
                 onNavigationBack = onNavigationBack,
                 onPropertiesClick = { showProperties = true },
-                onDeleteClick = { showDeleteConfirmation = true },
+                onSearchClick = { intentHandler(NoteIntent.OnSearchClick) },
         )
         NoteCard(
                 modifier = Modifier
@@ -238,13 +238,13 @@ internal fun NoteScreen(
         NotePropertiesSheet(
                 contentUpdatedAt = state.contentUpdatedAt,
                 hidden = state.hidden,
-                onSearchClick = {
-                    showProperties = false
-                    intentHandler(NoteIntent.OnSearchClick)
-                },
                 onHiddenToggle = {
                     showProperties = false
                     intentHandler(NoteIntent.OnHiddenToggle)
+                },
+                onDeleteClick = {
+                    showProperties = false
+                    showDeleteConfirmation = true
                 },
                 onDismiss = { showProperties = false },
         )
@@ -334,7 +334,7 @@ internal fun NoteTopBar(
         showActions: Boolean,
         onNavigationBack: () -> Unit,
         onPropertiesClick: () -> Unit,
-        onDeleteClick: () -> Unit,
+        onSearchClick: () -> Unit,
 ) {
     Row(
             modifier = modifier.fillMaxWidth(),
@@ -362,11 +362,11 @@ internal fun NoteTopBar(
             ) {
                 FloatingButtonGroup {
                     IconButton(
-                            onClick = onDeleteClick,
+                            onClick = onSearchClick,
                     ) {
                         Icon(
-                                imageVector = Icons.Delete,
-                                contentDescription = stringResource(Res.string.common_delete),
+                                imageVector = Icons.Search,
+                                contentDescription = stringResource(Res.string.feature_note_search),
                         )
                     }
                 }
@@ -590,8 +590,8 @@ internal fun NoteColorPickerSheet(
 internal fun NotePropertiesSheet(
         contentUpdatedAt: Long?,
         hidden: Boolean,
-        onSearchClick: () -> Unit,
         onHiddenToggle: () -> Unit,
+        onDeleteClick: () -> Unit,
         onDismiss: () -> Unit,
 ) {
     ModalBottomSheet(
@@ -615,16 +615,16 @@ internal fun NotePropertiesSheet(
                 )
             }
             NotePropertiesItem(
-                    icon = Icons.Search,
-                    text = stringResource(Res.string.feature_note_search),
-                    onClick = onSearchClick,
-            )
-            NotePropertiesItem(
                     icon = if (hidden) Icons.Visibility else Icons.VisibilityOff,
                     text = stringResource(
                             if (hidden) Res.string.feature_note_show_content else Res.string.feature_note_hide_content,
                     ),
                     onClick = onHiddenToggle,
+            )
+            NotePropertiesItem(
+                    icon = Icons.Delete,
+                    text = stringResource(Res.string.common_delete),
+                    onClick = onDeleteClick,
             )
         }
     }
