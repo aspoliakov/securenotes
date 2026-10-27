@@ -798,6 +798,7 @@ internal fun BrowserFlatListView(
         intentHandler: (NotesBrowserIntent) -> Unit,
 ) {
     val listState = rememberLazyListState()
+    KeepListAtTop(state = listState, items = items)
     val dragState = remember { DragReorderState<BrowserListItem> { it.id } }
     val renderedItems = if (dragState.draggingKey != null) dragState.displayedItems else items
     val density = LocalDensity.current
@@ -851,6 +852,7 @@ internal fun BrowserGridView(
         intentHandler: (NotesBrowserIntent) -> Unit,
 ) {
     val gridState = rememberLazyStaggeredGridState()
+    KeepListAtTop(state = gridState, items = items)
     val dragState = remember { DragReorderState<BrowserListItem> { it.id } }
     val renderedItems = if (dragState.draggingKey != null) dragState.displayedItems else items
     val density = LocalDensity.current
