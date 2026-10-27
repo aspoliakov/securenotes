@@ -12,15 +12,13 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.automirrored.filled.ViewList
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.GridView
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -35,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -248,6 +247,7 @@ internal fun NotesBrowserToolbar(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     NotesSortButton(
+                            sortOrder = state.sortOrder,
                             onClick = { intentHandler(NotesBrowserIntent.OnSortButtonClick) },
                     )
                 }
@@ -501,6 +501,7 @@ internal fun NotesViewModeToggleButton(
 @Composable
 internal fun NotesSortButton(
         modifier: Modifier = Modifier,
+        sortOrder: NotesSortOrder = NotesSortOrder.NEWEST_FIRST,
         onClick: () -> Unit = {},
 ) {
     Box(
@@ -511,12 +512,33 @@ internal fun NotesSortButton(
                 .clickable { onClick() },
             contentAlignment = Alignment.Center,
     ) {
-        Icon(
-                imageVector = Icons.AutoMirrored.Filled.Sort,
+        SortOrderIcon(
+                sortOrder = sortOrder,
                 contentDescription = stringResource(Res.string.feature_notes_sort_title),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
+}
+
+@Composable
+private fun SortOrderIcon(
+        sortOrder: NotesSortOrder,
+        contentDescription: String?,
+        tint: Color,
+) {
+    val icon = when (sortOrder) {
+        NotesSortOrder.NEWEST_FIRST,
+        NotesSortOrder.OLDEST_FIRST -> Icons.AutoMirrored.Filled.Sort
+        NotesSortOrder.CUSTOM -> Icons.Default.DragIndicator
+    }
+    Icon(
+            modifier = Modifier.graphicsLayer {
+                scaleY = if (sortOrder == NotesSortOrder.OLDEST_FIRST) -1f else 1f
+            },
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = tint,
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -544,16 +566,19 @@ internal fun NotesSortBottomSheet(
             )
             Spacer16dp()
             SortOrderOptionRow(
+                    sortOrder = NotesSortOrder.NEWEST_FIRST,
                     label = stringResource(Res.string.feature_notes_sort_newest_first),
                     selected = sortOrder == NotesSortOrder.NEWEST_FIRST,
                     onClick = { onSortOrderSelected(NotesSortOrder.NEWEST_FIRST) },
             )
             SortOrderOptionRow(
+                    sortOrder = NotesSortOrder.OLDEST_FIRST,
                     label = stringResource(Res.string.feature_notes_sort_oldest_first),
                     selected = sortOrder == NotesSortOrder.OLDEST_FIRST,
                     onClick = { onSortOrderSelected(NotesSortOrder.OLDEST_FIRST) },
             )
             SortOrderOptionRow(
+                    sortOrder = NotesSortOrder.CUSTOM,
                     label = stringResource(Res.string.feature_notes_sort_custom),
                     selected = sortOrder == NotesSortOrder.CUSTOM,
                     onClick = { onSortOrderSelected(NotesSortOrder.CUSTOM) },
@@ -564,25 +589,49 @@ internal fun NotesSortBottomSheet(
 
 @Composable
 private fun SortOrderOptionRow(
+        sortOrder: NotesSortOrder,
         label: String,
         selected: Boolean,
         onClick: () -> Unit,
 ) {
+    val contentColor = if (selected) {
+        MaterialTheme.colorScheme.onSecondaryContainer
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    }
     Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
-                .clickable(onClick = onClick)
-                .padding(vertical = 12.dp),
+                .background(if (selected) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent)
+                .selectable(
+                        selected = selected,
+                        role = Role.RadioButton,
+                        onClick = onClick,
+                )
+                .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
     ) {
-        RadioButton(selected = selected, onClick = onClick)
-        Spacer(modifier = Modifier.width(8.dp))
+        SortOrderIcon(
+                sortOrder = sortOrder,
+                contentDescription = null,
+                tint = contentColor,
+        )
+        Spacer(modifier = Modifier.width(16.dp))
         Text(
+                modifier = Modifier.weight(1f),
                 text = label,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = if (selected) FontWeight.Medium else FontWeight.Normal,
+                color = if (selected) contentColor else MaterialTheme.colorScheme.onSurface,
         )
+        if (selected) {
+            Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = null,
+                    tint = contentColor,
+            )
+        }
     }
 }
 
