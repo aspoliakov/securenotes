@@ -109,6 +109,14 @@ class NoteInteractor(
         }
     }
 
+    suspend fun setHidden(noteId: String, hidden: Boolean) {
+        val noteDB = notesDao.selectById(noteId) ?: return
+        if (hidden != noteDB.hidden) {
+            notesDao.updateHidden(noteId, hidden, Clock.System.now().toEpochMilliseconds())
+            addChangesToSyncStack(noteId, SyncStackDB.Action.SAVE)
+        }
+    }
+
     suspend fun resetMissingFolderIds() {
         val noteIds = notesDao.selectIdsWithMissingFolder()
         notesDao.resetMissingFolderId()
@@ -137,6 +145,7 @@ class NoteInteractor(
                                 title = noteDB.title,
                                 body = noteDB.body,
                                 color = NoteColor.fromArgb(noteDB.color).argb,
+                                hidden = noteDB.hidden,
                         )
                 )
                 val response = runCatching {
@@ -195,6 +204,7 @@ class NoteInteractor(
                 title = noteDB.title ?: "",
                 body = noteDB.body ?: "",
                 color = NoteColor.fromArgb(noteDB.color),
+                hidden = noteDB.hidden,
                 folderId = noteDB.folderId,
         )
     }

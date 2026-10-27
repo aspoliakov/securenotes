@@ -1064,6 +1064,13 @@ internal fun NoteListItemView(
                             Modifier
                         }
                 )
+                .then(
+                        if (note.hidden) {
+                            Modifier.hiddenNoteContent(containerColor = containerColor, amount = { 1F })
+                        } else {
+                            Modifier
+                        }
+                )
                 .padding(16.dp),
     ) {
         val title = note.title
@@ -1241,6 +1248,7 @@ private fun NotesBrowserScreenListPreview() {
                                                 title = "Title 1",
                                                 body = "Body 1",
                                                 color = null,
+                                                hidden = true,
                                                 folderId = "1",
                                         ),
                                         BrowserListItem.Note(
@@ -1251,6 +1259,7 @@ private fun NotesBrowserScreenListPreview() {
                                                 body = "`Body 2 with` more *text* to ~~show~~ card wrapping " +
                                                         "and text **styles**.",
                                                 color = 0xFFE91E63L,
+                                                hidden = false,
                                                 folderId = "1",
                                         ),
                                 ),

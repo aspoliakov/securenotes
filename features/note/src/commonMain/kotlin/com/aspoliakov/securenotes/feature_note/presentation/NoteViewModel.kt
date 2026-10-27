@@ -61,6 +61,7 @@ class NoteViewModel(
             is NoteIntent.OnTitleChanged -> onTitleChanged(intent)
             is NoteIntent.OnBodyChanged -> onBodyChanged(intent)
             is NoteIntent.OnColorSelected -> onColorSelected(intent)
+            is NoteIntent.OnHiddenToggle -> onHiddenToggle()
             is NoteIntent.OnScreenStopped -> onScreenStopped()
             is NoteIntent.OnSearchClick -> onSearchClick()
             is NoteIntent.OnSearchQueryChanged -> onSearchQueryChanged(intent)
@@ -82,6 +83,11 @@ class NoteViewModel(
 
     private fun onColorSelected(intent: NoteIntent.OnColorSelected) {
         runNoteAction { noteInteractor.setColor(it, intent.color) }
+    }
+
+    private fun onHiddenToggle() {
+        val hidden = !currentState.hidden
+        runNoteAction { noteInteractor.setHidden(it, hidden) }
     }
 
     private fun onScreenStopped() {
@@ -121,6 +127,7 @@ class NoteViewModel(
                 reduceState {
                     copy(
                             color = note.color,
+                            hidden = note.hidden,
                             contentUpdatedAt = note.contentUpdatedAt,
                     )
                 }

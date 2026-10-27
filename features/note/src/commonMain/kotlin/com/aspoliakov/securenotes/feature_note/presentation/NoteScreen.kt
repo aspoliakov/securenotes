@@ -29,6 +29,7 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import com.aspoliakov.securenotes.core_presentation.mvi.Effect
 import com.aspoliakov.securenotes.core_presentation.mvi.koinMviViewModel
 import com.aspoliakov.securenotes.core_presentation.navigation.passInputThroughWhileExiting
+import com.aspoliakov.securenotes.core_presentation.navigation.rememberNavTransitionFraction
 import com.aspoliakov.securenotes.core_presentation.navigation.screenChromeTransition
 import com.aspoliakov.securenotes.core_presentation.navigation.sharedNoteBounds
 import com.aspoliakov.securenotes.core_presentation.utils.CollectEffects
@@ -36,18 +37,13 @@ import com.aspoliakov.securenotes.core_ui.AppPreview
 import com.aspoliakov.securenotes.core_ui.Icons
 import com.aspoliakov.securenotes.core_ui.component.FloatingButtonGroup
 import com.aspoliakov.securenotes.core_ui.component.NoteShape
+import com.aspoliakov.securenotes.core_ui.component.hiddenNoteContent
 import com.aspoliakov.securenotes.core_ui.component.noteContainerColor
 import com.aspoliakov.securenotes.core_ui.resources.*
 import com.aspoliakov.securenotes.domain_notes.model.NoteColor
+import com.aspoliakov.securenotes.feature_note.presentation.component.*
 import com.aspoliakov.securenotes.feature_note.presentation.editor.NoteEditorState
 import com.aspoliakov.securenotes.feature_note.presentation.editor.rememberNoteEditorState
-import com.aspoliakov.securenotes.feature_note.presentation.component.NoteSearchBar
-import com.aspoliakov.securenotes.feature_note.presentation.component.StyledTextEditor
-import com.aspoliakov.securenotes.feature_note.presentation.component.StyledTextState
-import com.aspoliakov.securenotes.feature_note.presentation.component.TextStylesToolbar
-import com.aspoliakov.securenotes.feature_note.presentation.component.findMatches
-import com.aspoliakov.securenotes.feature_note.presentation.component.nextMatch
-import com.aspoliakov.securenotes.feature_note.presentation.component.previousMatch
 import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.drop
@@ -180,6 +176,7 @@ internal fun NoteScreen(
                     .fillMaxWidth(),
                 noteId = state.noteId,
                 color = state.color,
+                hidden = state.hidden,
         ) { viewportHeight ->
             val density = LocalDensity.current
             var titleHeight by remember { mutableStateOf(0.dp) }
@@ -240,9 +237,14 @@ internal fun NoteScreen(
     if (showProperties) {
         NotePropertiesSheet(
                 contentUpdatedAt = state.contentUpdatedAt,
+                hidden = state.hidden,
                 onSearchClick = {
                     showProperties = false
                     intentHandler(NoteIntent.OnSearchClick)
+                },
+                onHiddenToggle = {
+                    showProperties = false
+                    intentHandler(NoteIntent.OnHiddenToggle)
                 },
                 onDismiss = { showProperties = false },
         )
@@ -286,8 +288,12 @@ private fun NoteCard(
         modifier: Modifier = Modifier,
         noteId: String?,
         color: NoteColor,
+        hidden: Boolean,
         content: @Composable ColumnScope.(viewportHeight: Dp) -> Unit,
 ) {
+    val containerColor = noteContainerColor(color.argb)
+    // a hidden note is blurred in the list: the blur clears as the card expands and returns as it collapses
+    val navTransitionFraction = rememberNavTransitionFraction()
     BoxWithConstraints(
             modifier = modifier
                 .sharedNoteBounds(
@@ -298,12 +304,22 @@ private fun NoteCard(
                         ),
                 )
                 .clip(NoteShape)
-                .background(noteContainerColor(color.argb)),
+                .background(containerColor),
     ) {
         val viewportHeight = maxHeight
         Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .then(
+                            if (hidden) {
+                                Modifier.hiddenNoteContent(
+                                        containerColor = containerColor,
+                                        amount = navTransitionFraction,
+                                )
+                            } else {
+                                Modifier
+                            }
+                    )
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 4.dp),
         ) {
@@ -573,7 +589,9 @@ internal fun NoteColorPickerSheet(
 @Composable
 internal fun NotePropertiesSheet(
         contentUpdatedAt: Long?,
+        hidden: Boolean,
         onSearchClick: () -> Unit,
+        onHiddenToggle: () -> Unit,
         onDismiss: () -> Unit,
 ) {
     ModalBottomSheet(
@@ -600,6 +618,13 @@ internal fun NotePropertiesSheet(
                     icon = Icons.Search,
                     text = stringResource(Res.string.feature_note_search),
                     onClick = onSearchClick,
+            )
+            NotePropertiesItem(
+                    icon = if (hidden) Icons.Visibility else Icons.VisibilityOff,
+                    text = stringResource(
+                            if (hidden) Res.string.feature_note_show_content else Res.string.feature_note_hide_content,
+                    ),
+                    onClick = onHiddenToggle,
             )
         }
     }

@@ -15,6 +15,7 @@ data class NoteState(
         val title: String = "",
         val body: String = "",
         val color: NoteColor = NoteColor.DEFAULT,
+        val hidden: Boolean = false,
         val contentUpdatedAt: Long? = null,
         val searchState: SearchState = SearchState.Idle,
 ) : State()
@@ -33,6 +34,7 @@ sealed class NoteIntent : Intent() {
     data class OnTitleChanged(val text: String) : NoteIntent()
     data class OnBodyChanged(val text: String) : NoteIntent()
     data class OnColorSelected(val color: NoteColor) : NoteIntent()
+    data object OnHiddenToggle : NoteIntent()
     data object OnScreenStopped : NoteIntent()
     data object OnSearchClick : NoteIntent()
     data class OnSearchQueryChanged(val query: String) : NoteIntent()

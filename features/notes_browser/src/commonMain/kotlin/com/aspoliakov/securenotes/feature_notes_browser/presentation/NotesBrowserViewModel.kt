@@ -305,6 +305,7 @@ internal class NotesBrowserViewModel(
                 title = title.takeIf { it.isNotBlank() },
                 body = body.takeIf { it.isNotBlank() },
                 color = color.argb,
+                hidden = hidden,
                 folderId = folderId,
         )
     }

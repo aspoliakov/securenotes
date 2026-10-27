@@ -38,6 +38,9 @@ data class NoteDB(
         @ColumnInfo(name = "color")
         var color: Long? = null,
 
+        @ColumnInfo(name = "hidden")
+        var hidden: Boolean = false,
+
         @ColumnInfo(name = "folder_id")
         var folderId: String? = null,
 

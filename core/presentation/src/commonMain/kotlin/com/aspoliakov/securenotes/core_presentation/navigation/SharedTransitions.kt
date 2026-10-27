@@ -5,8 +5,12 @@ import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.spring
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
@@ -56,6 +60,22 @@ fun Modifier.sharedNoteBounds(
                 clipInOverlayDuringTransition = OverlayClip(NoteShape),
         )
     }
+}
+
+/**
+ * How much of the destination's nav transition is still ahead: 1 before it enters and after it exits, 0 while it
+ * is shown, animated in between along with the [sharedNoteBounds] transform. Always 0 without a nav transition.
+ */
+@Composable
+fun rememberNavTransitionFraction(): () -> Float {
+    val visibilityScope = LocalNavAnimatedVisibilityScope.current ?: return { 0F }
+    val fraction = visibilityScope.transition.animateFloat(
+            transitionSpec = { spring(stiffness = Spring.StiffnessMediumLow) },
+            label = "nav_transition_fraction",
+    ) { state ->
+        if (state == EnterExitState.Visible) 0F else 1F
+    }
+    return remember(fraction) { { fraction.value } }
 }
 
 /**

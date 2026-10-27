@@ -12,4 +12,5 @@ data class NotePayload(
         @SerialName("title") val title: String?,
         @SerialName("body") val body: String?,
         @SerialName("color") val color: Long? = null,
+        @SerialName("hidden") val hidden: Boolean = false,
 )

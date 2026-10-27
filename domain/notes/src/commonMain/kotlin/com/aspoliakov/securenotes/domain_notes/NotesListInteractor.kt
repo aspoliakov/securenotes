@@ -46,6 +46,7 @@ class NotesListInteractor(
                 title = noteDB.title ?: "",
                 body = noteDB.body ?: "",
                 color = NoteColor.fromArgb(noteDB.color),
+                hidden = noteDB.hidden,
                 order = noteDB.order,
         )
     }
@@ -75,6 +76,7 @@ class NotesListInteractor(
                         title = notePayload.title,
                         body = notePayload.body,
                         color = NoteColor.fromArgb(notePayload.color).argb,
+                        hidden = notePayload.hidden,
                         order = noteDTO.order,
                 )
             }

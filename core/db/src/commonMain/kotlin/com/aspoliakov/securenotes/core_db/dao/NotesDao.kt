@@ -55,6 +55,9 @@ interface NotesDao : BaseDao<NoteDB> {
     @Query("UPDATE $TABLE SET color = :color, content_updated_at = :contentUpdatedAt WHERE note_id = :noteId")
     suspend fun updateColor(noteId: String, color: Long?, contentUpdatedAt: Long)
 
+    @Query("UPDATE $TABLE SET hidden = :hidden, content_updated_at = :contentUpdatedAt WHERE note_id = :noteId")
+    suspend fun updateHidden(noteId: String, hidden: Boolean, contentUpdatedAt: Long)
+
     @Query("UPDATE $TABLE SET created_at = :createdAt, content_updated_at = :contentUpdatedAt WHERE note_id = :noteId")
     suspend fun updateUploaded(noteId: String, createdAt: Long, contentUpdatedAt: Long)
 

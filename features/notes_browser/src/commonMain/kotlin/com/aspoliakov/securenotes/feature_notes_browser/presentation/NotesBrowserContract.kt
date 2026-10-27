@@ -45,6 +45,7 @@ internal sealed class BrowserListItem(
             val title: String?,
             val body: String?,
             val color: Long?,
+            val hidden: Boolean,
             val folderId: String?,
     ) : BrowserListItem(id, createdAt, order)
 }
