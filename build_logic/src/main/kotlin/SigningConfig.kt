@@ -1,5 +1,4 @@
 import com.android.build.api.dsl.ApkSigningConfig
-import java.io.FileInputStream
 import java.util.Properties
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
@@ -12,12 +11,23 @@ class SignConfig(val name: String) {
     ): ApkSigningConfig {
         val props = Properties()
         val propsFile = delegate.file("${delegate.rootDir}/tools/signing/signing.properties")
-        FileInputStream(propsFile).use { props.load(it) }
+        if (propsFile.isFile) {
+            propsFile.inputStream().use { props.load(it) }
+        }
+        fun value(
+                environmentName: String,
+                propertyName: String,
+        ): String? {
+            return delegate.providers.environmentVariable(environmentName).orNull
+                    ?: props.getProperty(propertyName)
+        }
         return container.create(name) {
-            storeFile = delegate.file("${delegate.rootDir}/tools/signing/securenotes.jks")
-            storePassword = props.getProperty("storePassword")
-            keyAlias = props.getProperty("keyAlias")
-            keyPassword = props.getProperty("keyPassword")
+            storeFile = delegate.rootProject.file(
+                    value("SECURENOTES_KEYSTORE_FILE", "storeFile") ?: "tools/signing/securenotes.jks"
+            )
+            storePassword = value("SECURENOTES_STORE_PASSWORD", "storePassword")
+            keyAlias = value("SECURENOTES_KEY_ALIAS", "keyAlias")
+            keyPassword = value("SECURENOTES_KEY_PASSWORD", "keyPassword")
         }
     }
 }

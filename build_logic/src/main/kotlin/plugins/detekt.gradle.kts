@@ -1,25 +1,30 @@
 package plugins
 
-import io.gitlab.arturbosch.detekt.Detekt
-import io.gitlab.arturbosch.detekt.DetektPlugin
-import io.gitlab.arturbosch.detekt.extensions.DetektExtension
+import dev.detekt.gradle.Detekt
+import dev.detekt.gradle.extensions.DetektExtension
+import dev.detekt.gradle.extensions.FailOnSeverity
+import dev.detekt.gradle.plugin.DetektPlugin
 
 apply<DetektPlugin>()
 
 configure<DetektExtension> {
-    autoCorrect = true
+    autoCorrect = false
     buildUponDefaultConfig = true
     allRules = false
+    failOnSeverity = FailOnSeverity.Info
     source.setFrom("src")
     config.setFrom("$rootDir/tools/verification/detekt_config.yml")
 }
 
 tasks.withType<Detekt>().configureEach {
+    exclude {
+        it.file.toPath().startsWith(layout.buildDirectory.get().asFile.toPath())
+    }
     reports {
         html.required.set(true)
-        html.outputLocation.set(file("$rootDir/reports/detekt.html"))
-        xml.required.set(false)
-        txt.required.set(false)
+        html.outputLocation.set(layout.buildDirectory.file("reports/detekt/$name.html"))
+        checkstyle.required.set(false)
+        markdown.required.set(false)
         sarif.required.set(false)
     }
 }

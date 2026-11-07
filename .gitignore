@@ -48,6 +48,8 @@ proguard/**
 /captures/
 
 .kotlin/**
+**/.kotlin/
+*.aab
 
 # Services credentials
 

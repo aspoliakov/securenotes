@@ -1,10 +1,7 @@
 import com.android.build.api.dsl.ApplicationProductFlavor
 import com.android.build.api.dsl.LibraryProductFlavor
-import com.android.build.api.dsl.ProductFlavor
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
-import org.gradle.api.plugins.ExtensionAware
-import org.gradle.kotlin.dsl.extra
 
 typealias AppFlavor = ApplicationProductFlavor
 typealias LibFlavor = LibraryProductFlavor
@@ -57,10 +54,6 @@ sealed class EnvironmentFlavor(
             }
 
             ConfigFields.setup(this)
-
-            if (this@EnvironmentFlavor is Beta) {
-                setupBetaConfig(this)
-            }
         }
     }
 
@@ -69,16 +62,7 @@ sealed class EnvironmentFlavor(
             dimension = flavorDimension
 
             ConfigFields.setup(this)
-
-            if (this@EnvironmentFlavor is Beta) {
-                setupBetaConfig(this)
-            }
         }
-    }
-
-    private fun setupBetaConfig(flavor: ProductFlavor) {
-        (flavor as ExtensionAware).extra["alwaysUpdateBuildId"] = false
-        (flavor as ExtensionAware).extra["enableCrashlytics"] = false
     }
 
     object Master : EnvironmentFlavor(

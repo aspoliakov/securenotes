@@ -10,14 +10,13 @@ kotlin {
     }
     sourceSets {
         commonMain.dependencies {
-            api(project.dependencies.platform(libs.koin.bom))
+            api(libs.jetbrainsComposeRuntime)
             api(libs.kotlinx.coroutines)
             api(libs.kotlinx.datetime)
             api(libs.kotlinx.serialization)
             api(libs.napier)
+            api(project.dependencies.platform(libs.koin.bom))
             api(libs.koin.core)
-            api(libs.koin.compose)
-            api(libs.koin.compose.viewmodel)
         }
         androidMain.dependencies {
             api(libs.koin.android)

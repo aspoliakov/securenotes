@@ -29,10 +29,6 @@ dependencies {
     add("kspIosSimulatorArm64", libs.room.compiler)
 }
 
-ksp {
-    arg("room.schemaLocation", "${projectDir}/schemas")
-}
-
 room {
     schemaDirectory("$projectDir/schemas")
 }

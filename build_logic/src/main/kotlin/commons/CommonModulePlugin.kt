@@ -24,6 +24,7 @@ class CommonModulePlugin : Plugin<Project> {
             }
 
             dependencies {
+                add("androidRuntimeClasspath", libs.compose.ui.tooling)
             }
 
             configureKotlin()

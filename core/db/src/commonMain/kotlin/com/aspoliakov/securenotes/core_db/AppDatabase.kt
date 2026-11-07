@@ -25,7 +25,7 @@ import kotlinx.coroutines.IO
             FolderDB::class,
         ],
         version = 1,
-        exportSchema = false,
+        exportSchema = true,
 )
 @ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {

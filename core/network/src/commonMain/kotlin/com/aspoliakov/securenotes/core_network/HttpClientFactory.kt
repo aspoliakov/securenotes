@@ -47,7 +47,7 @@ fun createHttpClient(authTokenProvider: AuthTokenProvider? = null): HttpClient {
                 }
             }
             level = LogLevel.ALL
-            sanitizeHeader { it == ACCESS_TOKEN_HEADER }
+            sanitizeHeader { it.equals(ACCESS_TOKEN_HEADER, ignoreCase = true) }
         }
         install(ContentNegotiation) {
             json(

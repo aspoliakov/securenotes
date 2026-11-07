@@ -1,3 +1,5 @@
+import dev.detekt.gradle.Detekt
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import utils.buildVersionCode
 import utils.buildVersionName
 import utils.getVersionProperties
@@ -38,7 +40,9 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), file("proguard-rules.pro"))
         }
         debug {
-            signingConfig = signingConfigs.getByName(appName)
+            signingConfigs.getByName(appName).takeIf { it.storeFile?.isFile == true }?.let {
+                signingConfig = it
+            }
         }
     }
 
@@ -54,7 +58,24 @@ android {
     }
 }
 
+tasks.named("check") {
+    dependsOn("lintMasterRelease")
+}
+
+tasks.named("detekt") {
+    dependsOn("detektMasterRelease")
+}
+
+tasks.withType<Detekt>().matching { it.name == "detektMasterRelease" }.configureEach {
+    // The Kotlin compilation classpath omits generated Java classes such as BuildConfig.
+    classpath.setFrom(
+        tasks.named<KotlinCompile>("compileMasterReleaseKotlin").map { it.libraries },
+        tasks.named<JavaCompile>("compileMasterReleaseJavaWithJavac").flatMap { it.destinationDirectory },
+    )
+}
+
 dependencies {
+    debugImplementation(libs.compose.ui.tooling)
     implementation(projects.app.shared)
 
     implementation(libs.androidx.appcompat)

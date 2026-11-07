@@ -11,12 +11,13 @@ Build/run from the repo root with the Gradle wrapper.
 - Build everything: `./gradlew build`
 - Assemble Android debug APK (master flavor): `./gradlew :app:android:assembleMasterDebug`
 - Install on a connected device/emulator: `./gradlew :app:android:installMasterDebug`
-- Lint/static analysis (Detekt, applied to every module): `./gradlew detekt` — report written to `reports/detekt.html`. Config lives at `tools/verification/detekt_config.yml`; `maxIssues: 0`, so any finding fails the build. Detekt runs with `autoCorrect = true`, so `./gradlew detekt` can also fix some issues in place.
+- Kotlin static analysis (Detekt, applied to every module): `./gradlew detekt` — reports are written to each module's `build/reports/detekt/<task>.html`. Config lives at `tools/verification/detekt_config.yml`; any finding fails the build. The task includes type resolution for the master release app variant. KMP source files are checked without type resolution; the separate `detektMainAndroid` tasks have an upstream expect/actual analysis issue (detekt/detekt#9602). Checks do not modify sources; use `./gradlew detekt --auto-correct` explicitly for supported corrections.
+- Android release lint: `./gradlew :app:android:lintMasterRelease` (also included in `:app:android:check`).
 - Build a single module: `./gradlew :core:db:build` (module paths mirror the directory layout, e.g. `:features:note`, `:domain:notes`).
 - Generate the module dependency graph (Graphviz `dot` required): `./gradlew projectDependencyGraph` → `build/reports/dependency-graph/project.dot(.png)`.
 - iOS app: opened/built via `app/ios/Securenotes.xcodeproj`; the iOS app links the `app/shared` module's Kotlin framework (produced via the `iosArm64`/`iosSimulatorArm64` KMP targets).
 
-There are currently no test source sets in the project (no `commonTest`/`androidTest`/`iosTest` directories) and no test task to run.
+There are currently no test source files in the project. KMP/AGP register test tasks, but these tasks currently provide no test coverage.
 
 Two Android product flavors exist under the `environment` dimension: `master` and `beta` (id suffix `.beta`), defined in `build_logic/src/main/kotlin/ProductFlavors.kt`.
 

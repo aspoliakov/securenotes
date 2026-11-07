@@ -1,4 +1,5 @@
 rootProject.buildFileName = "build.gradle.kts"
+rootProject.name = "securenotes"
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 

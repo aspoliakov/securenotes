@@ -3,6 +3,8 @@ package com.aspoliakov.securenotes.di
 import androidx.compose.runtime.Composable
 import com.aspoliakov.securenotes.AppComposableState
 import com.aspoliakov.securenotes.AppComposableViewModel
+import com.aspoliakov.securenotes.core_base.AppConfigProvider
+import com.aspoliakov.securenotes.core_base.BuildType
 import com.aspoliakov.securenotes.domain.SyncStackInteractor
 import com.aspoliakov.securenotes.domain_user_state.UserPrefsInteractor
 import com.aspoliakov.securenotes.domain_user_state.UserStateProvider
@@ -27,7 +29,6 @@ fun AppDI(
 ) {
     KoinApplication(
             configuration = koinConfiguration {
-                Napier.base(DebugAntilog())
                 modules(
                         appModule +
                                 coreModules +
@@ -35,6 +36,9 @@ fun AppDI(
                                 appComposableViewModelModule +
                                 featureModules
                 )
+                if (koin.get<AppConfigProvider>().getBuildType() == BuildType.DEBUG) {
+                    Napier.base(DebugAntilog())
+                }
                 appInit(
                         syncStackInteractor = koin.get<SyncStackInteractor>(),
                         userPrefsInteractor = koin.get<UserPrefsInteractor>(),

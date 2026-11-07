@@ -51,6 +51,14 @@ fun AuthScreenRoute(
 ) {
     val viewModel = koinMviViewModel<AuthViewModel>()
     val state by viewModel.state.collectAsState()
+
+    GoogleSignInProvider(
+            shouldLaunch = state.authActionState is AuthActionState.Active.Google,
+            onIdTokenReceived = { viewModel.emitIntent(AuthIntent.OnGoogleIdTokenReceived(it)) },
+            onCancelled = { viewModel.emitIntent(AuthIntent.OnGoogleSignInCancelled) },
+            onError = { viewModel.emitIntent(AuthIntent.OnGoogleSignInFailed) },
+    )
+
     AuthScreen(
             modifier = modifier,
             state = state,
@@ -74,13 +82,6 @@ internal fun AuthScreen(
             is AuthEffect.ShowSnackbar -> {}
         }
     }
-
-    GoogleSignInProvider(
-            shouldLaunch = state.authActionState is AuthActionState.Active.Google,
-            onIdTokenReceived = { intentHandler(AuthIntent.OnGoogleIdTokenReceived(it)) },
-            onCancelled = { intentHandler(AuthIntent.OnGoogleSignInCancelled) },
-            onError = { intentHandler(AuthIntent.OnGoogleSignInFailed) },
-    )
 
     Scaffold(
             modifier = modifier,

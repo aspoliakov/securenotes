@@ -11,6 +11,9 @@ kotlin {
     }
     sourceSets {
         commonMain.dependencies {
+            api(project.dependencies.platform(libs.koin.bom))
+            api(libs.koin.compose)
+            api(libs.koin.compose.viewmodel)
             api(libs.jetbrainsComposeRuntime)
             api(libs.jetbrainsComposeFoundation)
             api(libs.jetbrainsComposeMaterial)
@@ -25,7 +28,6 @@ kotlin {
             api(libs.coil.network.ktor3)
         }
         androidMain.dependencies {
-            api(libs.compose.ui.tooling)
             api(libs.compose.ui.tooling.preview)
         }
     }

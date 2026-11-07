@@ -1,27 +1,8 @@
-build:
-  maxIssues: 0
-  excludeCorrectable: false
-  weights:
-  # complexity: 2
-  # LongParameterList: 1
-  # style: 1
-  # comments: 1
-
 config:
   validation: true
   warningsAsErrors: false
   # when writing own rules with new properties, exclude the property path e.g.: 'my_rule_set,.*>.*>[my_property]'
-  excludes: ''
-
-processors:
-  active: true
-  exclude:
-    - 'DetektProgressListener'
-  # - 'FunctionCountProcessor'
-  # - 'PropertyCountProcessor'
-  # - 'ClassCountProcessor'
-  # - 'PackageCountProcessor'
-  # - 'KtFileCountProcessor'
+  excludes: []
 
 console-reports:
   active: true
@@ -29,25 +10,18 @@ console-reports:
     - 'ProjectStatisticsReport'
     - 'ComplexityReport'
     - 'NotificationReport'
-    #  - 'FindingsReport'
-    - 'FileBasedFindingsReport'
-
-output-reports:
-  active: true
-  exclude:
-  # - 'TxtOutputReport'
-  # - 'XmlOutputReport'
-  # - 'HtmlOutputReport'
+    #  - 'IssuesReport'
+    - 'FileBasedIssuesReport'
 
 comments:
   active: true
   excludes: ['**/test/**', '**/androidTest/**']
   AbsentOrWrongFileLicense:
     active: false
-    licenseTemplateFile: 'license.template'
-  CommentOverPrivateFunction:
+    licenseTemplate: 'license.template'
+  DocumentationOverPrivateFunction:
     active: false
-  CommentOverPrivateProperty:
+  DocumentationOverPrivateProperty:
     active: false
   EndOfSentenceFormat:
     active: false
@@ -67,15 +41,15 @@ complexity:
   active: true
   ComplexCondition:
     active: true
-    threshold: 5
+    allowedConditions: 5
   ComplexInterface:
     active: false
-    threshold: 10
+    allowedDefinitions: 10
     includeStaticDeclarations: false
     includePrivateDeclarations: false
   CyclomaticComplexMethod:
     active: false
-    threshold: 15
+    allowedComplexity: 15
     ignoreSingleWhenExpression: false
     ignoreSimpleWhenEntries: false
     ignoreNestingFunctions: false
@@ -85,43 +59,43 @@ complexity:
     ignoredLabels: []
   LargeClass:
     active: false
-    threshold: 600
+    allowedLines: 600
   LongMethod:
     active: false
-    threshold: 60
+    allowedLines: 60
   LongParameterList:
     active: false
-    functionThreshold: 6
-    constructorThreshold: 7
+    allowedFunctionParameters: 6
+    allowedConstructorParameters: 7
     ignoreDefaultParameters: false
     ignoreDataClasses: true
-    ignoreAnnotated: []
+    ignoreAnnotatedParameter: []
   MethodOverloading:
     active: false
-    threshold: 6
+    allowedOverloads: 6
   NamedArguments:
     active: false
-    threshold: 3
+    allowedArguments: 3
   NestedBlockDepth:
     active: true
-    threshold: 5
+    allowedDepth: 5
   ReplaceSafeCallChainWithRun:
     active: false
   StringLiteralDuplication:
     active: false
     excludes: ['**/test/**', '**/androidTest/**']
-    threshold: 3
+    allowedDuplications: 3
     ignoreAnnotation: true
-    excludeStringsWithLessThan5Characters: true
+    allowedWithLengthLessThan: 5
     ignoreStringsRegex: '$^'
   TooManyFunctions:
     active: false
     excludes: ['**/test/**', '**/androidTest/**']
-    thresholdInFiles: 11
-    thresholdInClasses: 11
-    thresholdInInterfaces: 11
-    thresholdInObjects: 11
-    thresholdInEnums: 11
+    allowedFunctionsPerFile: 11
+    allowedFunctionsPerClass: 11
+    allowedFunctionsPerInterface: 11
+    allowedFunctionsPerObject: 11
+    allowedFunctionsPerEnum: 11
     ignoreDeprecated: false
     ignorePrivate: false
     ignoreOverridden: false
@@ -213,11 +187,11 @@ naming:
     active: false
     excludes: ['**/test/**', '**/androidTest/**']
     forbiddenName: []
-  FunctionMaxLength:
+  FunctionNameMaxLength:
     active: false
     excludes: ['**/test/**', '**/androidTest/**']
     maximumFunctionNameLength: 30
-  FunctionMinLength:
+  FunctionNameMinLength:
     active: false
     excludes: ['**/test/**', '**/androidTest/**']
     minimumFunctionNameLength: 3
@@ -350,11 +324,14 @@ style:
     includeLineWrapping: false
   ForbiddenImport:
     active: true
-    imports: []
-    forbiddenPatterns: ''
+    forbiddenImports: []
   ForbiddenMethodCall:
     active: false
-    methods: ['kotlin.io.println', 'kotlin.io.print']
+    methods:
+      - value: 'kotlin.io.println'
+        reason: 'Use a logger.'
+      - value: 'kotlin.io.print'
+        reason: 'Use a logger.'
   ForbiddenVoid:
     active: false
     ignoreOverridden: false
@@ -395,13 +372,11 @@ style:
     active: false
   OptionalUnit:
     active: false
-  PreferToOverPairSyntax:
-    active: false
   RedundantExplicitType:
     active: false
   RedundantHigherOrderMapUsage:
     active: false
-  RedundantVisibilityModifierRule:
+  RedundantVisibilityModifier:
     active: false
   ReturnCount:
     active: true
@@ -412,7 +387,7 @@ style:
     excludeGuardClauses: false
   SerialVersionUIDInSerializableClass:
     active: false
-  SpacingBetweenPackageAndImports:
+  SpacingAfterPackageAndImports:
     active: false
   ThrowsCount:
     active: true
@@ -422,24 +397,26 @@ style:
   UnderscoresInNumericLiterals:
     active: false
     acceptableLength: 5
-  UnnecessaryAbstractClass:
+  AbstractClassCanBeConcreteClass:
     active: true
     ignoreAnnotated: ['dagger.Module']
-  UnnecessaryAnnotationUseSiteTarget:
-    active: false
+  AbstractClassCanBeInterface:
+    active: true
+    ignoreAnnotated: ['dagger.Module']
   UnnecessaryApply:
     active: true
   UnnecessaryLet:
     active: true
   UnnecessaryParentheses:
     active: false
-  UntilInsteadOfRangeTo:
+  RangeUntilInsteadOfRangeTo:
     active: false
-  UnusedImports:
+  UnusedImport:
     active: true
-  UnusedPrivateMember:
+  UnusedPrivateFunction:
     active: false
-    allowedNames: '(_|ignored|expected|serialVersionUID)'
+  UnusedVariable:
+    active: false
   UseArrayLiteralsInAnnotations:
     active: false
   UseCheckNotNull:
